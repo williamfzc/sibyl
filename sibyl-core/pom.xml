@@ -44,6 +44,12 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <arguments>
+                        <argument>-package</argument>
+                        <argument>com.williamfzc.sibyl.core.antlr4</argument>
+                    </arguments>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,7 +1,12 @@
+package com.williamfzc.sibyl.core;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
+// in target/generated-sources
+import com.williamfzc.sibyl.core.antlr4.*;
 
 import java.io.IOException;
 
