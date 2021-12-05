@@ -1,16 +1,13 @@
-package com.williamfzc.sibyl.core;
+package com.williamfzc.sibyl.core.listener;
 
+import com.williamfzc.sibyl.core.antlr4.*;
+import com.williamfzc.sibyl.core.model.Listenable;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-// in target/generated-sources
-import com.williamfzc.sibyl.core.antlr4.*;
-
-import java.io.IOException;
-
-public class Java8MethodListener extends Java8BaseListener {
+public class Java8MethodListener extends Java8BaseListener implements Listenable {
     private void print(String msg) {
         System.out.println("[listener] " + msg);
     }
@@ -48,9 +45,8 @@ public class Java8MethodListener extends Java8BaseListener {
         print(String.format("field decl, type: %s, value: %s", ctx.unannType().getText(), ctx.variableDeclaratorList().getText()));
     }
 
-    public static void main(String[] args) throws IOException {
-        String sampleCodePath = Java8MethodListener.class.getClassLoader().getResource("cases/java8/HelloWorld.java").getFile();
-        Java8Lexer lexer = new Java8Lexer(CharStreams.fromFileName(sampleCodePath));
+    public void handleContent(String content) {
+        Java8Lexer lexer = new Java8Lexer(CharStreams.fromString(content));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Java8Parser parser = new Java8Parser(tokens);
         ParseTree tree = parser.compilationUnit();
