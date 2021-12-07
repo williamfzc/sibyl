@@ -2,6 +2,7 @@ package com.williamfzc.sibyl.core.listener;
 
 import com.williamfzc.sibyl.core.antlr4.*;
 import com.williamfzc.sibyl.core.model.Listenable;
+import java.io.File;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -57,5 +58,10 @@ public class Java8MethodListener extends Java8BaseListener implements Listenable
         ParseTreeWalker walker = new ParseTreeWalker();
         Java8MethodListener listener = new Java8MethodListener();
         walker.walk(listener, tree);
+    }
+
+    @Override
+    public boolean accept(File file) {
+        return file.getName().endsWith(".java");
     }
 }

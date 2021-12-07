@@ -14,6 +14,6 @@ public class TestMain {
         Path currentRelativePath = Paths.get("");
         SimpleScanner scanner = new SimpleScanner();
         scanner.registerListener(new Java8MethodListener());
-        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src/main/java"));
+        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
     }
 }

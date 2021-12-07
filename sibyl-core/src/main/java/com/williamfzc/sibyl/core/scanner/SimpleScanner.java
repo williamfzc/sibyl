@@ -1,10 +1,13 @@
 package com.williamfzc.sibyl.core.scanner;
 
+import com.williamfzc.sibyl.core.model.Listenable;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SimpleScanner extends BaseScanner {
     public boolean fileValid(File file) {
@@ -40,8 +43,17 @@ public class SimpleScanner extends BaseScanner {
     }
 
     public void scanFile(File file) throws IOException {
+        Set<Listenable> acceptedListeners =
+                listenableSet.stream()
+                        .filter(each -> each.accept(file))
+                        .collect(Collectors.toSet());
+        // need no IO
+        if (acceptedListeners.isEmpty()) {
+            return;
+        }
+
         Log.info("scan file: " + file.getAbsolutePath());
         String content = new String(Files.readAllBytes(file.toPath()));
-        listenableSet.forEach(each -> each.handleContent(content));
+        acceptedListeners.forEach(each -> each.handleContent(content));
     }
 }
