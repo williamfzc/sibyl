@@ -1,7 +1,6 @@
 package com.williamfzc.sibyl.core.scanner;
 
 import com.williamfzc.sibyl.core.model.Listenable;
-
 import java.util.HashSet;
 import java.util.Set;
 

@@ -2,12 +2,11 @@ package com.williamfzc.sibyl.core;
 
 import com.williamfzc.sibyl.core.listener.Java8MethodListener;
 import com.williamfzc.sibyl.core.scanner.SimpleScanner;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.junit.Test;
 
 public class TestMain {
     @Test

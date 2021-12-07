@@ -42,7 +42,10 @@ public class Java8MethodListener extends Java8BaseListener implements Listenable
 
     @Override
     public void enterFieldDeclaration(Java8Parser.FieldDeclarationContext ctx) {
-        print(String.format("field decl, type: %s, value: %s", ctx.unannType().getText(), ctx.variableDeclaratorList().getText()));
+        print(
+                String.format(
+                        "field decl, type: %s, value: %s",
+                        ctx.unannType().getText(), ctx.variableDeclaratorList().getText()));
     }
 
     public void handleContent(String content) {
