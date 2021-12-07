@@ -1,7 +1,7 @@
 package com.williamfzc.sibyl.core;
 
 import com.williamfzc.sibyl.core.intf.IStorableListener;
-import com.williamfzc.sibyl.core.listener.Java8MethodListener;
+import com.williamfzc.sibyl.core.listener.java8.Java8MethodListener;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.NormalScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
@@ -27,9 +27,6 @@ public class TestMain {
         System.out.println("method count: " + listener.getStorage().size());
         listener.getStorage()
                 .getData()
-                .forEach(
-                        each -> {
-                            System.out.println("get method id: " + each.getId());
-                        });
+                .forEach(each -> System.out.println("get method id: " + each.getId()));
     }
 }
