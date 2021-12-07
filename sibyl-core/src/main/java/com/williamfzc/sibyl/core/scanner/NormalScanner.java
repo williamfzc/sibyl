@@ -1,6 +1,6 @@
 package com.williamfzc.sibyl.core.scanner;
 
-import com.williamfzc.sibyl.core.model.Listenable;
+import com.williamfzc.sibyl.core.intf.Listenable;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SimpleScanner extends BaseScanner {
+public class NormalScanner extends BaseScanner {
     public boolean fileValid(File file) {
         // by default
         return true;
