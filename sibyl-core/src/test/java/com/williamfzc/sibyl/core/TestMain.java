@@ -3,7 +3,6 @@ package com.williamfzc.sibyl.core;
 import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.listener.Java8MethodListener;
 import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.storage.MethodStorage;
 import com.williamfzc.sibyl.core.scanner.NormalScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
 import java.io.File;
@@ -19,7 +18,7 @@ public class TestMain {
         NormalScanner scanner = new NormalScanner();
 
         IStorableListener<Method> listener = new Java8MethodListener();
-        MethodStorage methodStorage = new MethodStorage();
+        Storage<Method> methodStorage = new Storage<>();
         listener.setStorage(methodStorage);
 
         scanner.registerListener(listener);

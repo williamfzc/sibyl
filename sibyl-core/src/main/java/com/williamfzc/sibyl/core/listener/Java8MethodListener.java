@@ -4,9 +4,8 @@ import com.williamfzc.sibyl.core.antlr4.*;
 import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
-import java.io.File;
-
 import com.williamfzc.sibyl.core.utils.Log;
+import java.io.File;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -57,7 +56,8 @@ public class Java8MethodListener extends Java8BaseListener implements IStorableL
 
     @Override
     public void exitMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
-        Log.info("method decl end: " + ctx.methodHeader().methodDeclarator().Identifier().getText());
+        Log.info(
+                "method decl end: " + ctx.methodHeader().methodDeclarator().Identifier().getText());
     }
 
     @Override
