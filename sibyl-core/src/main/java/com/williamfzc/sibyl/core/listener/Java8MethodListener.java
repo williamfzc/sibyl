@@ -13,15 +13,15 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class Java8MethodListener extends Java8BaseListener implements IStorableListener<Method> {
-    private Storage<? extends Method> storage = null;
+    private Storage<Method> storage = null;
 
     @Override
-    public Storage<? extends Method> getStorage() {
+    public Storage<Method> getStorage() {
         return storage;
     }
 
     @Override
-    public void setStorage(Storage<? extends Method> storage) {
+    public void setStorage(Storage<Method> storage) {
         this.storage = storage;
     }
 

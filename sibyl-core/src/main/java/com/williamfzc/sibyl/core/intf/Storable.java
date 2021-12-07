@@ -4,7 +4,7 @@ import com.williamfzc.sibyl.core.storage.Storage;
 
 // will collect data and save it to storage
 public interface Storable<T> {
-    void setStorage(Storage<? extends T> storage);
+    void setStorage(Storage<T> storage);
 
-    Storage<? extends T> getStorage();
+    Storage<T> getStorage();
 }
