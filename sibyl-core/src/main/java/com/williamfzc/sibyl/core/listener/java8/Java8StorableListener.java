@@ -4,7 +4,6 @@ import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.listener.Java8BaseListener;
 import com.williamfzc.sibyl.core.listener.Java8Lexer;
 import com.williamfzc.sibyl.core.listener.Java8Parser;
-import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
 import java.io.File;
 import org.antlr.v4.runtime.CharStreams;
@@ -12,16 +11,16 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-class Java8StorableListener extends Java8BaseListener implements IStorableListener<Method> {
-    protected Storage<Method> storage = null;
+class Java8StorableListener<T> extends Java8BaseListener implements IStorableListener<T> {
+    protected Storage<T> storage = null;
 
     @Override
-    public Storage<Method> getStorage() {
+    public Storage<T> getStorage() {
         return storage;
     }
 
     @Override
-    public void setStorage(Storage<Method> storage) {
+    public void setStorage(Storage<T> storage) {
         this.storage = storage;
     }
 

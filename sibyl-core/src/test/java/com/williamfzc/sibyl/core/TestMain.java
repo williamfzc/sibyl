@@ -1,7 +1,7 @@
 package com.williamfzc.sibyl.core;
 
 import com.williamfzc.sibyl.core.intf.IStorableListener;
-import com.williamfzc.sibyl.core.listener.java8.Java8MethodListener;
+import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.NormalScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
@@ -18,7 +18,7 @@ public class TestMain {
         Path currentRelativePath = Paths.get("");
         NormalScanner scanner = new NormalScanner();
 
-        IStorableListener<Method> listener = new Java8MethodListener();
+        IStorableListener<Method> listener = new Java8SnapshotListener();
         Storage<Method> methodStorage = new Storage<>();
         listener.setStorage(methodStorage);
 
