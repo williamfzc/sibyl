@@ -54,6 +54,6 @@ public class NormalScanner extends BaseScanner {
 
         Log.info("scan file: " + file.getAbsolutePath());
         String content = new String(Files.readAllBytes(file.toPath()));
-        acceptedListeners.forEach(each -> each.handleContent(content));
+        acceptedListeners.forEach(each -> each.handle(file, content));
     }
 }

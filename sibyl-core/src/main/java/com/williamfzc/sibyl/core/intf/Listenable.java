@@ -4,7 +4,7 @@ import java.io.File;
 
 // can be used by scanner
 public interface Listenable {
-    void handleContent(String content);
+    void handle(File file, String content);
 
     boolean accept(File file);
 }

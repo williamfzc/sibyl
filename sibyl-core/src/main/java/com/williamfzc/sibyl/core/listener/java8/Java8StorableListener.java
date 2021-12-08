@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 class Java8StorableListener<T> extends Java8BaseListener implements IStorableListener<T> {
+    protected File curFile = null;
     protected Storage<T> storage = null;
 
     @Override
@@ -24,7 +25,8 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
         this.storage = storage;
     }
 
-    public void handleContent(String content) {
+    public void handle(File file, String content) {
+        curFile = file;
         Java8Lexer lexer = new Java8Lexer(CharStreams.fromString(content));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Java8Parser parser = new Java8Parser(tokens);
