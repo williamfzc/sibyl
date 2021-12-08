@@ -3,7 +3,9 @@ package com.williamfzc.sibyl.core.listener.java8;
 import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -12,12 +14,19 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     protected final Deque<String> curClassStack = new LinkedList<>();
     protected final Deque<String> curMethodStack = new LinkedList<>();
 
+    // todo: what about fields from super class and function args?
+    // not a good design now (e.g. nested class
+    // k: name, v: type
+    protected final Map<String, String> fieldTypeMapping = new HashMap<>();
+
+    // entry
     @Override
     public void enterPackageDeclaration(Java8Parser.PackageDeclarationContext ctx) {
         String declaredPackage =
                 ctx.Identifier().stream().map(ParseTree::getText).collect(Collectors.joining("."));
         Log.info("pkg decl: " + declaredPackage);
         curPackage = declaredPackage;
+        fieldTypeMapping.clear();
     }
 
     // use a stack to manage current class
@@ -33,6 +42,9 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         String declaredClass = ctx.normalClassDeclaration().Identifier().getText();
         Log.info("class decl end: " + declaredClass);
         curClassStack.pop();
+
+        // temp
+        Log.info(String.format("class %s field mapping: %s", declaredClass, fieldTypeMapping));
     }
 
     // use a stack to manage current method
@@ -50,10 +62,29 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         curMethodStack.pop();
     }
 
+    // global vars for guess
     @Override
     public void enterFieldDeclaration(Java8Parser.FieldDeclarationContext ctx) {
-        String declaredField = ctx.unannType().getText();
-        String declaredValue = ctx.variableDeclaratorList().getText();
-        Log.info(String.format("field decl, type: %s, value: %s", declaredField, declaredValue));
+        String declaredType = ctx.unannType().getText();
+        ctx.variableDeclaratorList()
+                .variableDeclarator()
+                .forEach(
+                        each -> {
+                            fieldTypeMapping.put(
+                                    each.variableDeclaratorId().getText(), declaredType);
+                        });
+    }
+
+    // local vars
+    @Override
+    public void enterLocalVariableDeclaration(Java8Parser.LocalVariableDeclarationContext ctx) {
+        String declaredType = ctx.unannType().getText();
+        ctx.variableDeclaratorList()
+                .variableDeclarator()
+                .forEach(
+                        each -> {
+                            fieldTypeMapping.put(
+                                    each.variableDeclaratorId().getText(), declaredType);
+                        });
     }
 }
