@@ -1,7 +1,9 @@
 package com.williamfzc.sibyl.core;
 
 import com.williamfzc.sibyl.core.intf.IStorableListener;
+import com.williamfzc.sibyl.core.listener.java8.Java8CallListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
+import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.NormalScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
@@ -27,5 +29,21 @@ public class TestMain {
 
         System.out.println("method count: " + listener.getStorage().size());
         methodStorage.getData().forEach(each -> Log.info(each.toString()));
+    }
+
+    @Test
+    public void testCallGraph() throws IOException {
+        Path currentRelativePath = Paths.get("");
+        NormalScanner scanner = new NormalScanner();
+
+        IStorableListener<Edge> listener = new Java8CallListener();
+        Storage<Edge> edgeStorage = new Storage<>();
+        listener.setStorage(edgeStorage);
+
+        scanner.registerListener(listener);
+        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
+
+        System.out.println("edge count: " + listener.getStorage().size());
+        edgeStorage.getData().forEach(each -> Log.info(each.toString()));
     }
 }

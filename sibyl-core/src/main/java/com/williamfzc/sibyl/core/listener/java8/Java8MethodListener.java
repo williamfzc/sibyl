@@ -1,6 +1,10 @@
 package com.williamfzc.sibyl.core.listener.java8;
 
 import com.williamfzc.sibyl.core.listener.Java8Parser;
+import com.williamfzc.sibyl.core.model.method.Method;
+import com.williamfzc.sibyl.core.model.method.MethodBelonging;
+import com.williamfzc.sibyl.core.model.method.MethodBelongingFile;
+import com.williamfzc.sibyl.core.model.method.MethodInfo;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.util.Deque;
 import java.util.HashMap;
@@ -69,10 +73,9 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         ctx.variableDeclaratorList()
                 .variableDeclarator()
                 .forEach(
-                        each -> {
-                            fieldTypeMapping.put(
-                                    each.variableDeclaratorId().getText(), declaredType);
-                        });
+                        each ->
+                                fieldTypeMapping.put(
+                                        each.variableDeclaratorId().getText(), declaredType));
     }
 
     // local vars
@@ -82,9 +85,43 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         ctx.variableDeclaratorList()
                 .variableDeclarator()
                 .forEach(
-                        each -> {
-                            fieldTypeMapping.put(
-                                    each.variableDeclaratorId().getText(), declaredType);
-                        });
+                        each ->
+                                fieldTypeMapping.put(
+                                        each.variableDeclaratorId().getText(), declaredType));
+    }
+
+    protected Method generateMethod(Java8Parser.MethodDeclarationContext ctx) {
+        String curClass = curClassStack.peekLast();
+        Method m = new Method();
+        MethodInfo info = generateMethodInfo(ctx);
+
+        MethodBelongingFile belongingFile = new MethodBelongingFile();
+        belongingFile.setFile(curFile.getPath());
+        belongingFile.setStartLine(ctx.methodBody().start.getLine());
+        belongingFile.setEndLine(ctx.methodBody().stop.getLine());
+
+        MethodBelonging belonging = new MethodBelonging();
+        belonging.setPackageName(curPackage);
+        belonging.setClassName(curClass);
+        belonging.setFile(belongingFile);
+
+        m.setInfo(info);
+        m.setBelongsTo(belonging);
+        return m;
+    }
+
+    protected MethodInfo generateMethodInfo(Java8Parser.MethodDeclarationContext ctx) {
+        MethodInfo info = new MethodInfo();
+        info.setName(curMethodStack.peekLast());
+        info.setReturnType(ctx.methodHeader().result().getText());
+
+        Java8Parser.FormalParameterListContext params =
+                ctx.methodHeader().methodDeclarator().formalParameterList();
+        if (null != params) {
+            // todo parse this list
+            // this signature is a raw string now
+            info.setSignature(params.getText());
+        }
+        return info;
     }
 }
