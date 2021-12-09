@@ -6,5 +6,7 @@ import java.io.File;
 public interface Listenable {
     void handle(File file, String content);
 
+    void afterHandle();
+
     boolean accept(File file);
 }

@@ -37,6 +37,9 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
     }
 
     @Override
+    public void afterHandle() {}
+
+    @Override
     public boolean accept(File file) {
         return file.getName().endsWith(".java");
     }

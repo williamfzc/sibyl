@@ -52,8 +52,29 @@ public class NormalScanner extends BaseScanner {
             return;
         }
 
+        beforeEachFile(file);
         Log.info("scan file: " + file.getAbsolutePath());
         String content = new String(Files.readAllBytes(file.toPath()));
-        acceptedListeners.forEach(each -> each.handle(file, content));
+        acceptedListeners.forEach(
+                eachListener -> {
+                    beforeEachListener(eachListener);
+                    eachListener.handle(file, content);
+                    afterEachListener(eachListener);
+                });
+        afterEachFile(file);
+    }
+
+    @Override
+    protected void beforeEachFile(File file) {}
+
+    @Override
+    protected void afterEachFile(File file) {}
+
+    @Override
+    protected void beforeEachListener(Listenable listenable) {}
+
+    @Override
+    protected void afterEachListener(Listenable listenable) {
+        listenable.afterHandle();
     }
 }
