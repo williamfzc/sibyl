@@ -33,14 +33,24 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     // use a stack to manage current class
     @Override
     public void enterClassDeclaration(Java8Parser.ClassDeclarationContext ctx) {
-        String declaredClass = ctx.normalClassDeclaration().Identifier().getText();
+        Java8Parser.NormalClassDeclarationContext normalClassDeclarationContext =
+                ctx.normalClassDeclaration();
+        if (null == normalClassDeclarationContext) {
+            return;
+        }
+        String declaredClass = normalClassDeclarationContext.Identifier().getText();
         Log.info("class decl: " + declaredClass);
         curClassStack.push(declaredClass);
     }
 
     @Override
     public void exitClassDeclaration(Java8Parser.ClassDeclarationContext ctx) {
-        String declaredClass = ctx.normalClassDeclaration().Identifier().getText();
+        Java8Parser.NormalClassDeclarationContext normalClassDeclarationContext =
+                ctx.normalClassDeclaration();
+        if (null == normalClassDeclarationContext) {
+            return;
+        }
+        String declaredClass = normalClassDeclarationContext.Identifier().getText();
         Log.info("class decl end: " + declaredClass);
         curClassStack.pop();
 
