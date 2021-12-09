@@ -114,7 +114,7 @@
         <configuration>
           <java>
             <googleJavaFormat>
-              <version>1.7</version>
+              <version>1.13.0</version>
               <style>AOSP</style>
               <reflowLongStrings>true</reflowLongStrings>
             </googleJavaFormat>
