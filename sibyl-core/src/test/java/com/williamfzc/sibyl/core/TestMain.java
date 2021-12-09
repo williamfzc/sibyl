@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.analyzer.EdgeAnalyzer;
 import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8CallListener;
+import com.williamfzc.sibyl.core.listener.java8.Java8ClassListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
+import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.NormalScanner;
@@ -37,6 +39,22 @@ public class TestMain {
     }
 
     @Test
+    public void testClazz() throws IOException {
+        Path currentRelativePath = Paths.get("");
+        NormalScanner scanner = new NormalScanner();
+
+        IStorableListener<Clazz> listener = new Java8ClassListener();
+        Storage<Clazz> clazzStorage = new Storage<>();
+        listener.setStorage(clazzStorage);
+
+        scanner.registerListener(listener);
+        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
+
+        System.out.println("clazz count: " + listener.getStorage().size());
+        clazzStorage.getData().forEach(each -> Log.info(each.toString()));
+    }
+
+    @Test
     public void testCallGraph() throws IOException {
         Path currentRelativePath = Paths.get("");
         NormalScanner scanner = new NormalScanner();
@@ -49,8 +67,15 @@ public class TestMain {
         Storage<Method> methodStorage = new Storage<>();
         snapshotListener.setStorage(methodStorage);
 
+        IStorableListener<Clazz> clazzListener = new Java8ClassListener();
+        Storage<Clazz> clazzStorage = new Storage<>();
+        clazzListener.setStorage(clazzStorage);
+
         scanner.registerListener(listener);
         scanner.registerListener(snapshotListener);
+        scanner.registerListener(clazzListener);
+
+        // go
         scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
 
         // analyzer
