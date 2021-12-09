@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class NormalScanner extends BaseScanner {
+    private int validFileNum = 0;
+
     public boolean fileValid(File file) {
         // by default
         return true;
@@ -36,6 +38,7 @@ public class NormalScanner extends BaseScanner {
                         return super.visitFileFailed(file, exc);
                     }
                 });
+        afterScan();
     }
 
     public void scanDir(File dir) throws IOException {
@@ -44,7 +47,7 @@ public class NormalScanner extends BaseScanner {
 
     public void scanFile(File file) throws IOException {
         Set<Listenable> acceptedListeners =
-                listenableSet.stream()
+                listenableList.stream()
                         .filter(each -> each.accept(file))
                         .collect(Collectors.toSet());
         // need no IO
@@ -68,7 +71,9 @@ public class NormalScanner extends BaseScanner {
     protected void beforeEachFile(File file) {}
 
     @Override
-    protected void afterEachFile(File file) {}
+    protected void afterEachFile(File file) {
+        validFileNum++;
+    }
 
     @Override
     protected void beforeEachListener(Listenable listenable) {}
@@ -76,5 +81,11 @@ public class NormalScanner extends BaseScanner {
     @Override
     protected void afterEachListener(Listenable listenable) {
         listenable.afterHandle();
+    }
+
+    @Override
+    protected void afterScan() {
+        Log.info("valid file count: " + validFileNum);
+        validFileNum = 0;
     }
 }

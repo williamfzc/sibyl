@@ -2,32 +2,27 @@ package com.williamfzc.sibyl.core.listener.java8;
 
 import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.model.edge.Edge;
+import com.williamfzc.sibyl.core.model.edge.RawEdge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.Data;
 import org.antlr.v4.runtime.tree.TerminalNode;
-
-// todo: how to convert this unit to Edge?
-@Data
-class MethodUnit {
-    private String fromMethodName;
-    private String callerType;
-    private String toMethodName;
-}
 
 public class Java8CallListener extends Java8MethodListener<Edge> {
     // todo: should collect type arguments too
-    private final Set<MethodUnit> headlessMethodSet = new HashSet<>();
-    private final Set<MethodUnit> needGuessMethodSet = new HashSet<>();
-    private final Set<MethodUnit> readyMethodSet = new HashSet<>();
+    private final Set<RawEdge> headlessMethodSet = new HashSet<>();
+    private final Set<RawEdge> needGuessMethodSet = new HashSet<>();
+    private final Set<RawEdge> readyMethodSet = new HashSet<>();
     private final Set<Method> declaredMethods = new HashSet<>();
+    private final Set<Edge> uncheckedEdges = new HashSet<>();
+    private Method curMethod = null;
 
     @Override
     public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         super.enterMethodDeclaration(ctx);
         declaredMethods.add(generateMethod(ctx));
+        curMethod = generateMethod(ctx);
     }
 
     @Override
@@ -42,18 +37,23 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
 
         // search the caller
         Java8Parser.TypeNameContext typeNameContext = ctx.typeName();
-        MethodUnit unit = new MethodUnit();
+
+        RawEdge rawEdge = new RawEdge();
+        rawEdge.setFromMethodName(curMethodStack.peekLast());
         if (null == typeNameContext) {
-            unit.setFromMethodName(curMethodStack.peekLast());
-            unit.setToMethodName(methodName);
-            headlessMethodSet.add(unit);
-            return;
+            rawEdge.setToMethodName(methodName);
+            headlessMethodSet.add(rawEdge);
+        } else {
+            // found a caller
+            rawEdge.setCallerType(typeNameContext.getText());
+            rawEdge.setToMethodName(methodName);
+            needGuessMethodSet.add(rawEdge);
         }
-        // found a caller
-        unit.setFromMethodName(curMethodStack.peekLast());
-        unit.setCallerType(typeNameContext.getText());
-        unit.setToMethodName(methodName);
-        needGuessMethodSet.add(unit);
+
+        Edge edge = new Edge();
+        edge.setSource(curMethod);
+        edge.setRawEdge(rawEdge);
+        uncheckedEdges.add(edge);
     }
 
     @Override
@@ -67,18 +67,22 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
 
         // search the caller
         Java8Parser.TypeNameContext typeNameContext = ctx.typeName();
-        MethodUnit unit = new MethodUnit();
+        RawEdge rawEdge = new RawEdge();
+        rawEdge.setFromMethodName(curMethodStack.peekLast());
         if (null == typeNameContext) {
-            unit.setFromMethodName(curMethodStack.peekLast());
-            unit.setToMethodName(methodName);
-            headlessMethodSet.add(unit);
-            return;
+            rawEdge.setToMethodName(methodName);
+            headlessMethodSet.add(rawEdge);
+        } else {
+            // found a caller
+            rawEdge.setCallerType(typeNameContext.getText());
+            rawEdge.setToMethodName(methodName);
+            needGuessMethodSet.add(rawEdge);
         }
-        // found a caller
-        unit.setFromMethodName(curMethodStack.peekLast());
-        unit.setCallerType(typeNameContext.getText());
-        unit.setToMethodName(methodName);
-        needGuessMethodSet.add(unit);
+
+        Edge edge = new Edge();
+        edge.setSource(curMethod);
+        edge.setRawEdge(rawEdge);
+        uncheckedEdges.add(edge);
     }
 
     @Override
@@ -87,24 +91,23 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
         processHeadlessMethods();
         processNeedGuestMethods();
         debugDisplayMethods();
+        this.storage.save(uncheckedEdges);
     }
 
     private void processHeadlessMethods() {
         headlessMethodSet.forEach(
-                eachMethod -> {
+                eachRawEdge -> {
                     // declared?
                     declaredMethods.forEach(
                             eachDeclaredMethod -> {
                                 if (eachDeclaredMethod
                                         .getInfo()
                                         .getName()
-                                        .equals(eachMethod.getToMethodName())) {
-                                    MethodUnit unit = new MethodUnit();
-                                    unit.setFromMethodName(eachMethod.getFromMethodName());
-                                    unit.setCallerType(
+                                        .equals(eachRawEdge.getToMethodName())) {
+                                    // modify in place
+                                    eachRawEdge.setCallerType(
                                             eachDeclaredMethod.getBelongsTo().getClassName());
-                                    unit.setToMethodName(eachMethod.getToMethodName());
-                                    readyMethodSet.add(unit);
+                                    readyMethodSet.add(eachRawEdge);
                                 }
                             });
                 });
@@ -112,15 +115,12 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
 
     private void processNeedGuestMethods() {
         needGuessMethodSet.forEach(
-                eachMethod -> {
-                    String curCaller = eachMethod.getCallerType();
+                eachRawEdge -> {
+                    String curCaller = eachRawEdge.getCallerType();
                     if (fieldTypeMapping.containsKey(curCaller)) {
                         String realType = fieldTypeMapping.get(curCaller);
-                        MethodUnit unit = new MethodUnit();
-                        unit.setFromMethodName(eachMethod.getFromMethodName());
-                        unit.setCallerType(realType);
-                        unit.setToMethodName(eachMethod.getToMethodName());
-                        readyMethodSet.add(unit);
+                        eachRawEdge.setCallerType(realType);
+                        readyMethodSet.add(eachRawEdge);
                     }
                 });
     }
@@ -129,6 +129,10 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
         readyMethodSet.forEach(
                 each -> {
                     Log.info("ready method: " + each);
+                });
+        uncheckedEdges.forEach(
+                each -> {
+                    Log.info("edge: " + each);
                 });
     }
 }

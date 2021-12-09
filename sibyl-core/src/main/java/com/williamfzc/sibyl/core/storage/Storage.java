@@ -14,6 +14,10 @@ public class Storage<T> {
         }
     }
 
+    public void save(Iterable<T> l) {
+        l.forEach(this::save);
+    }
+
     public int size() {
         return data.size();
     }

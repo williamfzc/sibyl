@@ -7,5 +7,10 @@ import lombok.Data;
 public class Edge {
     private Method source;
     private Method target;
-    private InvokeInfo info;
+    private String type;
+    private String statement;
+    private String line;
+
+    // for getting target object
+    private RawEdge rawEdge;
 }
