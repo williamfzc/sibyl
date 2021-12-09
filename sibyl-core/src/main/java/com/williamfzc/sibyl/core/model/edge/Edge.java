@@ -13,4 +13,8 @@ public class Edge {
 
     // for getting target object
     private RawEdge rawEdge;
+
+    public boolean perfect() {
+        return (source != null) && (target != null);
+    }
 }

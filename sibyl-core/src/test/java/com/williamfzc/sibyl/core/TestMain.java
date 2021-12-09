@@ -1,5 +1,6 @@
 package com.williamfzc.sibyl.core;
 
+import com.williamfzc.sibyl.core.analyzer.EdgeAnalyzer;
 import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8CallListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
@@ -40,10 +41,27 @@ public class TestMain {
         Storage<Edge> edgeStorage = new Storage<>();
         listener.setStorage(edgeStorage);
 
+        IStorableListener<Method> snapshotListener = new Java8SnapshotListener();
+        Storage<Method> methodStorage = new Storage<>();
+        snapshotListener.setStorage(methodStorage);
+
         scanner.registerListener(listener);
+        scanner.registerListener(snapshotListener);
         scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
 
+        // analyzer
+        EdgeAnalyzer analyzer = new EdgeAnalyzer();
+        analyzer.setSnapshot(methodStorage);
+        analyzer.analyze(edgeStorage);
+
         System.out.println("edge count: " + listener.getStorage().size());
-        edgeStorage.getData().forEach(each -> Log.info(each.toString()));
+        edgeStorage
+                .getData()
+                .forEach(
+                        each -> {
+                            if (each.perfect()) {
+                                Log.info("edge: " + each);
+                            }
+                        });
     }
 }
