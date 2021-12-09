@@ -6,10 +6,7 @@ import com.williamfzc.sibyl.core.model.method.MethodBelonging;
 import com.williamfzc.sibyl.core.model.method.MethodBelongingFile;
 import com.williamfzc.sibyl.core.model.method.MethodInfo;
 import com.williamfzc.sibyl.core.utils.Log;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
 
