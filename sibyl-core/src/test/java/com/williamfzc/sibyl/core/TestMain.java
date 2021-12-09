@@ -1,5 +1,6 @@
 package com.williamfzc.sibyl.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.analyzer.EdgeAnalyzer;
 import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8CallListener;
@@ -10,9 +11,12 @@ import com.williamfzc.sibyl.core.scanner.NormalScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 
 public class TestMain {
@@ -55,13 +59,19 @@ public class TestMain {
         analyzer.analyze(edgeStorage);
 
         System.out.println("edge count: " + listener.getStorage().size());
+        List<Edge> notPerfect = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
         edgeStorage
                 .getData()
                 .forEach(
                         each -> {
-                            if (each.perfect()) {
-                                Log.info("edge: " + each);
+                            if (!each.perfect()) {
+                                notPerfect.add(each);
                             }
                         });
+        File f = new File(currentRelativePath.toAbsolutePath().toString(), "notPerfectEdge.json");
+        try (FileWriter writer = new FileWriter(f)) {
+            writer.write(mapper.writeValueAsString(notPerfect));
+        }
     }
 }
