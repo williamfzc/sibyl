@@ -53,7 +53,13 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
             Map<String, Set<Method>> snapshotMap,
             Map<String, Clazz> clazzMap) {
         if (!snapshotMap.containsKey(type)) {
-            // did not find this class, give up
+            // this type can be substring
+            for (String eachFullName : clazzMap.keySet()) {
+                if (eachFullName.endsWith(type)) {
+                    return searchTargetMethod(eachFullName, name, snapshotMap, clazzMap);
+                }
+            }
+            // not found, give up
             return null;
         }
 
