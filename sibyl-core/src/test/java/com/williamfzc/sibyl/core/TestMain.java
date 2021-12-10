@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class TestMain {
     @Test
-    public void testMain() throws IOException {
+    public void testMain() throws IOException, InterruptedException {
         Path currentRelativePath = Paths.get("");
         NormalScanner scanner = new NormalScanner();
 
@@ -39,7 +39,7 @@ public class TestMain {
     }
 
     @Test
-    public void testClazz() throws IOException {
+    public void testClazz() throws IOException, InterruptedException {
         Path currentRelativePath = Paths.get("");
         NormalScanner scanner = new NormalScanner();
 
@@ -55,7 +55,7 @@ public class TestMain {
     }
 
     @Test
-    public void testCallGraph() throws IOException {
+    public void testCallGraph() throws IOException, InterruptedException {
         Path currentRelativePath = Paths.get("");
         NormalScanner scanner = new NormalScanner();
 

@@ -6,18 +6,26 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class NormalScanner extends BaseScanner {
     private int validFileNum = 0;
+
+    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
+    private final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     public boolean fileValid(File file) {
         // by default
         return true;
     }
 
-    public void scanDir(String dirPath) throws IOException {
+    public void scanDir(String dirPath) throws IOException, InterruptedException {
+        Set<File> todoFiles = new HashSet<>();
         Files.walkFileTree(
                 Paths.get(dirPath),
                 new SimpleFileVisitor<Path>() {
@@ -26,7 +34,7 @@ public class NormalScanner extends BaseScanner {
                             throws IOException {
                         File fo = file.toFile();
                         if (fileValid(fo)) {
-                            scanFile(fo);
+                            todoFiles.add(fo);
                         }
                         return super.visitFile(file, attrs);
                     }
@@ -38,10 +46,24 @@ public class NormalScanner extends BaseScanner {
                         return super.visitFileFailed(file, exc);
                     }
                 });
+
+        // do the real thing
+        Log.info("worker size: " + THREAD_POOL_SIZE);
+        executor.invokeAll(
+                todoFiles.stream()
+                        .map(
+                                each ->
+                                        (Callable<Void>)
+                                                () -> {
+                                                    scanFile(each);
+                                                    return null;
+                                                })
+                        .collect(Collectors.toList()));
+
         afterScan();
     }
 
-    public void scanDir(File dir) throws IOException {
+    public void scanDir(File dir) throws IOException, InterruptedException {
         scanDir(dir.getAbsolutePath());
     }
 
