@@ -1,9 +1,8 @@
 package com.williamfzc.sibyl.core.model.clazz;
 
+import java.util.Set;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-
-import java.util.Set;
 
 @Jacksonized
 @Data
