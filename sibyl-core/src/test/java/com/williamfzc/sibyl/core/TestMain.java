@@ -99,13 +99,26 @@ public class TestMain {
                             }
                         });
 
-        File f = new File(currentRelativePath.toAbsolutePath().toString(), "notPerfectEdge.json");
-        File pf = new File(currentRelativePath.toAbsolutePath().toString(), "perfectEdge.json");
-        try (FileWriter writer = new FileWriter(f)) {
+        File notPerfectEdgeFile =
+                new File(currentRelativePath.toAbsolutePath().toString(), "notPerfectEdge.json");
+        File perfectEdgeFile =
+                new File(currentRelativePath.toAbsolutePath().toString(), "perfectEdge.json");
+        File snapshotFile =
+                new File(currentRelativePath.toAbsolutePath().toString(), "snapshot.json");
+        File clazzGraphFile =
+                new File(currentRelativePath.toAbsolutePath().toString(), "classGraph.json");
+
+        try (FileWriter writer = new FileWriter(notPerfectEdgeFile)) {
             writer.write(mapper.writeValueAsString(notPerfect));
         }
-        try (FileWriter writer = new FileWriter(pf)) {
+        try (FileWriter writer = new FileWriter(perfectEdgeFile)) {
             writer.write(mapper.writeValueAsString(perfect));
+        }
+        try (FileWriter writer = new FileWriter(snapshotFile)) {
+            writer.write(mapper.writeValueAsString(methodStorage.getData()));
+        }
+        try (FileWriter writer = new FileWriter(clazzGraphFile)) {
+            writer.write(mapper.writeValueAsString(clazzStorage.getData()));
         }
     }
 }
