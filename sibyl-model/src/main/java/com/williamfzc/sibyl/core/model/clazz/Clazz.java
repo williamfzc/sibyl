@@ -11,4 +11,8 @@ public class Clazz {
     private String packageName;
     private String superName;
     private Set<String> interfaces;
+
+    public String getFullName() {
+        return String.format("%s.%s", packageName, name);
+    }
 }

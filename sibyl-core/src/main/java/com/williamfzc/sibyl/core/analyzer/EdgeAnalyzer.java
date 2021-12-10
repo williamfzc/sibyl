@@ -93,7 +93,7 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
         snapshot.getData()
                 .forEach(
                         each -> {
-                            String k = each.getBelongsTo().getClassName();
+                            String k = each.getBelongsTo().getClazz().getFullName();
                             if (!snapshotMap.containsKey(k)) {
                                 snapshotMap.put(k, new HashSet<>());
                             }
@@ -104,6 +104,6 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
 
     private Map<String, Clazz> createClazzMap() {
         return clazzGraph.getData().stream()
-                .collect(Collectors.toMap(Clazz::getName, each -> each));
+                .collect(Collectors.toMap(Clazz::getFullName, each -> each));
     }
 }

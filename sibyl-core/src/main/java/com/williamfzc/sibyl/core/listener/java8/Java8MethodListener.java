@@ -1,6 +1,7 @@
 package com.williamfzc.sibyl.core.listener.java8;
 
 import com.williamfzc.sibyl.core.listener.Java8Parser;
+import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.model.method.MethodBelonging;
 import com.williamfzc.sibyl.core.model.method.MethodBelongingFile;
@@ -12,7 +13,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 public class Java8MethodListener<T> extends Java8StorableListener<T> {
     protected String curPackage;
-    protected final Deque<String> curClassStack = new LinkedList<>();
+    protected final Deque<Clazz> curClassStack = new LinkedList<>();
     protected final Deque<String> curMethodStack = new LinkedList<>();
 
     // todo: what about fields from super class and function args?
@@ -38,9 +39,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         if (null == normalClassDeclarationContext) {
             return;
         }
-        String declaredClass = normalClassDeclarationContext.Identifier().getText();
-        Log.info("class decl: " + declaredClass);
-        curClassStack.push(declaredClass);
+        curClassStack.push(generateClazz(ctx));
     }
 
     @Override
@@ -98,7 +97,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     }
 
     protected Method generateMethod(Java8Parser.MethodDeclarationContext ctx) {
-        String curClass = curClassStack.peekLast();
+        Clazz curClass = curClassStack.peekLast();
         Method m = new Method();
         MethodInfo info = generateMethodInfo(ctx);
 
@@ -108,8 +107,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         belongingFile.setEndLine(ctx.methodBody().stop.getLine());
 
         MethodBelonging belonging = new MethodBelonging();
-        belonging.setPackageName(curPackage);
-        belonging.setClassName(curClass);
+        belonging.setClazz(curClass);
         belonging.setFile(belongingFile);
 
         m.setInfo(info);
@@ -130,5 +128,33 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
             info.setSignature(params.getText());
         }
         return info;
+    }
+
+    protected Clazz generateClazz(Java8Parser.ClassDeclarationContext ctx) {
+        Java8Parser.NormalClassDeclarationContext normalClassDeclarationContext =
+                ctx.normalClassDeclaration();
+        if (null == normalClassDeclarationContext) {
+            return null;
+        }
+        Clazz clazz = new Clazz();
+        String declaredClassName = normalClassDeclarationContext.Identifier().getText();
+        clazz.setName(declaredClassName);
+        clazz.setPackageName(curPackage);
+
+        // super
+        Java8Parser.SuperclassContext superclassContext =
+                normalClassDeclarationContext.superclass();
+        Java8Parser.SuperinterfacesContext superinterfacesContext =
+                normalClassDeclarationContext.superinterfaces();
+        if (null != superclassContext) {
+            clazz.setSuperName(superclassContext.getText());
+        }
+        if (null != superinterfacesContext) {
+            clazz.setInterfaces(
+                    superinterfacesContext.interfaceTypeList().interfaceType().stream()
+                            .map(each -> each.classType().getText())
+                            .collect(Collectors.toSet()));
+        }
+        return clazz;
     }
 }

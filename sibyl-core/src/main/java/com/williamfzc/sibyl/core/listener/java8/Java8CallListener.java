@@ -100,7 +100,7 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
                             eachDeclaredMethod -> {
                                 // modify in place
                                 eachRawEdge.setCallerType(
-                                        eachDeclaredMethod.getBelongsTo().getClassName());
+                                        eachDeclaredMethod.getBelongsTo().getClazz().getFullName());
                                 readyMethodSet.add(eachRawEdge);
                             });
                 });
