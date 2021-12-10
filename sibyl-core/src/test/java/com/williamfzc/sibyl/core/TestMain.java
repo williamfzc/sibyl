@@ -81,22 +81,31 @@ public class TestMain {
         // analyzer
         EdgeAnalyzer analyzer = new EdgeAnalyzer();
         analyzer.setSnapshot(methodStorage);
+        analyzer.setClazzGraph(clazzStorage);
         analyzer.analyze(edgeStorage);
 
         System.out.println("edge count: " + listener.getStorage().size());
         List<Edge> notPerfect = new ArrayList<>();
+        List<Edge> perfect = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
         edgeStorage
                 .getData()
                 .forEach(
                         each -> {
-                            if (!each.perfect()) {
+                            if (each.perfect()) {
+                                perfect.add(each);
+                            } else {
                                 notPerfect.add(each);
                             }
                         });
+
         File f = new File(currentRelativePath.toAbsolutePath().toString(), "notPerfectEdge.json");
+        File pf = new File(currentRelativePath.toAbsolutePath().toString(), "perfectEdge.json");
         try (FileWriter writer = new FileWriter(f)) {
             writer.write(mapper.writeValueAsString(notPerfect));
+        }
+        try (FileWriter writer = new FileWriter(pf)) {
+            writer.write(mapper.writeValueAsString(perfect));
         }
     }
 }

@@ -4,7 +4,6 @@ import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.edge.RawEdge;
 import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.utils.Log;
 import java.util.HashSet;
 import java.util.Set;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -90,25 +89,19 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
         // guess and save them to storage
         processHeadlessMethods();
         processNeedGuestMethods();
-        debugDisplayMethods();
         this.storage.save(uncheckedEdges);
     }
 
     private void processHeadlessMethods() {
         headlessMethodSet.forEach(
                 eachRawEdge -> {
-                    // declared?
+                    // let analyzer do the filter
                     declaredMethods.forEach(
                             eachDeclaredMethod -> {
-                                if (eachDeclaredMethod
-                                        .getInfo()
-                                        .getName()
-                                        .equals(eachRawEdge.getToMethodName())) {
-                                    // modify in place
-                                    eachRawEdge.setCallerType(
-                                            eachDeclaredMethod.getBelongsTo().getClassName());
-                                    readyMethodSet.add(eachRawEdge);
-                                }
+                                // modify in place
+                                eachRawEdge.setCallerType(
+                                        eachDeclaredMethod.getBelongsTo().getClassName());
+                                readyMethodSet.add(eachRawEdge);
                             });
                 });
     }
@@ -122,17 +115,6 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
                         eachRawEdge.setCallerType(realType);
                         readyMethodSet.add(eachRawEdge);
                     }
-                });
-    }
-
-    private void debugDisplayMethods() {
-        readyMethodSet.forEach(
-                each -> {
-                    Log.info("ready method: " + each);
-                });
-        uncheckedEdges.forEach(
-                each -> {
-                    Log.info("edge: " + each);
                 });
     }
 }
