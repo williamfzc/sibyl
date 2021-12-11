@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
-public class TestMain {
+public class TestJava8 {
     @Test
     public void testMain() throws IOException, InterruptedException {
         Path currentRelativePath = Paths.get("");
