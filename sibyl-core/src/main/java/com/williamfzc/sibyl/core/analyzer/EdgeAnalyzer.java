@@ -53,6 +53,11 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
             Map<String, Set<Method>> snapshotMap,
             Map<String, Clazz> clazzMap) {
         if (!snapshotMap.containsKey(type)) {
+            if (null == type) {
+                // give up ..
+                return null;
+            }
+
             // this type can be substring
             for (String eachFullName : clazzMap.keySet()) {
                 if (eachFullName.endsWith(type)) {
@@ -96,7 +101,8 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
         // k: class name
         // v: method set
         Map<String, Set<Method>> snapshotMap = new HashMap<>();
-        snapshot.getData()
+        snapshot.getData().stream()
+                .filter(each -> each.getBelongsTo().getClazz() != null)
                 .forEach(
                         each -> {
                             String k = each.getBelongsTo().getClazz().getFullName();
@@ -110,6 +116,7 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
 
     private Map<String, Clazz> createClazzMap() {
         return clazzGraph.getData().stream()
+                .filter(each -> !each.getFullName().isEmpty())
                 .collect(Collectors.toMap(Clazz::getFullName, each -> each));
     }
 }

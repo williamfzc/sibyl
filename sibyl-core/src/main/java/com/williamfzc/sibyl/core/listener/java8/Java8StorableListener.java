@@ -25,7 +25,7 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
         this.storage = storage;
     }
 
-    public void handle(File file, String content) {
+    public synchronized void handle(File file, String content) {
         curFile = file;
         Java8Lexer lexer = new Java8Lexer(CharStreams.fromString(content));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -37,7 +37,7 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
     }
 
     @Override
-    public void afterHandle() {}
+    public synchronized void afterHandle() {}
 
     @Override
     public boolean accept(File file) {
