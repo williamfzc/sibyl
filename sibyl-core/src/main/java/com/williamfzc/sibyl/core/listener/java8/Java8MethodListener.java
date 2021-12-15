@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class Java8MethodListener<T> extends Java8StorableListener<T> {
     protected String curPackage;
     protected final Deque<Clazz> curClassStack = new LinkedList<>();
-    protected final Deque<String> curMethodStack = new LinkedList<>();
+    protected final Deque<Method> curMethodStack = new LinkedList<>();
 
     // todo: what about fields from super class and function args?
     // not a good design now (e.g. nested class
@@ -62,7 +62,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
         Log.info("method decl: " + declaredMethod);
-        curMethodStack.push(declaredMethod);
+        curMethodStack.push(generateMethod(ctx));
     }
 
     @Override
@@ -117,7 +117,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
 
     protected MethodInfo generateMethodInfo(Java8Parser.MethodDeclarationContext ctx) {
         MethodInfo info = new MethodInfo();
-        info.setName(curMethodStack.peekLast());
+        info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
         info.setReturnType(ctx.methodHeader().result().getText());
 
         Java8Parser.FormalParameterListContext params =

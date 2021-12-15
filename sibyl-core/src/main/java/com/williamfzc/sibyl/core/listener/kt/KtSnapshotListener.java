@@ -11,13 +11,13 @@ public class KtSnapshotListener extends KtMethodListener<Method> {
         Log.info(
                 "class member: "
                         + ctx.declaration().functionDeclaration().simpleIdentifier().getText());
-        this.storage.save(generateMethod(ctx.declaration().functionDeclaration()));
+        this.storage.save(curMethodStack.peekLast());
     }
 
     @Override
     public void enterFunctionDeclaration(KotlinParser.FunctionDeclarationContext ctx) {
         super.enterFunctionDeclaration(ctx);
-        this.storage.save(generateMethod(ctx));
+        this.storage.save(curMethodStack.peekLast());
     }
 
     @Override

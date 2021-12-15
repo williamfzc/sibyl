@@ -7,6 +7,6 @@ public class Java8SnapshotListener extends Java8MethodListener<Method> {
     @Override
     public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         super.enterMethodDeclaration(ctx);
-        this.storage.save(generateMethod(ctx));
+        this.storage.save(curMethodStack.peekLast());
     }
 }

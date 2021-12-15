@@ -18,7 +18,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class KtMethodListener<T> extends KtStorableListener<T> {
     protected String curPackage;
     protected final Deque<Clazz> curClassStack = new LinkedList<>();
-    protected final Deque<String> curMethodStack = new LinkedList<>();
+    protected final Deque<Method> curMethodStack = new LinkedList<>();
 
     // todo: what about fields from super class and function args?
     // not a good design now (e.g. nested class
@@ -62,8 +62,7 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
     @Override
     public void enterClassMemberDeclaration(KotlinParser.ClassMemberDeclarationContext ctx) {
         KotlinParser.FunctionDeclarationContext methodCtx = ctx.declaration().functionDeclaration();
-        String methodName = methodCtx.simpleIdentifier().getText();
-        curMethodStack.push(methodName);
+        curMethodStack.push(generateMethod(methodCtx));
     }
 
     @Override
@@ -127,7 +126,8 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
 
     protected MethodInfo generateMethodInfo(KotlinParser.FunctionDeclarationContext ctx) {
         MethodInfo info = new MethodInfo();
-        info.setName(curMethodStack.peekLast());
+        info.setName(ctx.simpleIdentifier().getText());
+        // todo
         info.setReturnType("");
         info.setSignature(ctx.functionValueParameters().getText());
         return info;
