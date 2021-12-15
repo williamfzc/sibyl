@@ -63,6 +63,23 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
         Log.info("method decl: " + declaredMethod);
         curMethodStack.push(generateMethod(ctx));
+
+        // args fields
+        Java8Parser.FormalParameterListContext paramsCtx =
+                ctx.methodHeader().methodDeclarator().formalParameterList();
+        if (null != paramsCtx) {
+            Java8Parser.FormalParametersContext formalParametersContext =
+                    paramsCtx.formalParameters();
+            if (null != formalParametersContext) {
+                formalParametersContext
+                        .formalParameter()
+                        .forEach(
+                                each ->
+                                        fieldTypeMapping.put(
+                                                each.variableDeclaratorId().getText(),
+                                                each.unannType().getText()));
+            }
+        }
     }
 
     @Override
