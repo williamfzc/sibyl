@@ -164,7 +164,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         Java8Parser.SuperinterfacesContext superinterfacesContext =
                 normalClassDeclarationContext.superinterfaces();
         if (null != superclassContext) {
-            clazz.setSuperName(superclassContext.getText());
+            clazz.setSuperName(superclassContext.classType().getText());
         }
         if (null != superinterfacesContext) {
             clazz.setInterfaces(
