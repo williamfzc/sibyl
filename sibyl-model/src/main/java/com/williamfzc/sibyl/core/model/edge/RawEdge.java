@@ -7,4 +7,8 @@ public class RawEdge {
     private String fromMethodName;
     private String callerType;
     private String toMethodName;
+
+    private String type;
+    private String statement;
+    private Integer line;
 }

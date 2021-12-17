@@ -39,6 +39,10 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
 
         RawEdge rawEdge = new RawEdge();
         rawEdge.setFromMethodName(curMethodStack.peekLast().getInfo().getName());
+        rawEdge.setLine(ctx.getStart().getLine());
+        // todo: how?
+        rawEdge.setType(null);
+        rawEdge.setStatement(ctx.getText());
         if (null == typeNameContext) {
             rawEdge.setToMethodName(methodName);
             headlessMethodSet.add(rawEdge);

@@ -9,9 +9,6 @@ import lombok.extern.jackson.Jacksonized;
 public class Edge {
     private Method source;
     private Method target;
-    private String type;
-    private String statement;
-    private String line;
 
     // for getting target object
     private RawEdge rawEdge;
