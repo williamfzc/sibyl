@@ -21,12 +21,15 @@ import java.util.List;
 public class Sibyl {
     public static void genSnapshotFromDir(File inputDir, File outputFile, SibylLangType lang)
             throws IOException, InterruptedException {
+        Storage<Method> methodStorage;
         switch (lang) {
             case JAVA_8:
-                genSnapshotFromDir(inputDir, outputFile, new Java8SnapshotListener());
+                methodStorage = genSnapshotFromDir(inputDir, new Java8SnapshotListener());
+                methodStorage.exportFile(outputFile);
                 break;
             case KOTLIN:
-                genSnapshotFromDir(inputDir, outputFile, new KtSnapshotListener());
+                methodStorage = genSnapshotFromDir(inputDir, new KtSnapshotListener());
+                methodStorage.exportFile(outputFile);
                 break;
             default:
                 break;
@@ -37,7 +40,21 @@ public class Sibyl {
             throws IOException, InterruptedException {
         switch (lang) {
             case JAVA_8:
-                genJava8CallGraphFromDir(inputDir, outputFile);
+                Storage<Edge> edgeStorage = genJava8CallGraphFromDir(inputDir);
+                List<Edge> perfect = new ArrayList<>();
+                ObjectMapper mapper = new ObjectMapper();
+                edgeStorage
+                        .getData()
+                        .forEach(
+                                each -> {
+                                    if (each.perfect()) {
+                                        perfect.add(each);
+                                    }
+                                });
+
+                try (FileWriter writer = new FileWriter(outputFile)) {
+                    writer.write(mapper.writeValueAsString(perfect));
+                }
                 break;
             case KOTLIN:
                 // NOT IMPLEMENTED
@@ -47,8 +64,8 @@ public class Sibyl {
         }
     }
 
-    private static void genSnapshotFromDir(
-            File inputDir, File outputFile, IStorableListener<Method> listener)
+    private static Storage<Method> genSnapshotFromDir(
+            File inputDir, IStorableListener<Method> listener)
             throws IOException, InterruptedException {
         NormalScanner scanner = new NormalScanner();
 
@@ -57,14 +74,10 @@ public class Sibyl {
 
         scanner.registerListener(listener);
         scanner.scanDir(inputDir);
-
-        ObjectMapper mapper = new ObjectMapper();
-        try (FileWriter writer = new FileWriter(outputFile)) {
-            writer.write(mapper.writeValueAsString(methodStorage.getData()));
-        }
+        return methodStorage;
     }
 
-    private static void genJava8CallGraphFromDir(File inputDir, File outputFile)
+    private static Storage<Edge> genJava8CallGraphFromDir(File inputDir)
             throws IOException, InterruptedException {
         NormalScanner scanner = new NormalScanner();
 
@@ -92,19 +105,6 @@ public class Sibyl {
         analyzer.setClazzGraph(clazzStorage);
         analyzer.analyze(edgeStorage);
 
-        List<Edge> perfect = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
-        edgeStorage
-                .getData()
-                .forEach(
-                        each -> {
-                            if (each.perfect()) {
-                                perfect.add(each);
-                            }
-                        });
-
-        try (FileWriter writer = new FileWriter(outputFile)) {
-            writer.write(mapper.writeValueAsString(perfect));
-        }
+        return edgeStorage;
     }
 }
