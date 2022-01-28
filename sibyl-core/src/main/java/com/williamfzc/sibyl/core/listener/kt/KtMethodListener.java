@@ -2,10 +2,7 @@ package com.williamfzc.sibyl.core.listener.kt;
 
 import com.williamfzc.sibyl.core.listener.KotlinParser;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
-import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.model.method.MethodBelonging;
-import com.williamfzc.sibyl.core.model.method.MethodBelongingFile;
-import com.williamfzc.sibyl.core.model.method.MethodInfo;
+import com.williamfzc.sibyl.core.model.method.*;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.util.Deque;
 import java.util.HashMap;
@@ -127,9 +124,21 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
     protected MethodInfo generateMethodInfo(KotlinParser.FunctionDeclarationContext ctx) {
         MethodInfo info = new MethodInfo();
         info.setName(ctx.simpleIdentifier().getText());
-        // todo
+
+        info.setParams(
+                ctx.functionValueParameters().functionValueParameter().stream()
+                        .map(
+                                each -> {
+                                    Parameter parameter = new Parameter();
+                                    KotlinParser.ParameterContext parameterContext =
+                                            each.parameter();
+                                    parameter.setType(parameterContext.type_().getText());
+                                    parameter.setName(
+                                            parameterContext.simpleIdentifier().getText());
+                                    return parameter;
+                                })
+                        .collect(Collectors.toList()));
         info.setReturnType("");
-        info.setSignature(ctx.functionValueParameters().getText());
         return info;
     }
 }

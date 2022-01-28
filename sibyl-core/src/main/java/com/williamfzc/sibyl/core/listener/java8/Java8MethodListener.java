@@ -2,10 +2,7 @@ package com.williamfzc.sibyl.core.listener.java8;
 
 import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
-import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.model.method.MethodBelonging;
-import com.williamfzc.sibyl.core.model.method.MethodBelongingFile;
-import com.williamfzc.sibyl.core.model.method.MethodInfo;
+import com.williamfzc.sibyl.core.model.method.*;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -140,9 +137,16 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         Java8Parser.FormalParameterListContext params =
                 ctx.methodHeader().methodDeclarator().formalParameterList();
         if (null != params) {
-            // todo parse this list
-            // this signature is a raw string now
-            info.setSignature(params.getText());
+            info.setParams(
+                    params.formalParameters().formalParameter().stream()
+                            .map(
+                                    each -> {
+                                        Parameter param = new Parameter();
+                                        param.setType(each.unannType().getText());
+                                        param.setName(each.variableDeclaratorId().getText());
+                                        return param;
+                                    })
+                            .collect(Collectors.toList()));
         }
         return info;
     }
