@@ -5,6 +5,7 @@ import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,15 +53,15 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
             String name,
             Map<String, Set<Method>> snapshotMap,
             Map<String, Clazz> clazzMap) {
-        if (!snapshotMap.containsKey(type)) {
-            if (null == type) {
-                // give up ..
-                return null;
-            }
+        if ("".equals(type)) {
+            // give up ..
+            return null;
+        }
 
+        if (!snapshotMap.containsKey(type)) {
             // this type can be substring
             for (String eachFullName : clazzMap.keySet()) {
-                if (eachFullName.endsWith(type)) {
+                if (SibylUtils.getClazzNameFromPackageName(eachFullName).equals(type)) {
                     return searchTargetMethod(eachFullName, name, snapshotMap, clazzMap);
                 }
             }
