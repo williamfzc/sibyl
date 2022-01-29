@@ -137,20 +137,22 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
         info.setReturnType(ctx.methodHeader().result().getText());
 
-        Java8Parser.FormalParameterListContext params =
+        Java8Parser.FormalParameterListContext paramsCtx =
                 ctx.methodHeader().methodDeclarator().formalParameterList();
-        if (null != params) {
-            info.setParams(
-                    params.formalParameters().formalParameter().stream()
-                            .map(
-                                    each -> {
-                                        Parameter param = new Parameter();
-                                        param.setType(each.unannType().getText());
-                                        param.setName(each.variableDeclaratorId().getText());
-                                        return param;
-                                    })
-                            .collect(Collectors.toList()));
+        if ((null == paramsCtx) || (null == paramsCtx.formalParameters())) {
+            return info;
         }
+
+        info.setParams(
+                paramsCtx.formalParameters().formalParameter().stream()
+                        .map(
+                                each -> {
+                                    Parameter param = new Parameter();
+                                    param.setType(each.unannType().getText());
+                                    param.setName(each.variableDeclaratorId().getText());
+                                    return param;
+                                })
+                        .collect(Collectors.toList()));
         return info;
     }
 

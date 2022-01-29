@@ -151,6 +151,10 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
     protected MethodInfo generateMethodInfo(KotlinParser.FunctionDeclarationContext ctx) {
         MethodInfo info = new MethodInfo();
         info.setName(ctx.simpleIdentifier().getText());
+        if ((null == ctx.functionValueParameters())
+                || (null == ctx.functionValueParameters().functionValueParameter())) {
+            return info;
+        }
 
         info.setParams(
                 ctx.functionValueParameters().functionValueParameter().stream()
