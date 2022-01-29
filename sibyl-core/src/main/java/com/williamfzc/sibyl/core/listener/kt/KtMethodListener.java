@@ -2,7 +2,10 @@ package com.williamfzc.sibyl.core.listener.kt;
 
 import com.williamfzc.sibyl.core.listener.KotlinParser;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
+import com.williamfzc.sibyl.core.model.clazz.ClazzBelonging;
+import com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile;
 import com.williamfzc.sibyl.core.model.method.*;
+import com.williamfzc.sibyl.core.model.pkg.Pkg;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.util.Deque;
 import java.util.HashMap;
@@ -76,7 +79,19 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
         Clazz clazz = new Clazz();
         String declaredClassName = ctx.simpleIdentifier().getText();
         clazz.setName(declaredClassName);
-        clazz.setPackageName(curPackage);
+        Pkg pkg = new Pkg();
+        pkg.setName(curPackage);
+
+        ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
+        clazzBelongingFile.setFile(curFile.getPath());
+        clazzBelongingFile.setStartLine(ctx.start.getLine());
+        clazzBelongingFile.setEndLine(ctx.stop.getLine());
+
+        ClazzBelonging clazzBelonging = new ClazzBelonging();
+        clazzBelonging.setPkg(pkg);
+        clazzBelonging.setFile(clazzBelongingFile);
+
+        clazz.setBelongsTo(clazzBelonging);
 
         // super
         clazz.setSuperName(
@@ -90,7 +105,19 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
         Clazz clazz = new Clazz();
         String declaredClassName = ctx.simpleIdentifier().getText();
         clazz.setName(declaredClassName);
-        clazz.setPackageName(curPackage);
+        Pkg pkg = new Pkg();
+        pkg.setName(curPackage);
+
+        ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
+        clazzBelongingFile.setFile(curFile.getPath());
+        clazzBelongingFile.setStartLine(ctx.start.getLine());
+        clazzBelongingFile.setEndLine(ctx.stop.getLine());
+
+        ClazzBelonging clazzBelonging = new ClazzBelonging();
+        clazzBelonging.setPkg(pkg);
+        clazzBelonging.setFile(clazzBelongingFile);
+
+        clazz.setBelongsTo(clazzBelonging);
 
         // super
         clazz.setSuperName(

@@ -8,11 +8,12 @@ import lombok.extern.jackson.Jacksonized;
 @Data
 public class Clazz {
     private String name;
-    private String packageName;
     private String superName;
     private Set<String> interfaces;
 
+    private ClazzBelonging belongsTo;
+
     public String getFullName() {
-        return String.format("%s.%s", packageName, name);
+        return String.format("%s.%s", belongsTo.pkg.getName(), name);
     }
 }
