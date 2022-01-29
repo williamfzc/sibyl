@@ -15,8 +15,6 @@ import com.williamfzc.sibyl.core.utils.Log;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -24,7 +22,8 @@ import org.junit.Test;
 public class TestJava8 {
     @Test
     public void testMain() throws IOException, InterruptedException {
-        Path currentRelativePath = Paths.get("");
+        File src = Support.getSelfSource();
+
         NormalScanner scanner = new NormalScanner();
 
         IStorableListener<Method> listener = new Java8SnapshotListener();
@@ -32,7 +31,7 @@ public class TestJava8 {
         listener.setStorage(methodStorage);
 
         scanner.registerListener(listener);
-        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
+        scanner.scanDir(src);
 
         System.out.println("method count: " + listener.getStorage().size());
         methodStorage.getData().forEach(each -> Log.info(each.toString()));
@@ -40,7 +39,7 @@ public class TestJava8 {
 
     @Test
     public void testClazz() throws IOException, InterruptedException {
-        Path currentRelativePath = Paths.get("");
+        File src = Support.getSelfSource();
         NormalScanner scanner = new NormalScanner();
 
         IStorableListener<Clazz> listener = new Java8ClassListener();
@@ -48,7 +47,7 @@ public class TestJava8 {
         listener.setStorage(clazzStorage);
 
         scanner.registerListener(listener);
-        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
+        scanner.scanDir(src);
 
         System.out.println("clazz count: " + listener.getStorage().size());
         clazzStorage.getData().forEach(each -> Log.info(each.toString()));
@@ -56,7 +55,8 @@ public class TestJava8 {
 
     @Test
     public void testCallGraph() throws IOException, InterruptedException {
-        Path currentRelativePath = Paths.get("");
+        File src = Support.getSelfSource();
+        File ws = Support.getWorkspace();
         NormalScanner scanner = new NormalScanner();
 
         IStorableListener<Edge> listener = new Java8CallListener();
@@ -76,7 +76,7 @@ public class TestJava8 {
         scanner.registerListener(clazzListener);
 
         // go
-        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
+        scanner.scanDir(src);
 
         // analyzer
         EdgeAnalyzer analyzer = new EdgeAnalyzer();
@@ -99,14 +99,10 @@ public class TestJava8 {
                             }
                         });
 
-        File notPerfectEdgeFile =
-                new File(currentRelativePath.toAbsolutePath().toString(), "notPerfectEdge.json");
-        File perfectEdgeFile =
-                new File(currentRelativePath.toAbsolutePath().toString(), "perfectEdge.json");
-        File snapshotFile =
-                new File(currentRelativePath.toAbsolutePath().toString(), "snapshot.json");
-        File clazzGraphFile =
-                new File(currentRelativePath.toAbsolutePath().toString(), "classGraph.json");
+        File notPerfectEdgeFile = new File(ws, "notPerfectEdge.json");
+        File perfectEdgeFile = new File(ws, "perfectEdge.json");
+        File snapshotFile = new File(ws, "snapshot.json");
+        File clazzGraphFile = new File(ws, "classGraph.json");
 
         try (FileWriter writer = new FileWriter(notPerfectEdgeFile)) {
             writer.write(mapper.writeValueAsString(notPerfect));

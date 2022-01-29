@@ -10,15 +10,13 @@ import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.Log;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.junit.Test;
 
 public class TestKt {
     @Test
     public void testKt() throws IOException, InterruptedException {
         // todo: add kotlin test res
-        Path currentRelativePath = Paths.get("");
+        File src = Support.getSelfSource();
         NormalScanner scanner = new NormalScanner();
 
         IStorableListener<Method> listener = new KtSnapshotListener();
@@ -31,7 +29,7 @@ public class TestKt {
 
         scanner.registerListener(listener);
         scanner.registerListener(clazzListener);
-        scanner.scanDir(new File(currentRelativePath.toAbsolutePath().toString(), "src"));
+        scanner.scanDir(src);
 
         System.out.println("method count: " + listener.getStorage().size());
         methodStorage.getData().forEach(each -> Log.info(each.toString()));
