@@ -134,7 +134,7 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
         MethodInfo info = generateMethodInfo(ctx);
 
         MethodBelongingFile belongingFile = new MethodBelongingFile();
-        belongingFile.setFile(curFile.getPath());
+        belongingFile.setName(curFile.getPath());
         belongingFile.setStartLine(ctx.functionBody().start.getLine());
         belongingFile.setEndLine(ctx.functionBody().stop.getLine());
 

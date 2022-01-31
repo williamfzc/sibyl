@@ -119,7 +119,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         MethodInfo info = generateMethodInfo(ctx);
 
         MethodBelongingFile belongingFile = new MethodBelongingFile();
-        belongingFile.setFile(curFile.getPath());
+        belongingFile.setName(curFile.getPath());
         belongingFile.setStartLine(ctx.methodBody().start.getLine());
         belongingFile.setEndLine(ctx.methodBody().stop.getLine());
 

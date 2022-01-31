@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public final class MethodBelongingFile {
-    private String file;
+    private String name;
     private Integer startLine;
     private Integer endLine;
 }
