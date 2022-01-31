@@ -18,7 +18,9 @@ public class TestGit {
         Repository repo = new RepositoryBuilder().findGitDir(Support.getProjectRoot()).build();
         ObjectId head = repo.resolve("HEAD");
         ObjectId headParent = repo.resolve("HEAD^");
-        DiffResult diffResult = SibylDiff.diff(repo, head, headParent);
+
+        // call the first api
+        DiffResult diffResult = SibylDiff.diff(repo, head.getName(), headParent.getName());
         diffResult
                 .getNewFiles()
                 .forEach(
