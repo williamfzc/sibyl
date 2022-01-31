@@ -1,5 +1,7 @@
 package com.williamfzc.sibyl.core.model.method;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
@@ -8,4 +10,15 @@ import lombok.extern.jackson.Jacksonized;
 public final class Method {
     private MethodInfo info;
     private MethodBelonging belongsTo;
+
+    // todo: what about empty lines?
+    public List<Integer> getLineRange() {
+        List<Integer> ret = new ArrayList<>();
+        for (int i = belongsTo.getFile().getStartLine();
+                i < belongsTo.getFile().getEndLine();
+                i++) {
+            ret.add(i);
+        }
+        return ret;
+    }
 }

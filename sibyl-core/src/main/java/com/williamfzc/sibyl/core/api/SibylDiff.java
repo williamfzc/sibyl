@@ -38,6 +38,7 @@ public class SibylDiff {
         return diffResult;
     }
 
+    // todo: export this api
     private static void handleDiff(byte[] data, DiffResult diffResult) throws IOException {
         List<UnifiedDiffFile> files = Objects.requireNonNull(data2diff(data)).getFiles();
 

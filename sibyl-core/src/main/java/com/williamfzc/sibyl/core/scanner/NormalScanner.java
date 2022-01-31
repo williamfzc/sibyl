@@ -15,9 +15,16 @@ import java.util.stream.Collectors;
 
 public class NormalScanner extends BaseScanner {
     private int validFileNum = 0;
+    private File baseDir;
 
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
     private final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+
+    public NormalScanner(File baseDir) {
+        this.baseDir = baseDir;
+    }
+
+    public NormalScanner() {}
 
     public boolean fileValid(File file) {
         // by default
@@ -80,10 +87,18 @@ public class NormalScanner extends BaseScanner {
         beforeEachFile(file);
         Log.info("scan file: " + file.getAbsolutePath());
         String content = new String(Files.readAllBytes(file.toPath()));
+
+        File finalFile;
+        if (null != baseDir) {
+            finalFile = Paths.get(baseDir.toURI()).relativize(Paths.get(file.toURI())).toFile();
+        } else {
+            finalFile = file;
+        }
+
         acceptedListeners.forEach(
                 eachListener -> {
                     beforeEachListener(eachListener);
-                    eachListener.handle(file, content);
+                    eachListener.handle(finalFile, content);
                     afterEachListener(eachListener);
                 });
         afterEachFile(file);
