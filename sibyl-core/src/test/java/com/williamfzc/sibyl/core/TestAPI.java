@@ -12,7 +12,6 @@ import java.util.Set;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestAPI {
@@ -32,7 +31,6 @@ public class TestAPI {
     }
 
     @Test
-    @Ignore
     public void testDiff() throws IOException, InterruptedException {
         Repository repo = new RepositoryBuilder().findGitDir(Support.getProjectRoot()).build();
         ObjectId head = repo.resolve("HEAD");
