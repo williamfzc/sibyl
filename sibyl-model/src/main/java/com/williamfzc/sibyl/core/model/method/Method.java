@@ -15,7 +15,7 @@ public final class Method {
     public List<Integer> getLineRange() {
         List<Integer> ret = new ArrayList<>();
         for (int i = belongsTo.getFile().getStartLine();
-                i < belongsTo.getFile().getEndLine();
+                i <= belongsTo.getFile().getEndLine();
                 i++) {
             ret.add(i);
         }
