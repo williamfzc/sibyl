@@ -6,6 +6,7 @@ import com.github.difflib.unifieddiff.UnifiedDiffFile;
 import com.github.difflib.unifieddiff.UnifiedDiffReader;
 import com.williamfzc.sibyl.core.model.diff.DiffFile;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.*;
 import java.util.List;
 import java.util.Objects;
@@ -44,11 +45,21 @@ public class SibylDiff {
 
         List<DiffFile> oldFiles =
                 files.stream()
-                        .map(each -> handleOldPatch(each.getFromFile(), each.getPatch()))
+                        .map(
+                                each ->
+                                        handleOldPatch(
+                                                // git will always use unix format path so we
+                                                // convert
+                                                SibylUtils.formatPath(each.getFromFile()),
+                                                each.getPatch()))
                         .collect(Collectors.toList());
         List<DiffFile> newFiles =
                 files.stream()
-                        .map(each -> handleNewPatch(each.getToFile(), each.getPatch()))
+                        .map(
+                                each ->
+                                        handleNewPatch(
+                                                SibylUtils.formatPath(each.getToFile()),
+                                                each.getPatch()))
                         .collect(Collectors.toList());
         diffResult.setOldFiles(oldFiles);
         diffResult.setNewFiles(newFiles);

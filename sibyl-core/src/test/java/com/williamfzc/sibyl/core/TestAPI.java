@@ -8,7 +8,7 @@ import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
@@ -34,7 +34,7 @@ public class TestAPI {
     public void testDiff() throws IOException, InterruptedException {
         Repository repo = new RepositoryBuilder().findGitDir(Support.getProjectRoot()).build();
         ObjectId head = repo.resolve("HEAD");
-        ObjectId headParent = repo.resolve("HEAD^^^^^^");
+        ObjectId headParent = repo.resolve("HEAD~~~~~");
 
         DiffResult diffResult = SibylDiff.diff(repo, head.getName(), headParent.getName());
 
@@ -43,6 +43,22 @@ public class TestAPI {
         assert methodStorage != null;
         Set<Method> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
         System.out.println("diff method count: " + methods.size());
-        methods.forEach(eachMethod -> System.out.println(eachMethod.toString()));
+
+        Map<String, List<Method>> output = new HashMap<>();
+        methods.forEach(
+                eachMethod -> {
+                    String fileName = eachMethod.getBelongsTo().getFile().getName();
+                    output.putIfAbsent(fileName, new LinkedList<>());
+                    output.get(fileName).add(eachMethod);
+                });
+
+        output.forEach(
+                (k, v) -> {
+                    System.out.printf("file %s%n", k);
+                    v.forEach(
+                            eachMethod -> {
+                                System.out.println(eachMethod.toString());
+                            });
+                });
     }
 }
