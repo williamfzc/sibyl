@@ -9,6 +9,7 @@
     <modules>
         <module>sibyl-core</module>
         <module>sibyl-model</module>
+        <module>sibyl-cli</module>
     </modules>
 
     <build>
