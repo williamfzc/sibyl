@@ -9,6 +9,7 @@ import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
 import com.williamfzc.sibyl.core.listener.kt.KtSnapshotListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.diff.DiffFile;
+import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
@@ -43,14 +44,14 @@ public class Sibyl {
     }
 
     // todo: diff type here
-    public static Set<Method> genSnapshotDiff(Storage<Method> methodStorage, DiffResult diff) {
+    public static Set<DiffMethod> genSnapshotDiff(Storage<Method> methodStorage, DiffResult diff) {
         // 1. create a (fileName as key, method as value) map
         // 2. diff foreach: if file changed, check all its methods in map
         // 3. save all the valid methods to a list
         // return
 
         Map<String, Collection<Method>> methodMap = new HashMap<>();
-        Set<Method> diffMethods = new HashSet<>();
+        Set<DiffMethod> diffMethods = new HashSet<>();
         for (Method eachMethod : methodStorage.getData()) {
             String eachFileName = eachMethod.getBelongsTo().getFile().getName();
             methodMap.putIfAbsent(eachFileName, new HashSet<>());
@@ -76,7 +77,11 @@ public class Sibyl {
 
                                 // hit this method
                                 if (diffFile.getLines().stream().anyMatch(methodRange::contains)) {
-                                    diffMethods.add(eachMethod);
+                                    DiffMethod dm = new DiffMethod();
+                                    dm.setInfo(eachMethod.getInfo());
+                                    dm.setBelongsTo(eachMethod.getBelongsTo());
+                                    dm.safeSetDiffLines(diffFile.getLines());
+                                    diffMethods.add(dm);
                                 }
                             });
         }

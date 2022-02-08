@@ -7,7 +7,7 @@ import lombok.extern.jackson.Jacksonized;
 
 @Jacksonized
 @Data
-public final class Method {
+public class Method {
     private MethodInfo info;
     private MethodBelonging belongsTo;
 
@@ -20,5 +20,9 @@ public final class Method {
             ret.add(i);
         }
         return ret;
+    }
+
+    public Integer getLineCount() {
+        return getLineRange().size();
     }
 }

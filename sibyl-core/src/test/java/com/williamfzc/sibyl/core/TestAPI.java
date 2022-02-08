@@ -3,6 +3,7 @@ package com.williamfzc.sibyl.core;
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylDiff;
 import com.williamfzc.sibyl.core.api.SibylLangType;
+import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
@@ -41,10 +42,10 @@ public class TestAPI {
         Storage<Method> methodStorage =
                 Sibyl.genSnapshotFromDir(Support.getProjectRoot(), SibylLangType.JAVA_8);
         assert methodStorage != null;
-        Set<Method> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
+        Set<DiffMethod> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
         System.out.println("diff method count: " + methods.size());
 
-        Map<String, List<Method>> output = new HashMap<>();
+        Map<String, List<DiffMethod>> output = new HashMap<>();
         methods.forEach(
                 eachMethod -> {
                     String fileName = eachMethod.getBelongsTo().getFile().getName();
@@ -57,7 +58,11 @@ public class TestAPI {
                     System.out.printf("file %s%n", k);
                     v.forEach(
                             eachMethod -> {
-                                System.out.println(eachMethod.toString());
+                                System.out.printf(
+                                        "method: %s, score: %s, hit: %s%n",
+                                        eachMethod.getInfo().getName(),
+                                        eachMethod.calcDiffScore(),
+                                        eachMethod.getDiffLines());
                             });
                 });
     }
