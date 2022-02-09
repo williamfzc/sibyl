@@ -3,7 +3,7 @@
 
     <groupId>com.williamfzc.sibyl</groupId>
     <artifactId>sibyl</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>${sibyl.version}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -11,6 +11,10 @@
         <module>sibyl-model</module>
         <module>sibyl-cli</module>
     </modules>
+
+    <properties>
+        <sibyl.version>0.2.0</sibyl.version>
+    </properties>
 
     <build>
         <plugins>
