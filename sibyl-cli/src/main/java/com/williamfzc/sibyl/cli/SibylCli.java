@@ -1,8 +1,10 @@
 package com.williamfzc.sibyl.cli;
 
+import com.williamfzc.sibyl.cli.internal.SnapshotCommand;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "hello", description = "Says hello")
+// entry point
+@CommandLine.Command(subcommands = {SnapshotCommand.class})
 public class SibylCli implements Runnable {
     public static void main(String[] args) {
         int ret = new CommandLine(new SibylCli()).execute(args);
@@ -10,7 +12,5 @@ public class SibylCli implements Runnable {
     }
 
     @Override
-    public void run() {
-        System.out.println("Hello World!");
-    }
+    public void run() {}
 }
