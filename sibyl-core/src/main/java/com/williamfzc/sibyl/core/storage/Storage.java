@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,7 +18,7 @@ public class Storage<T> {
 
     public void save(T t) {
         if (null != t) {
-            Log.info("collect new info: " + t);
+            SibylLog.info("collect new info: " + t);
             data.add(t);
         }
     }

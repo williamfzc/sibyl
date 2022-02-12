@@ -6,7 +6,7 @@ import com.williamfzc.sibyl.core.model.clazz.ClazzBelonging;
 import com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile;
 import com.williamfzc.sibyl.core.model.method.*;
 import com.williamfzc.sibyl.core.model.pkg.Pkg;
-import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -26,7 +26,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     public void enterPackageDeclaration(Java8Parser.PackageDeclarationContext ctx) {
         String declaredPackage =
                 ctx.Identifier().stream().map(ParseTree::getText).collect(Collectors.joining("."));
-        Log.info("pkg decl: " + declaredPackage);
+        SibylLog.debug("pkg decl: " + declaredPackage);
         curPackage = declaredPackage;
         fieldTypeMapping.clear();
     }
@@ -50,18 +50,19 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
             return;
         }
         String declaredClass = normalClassDeclarationContext.Identifier().getText();
-        Log.info("class decl end: " + declaredClass);
+        SibylLog.debug("class decl end: " + declaredClass);
         curClassStack.pop();
 
         // temp
-        Log.info(String.format("class %s field mapping: %s", declaredClass, fieldTypeMapping));
+        SibylLog.debug(
+                String.format("class %s field mapping: %s", declaredClass, fieldTypeMapping));
     }
 
     // use a stack to manage current method
     @Override
     public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
-        Log.info("method decl: " + declaredMethod);
+        SibylLog.debug("method decl: " + declaredMethod);
         curMethodStack.push(generateMethod(ctx));
 
         // args fields
@@ -85,7 +86,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     @Override
     public void exitMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
-        Log.info("method decl end: " + declaredMethod);
+        SibylLog.debug("method decl end: " + declaredMethod);
         curMethodStack.pop();
     }
 

@@ -2,13 +2,13 @@ package com.williamfzc.sibyl.core.listener.kt;
 
 import com.williamfzc.sibyl.core.listener.KotlinParser;
 import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 
 public class KtSnapshotListener extends KtMethodListener<Method> {
     @Override
     public void enterClassMemberDeclaration(KotlinParser.ClassMemberDeclarationContext ctx) {
         super.enterClassMemberDeclaration(ctx);
-        Log.info(
+        SibylLog.info(
                 "class member: "
                         + ctx.declaration().functionDeclaration().simpleIdentifier().getText());
         this.storage.save(curMethodStack.peekLast());
@@ -28,7 +28,7 @@ public class KtSnapshotListener extends KtMethodListener<Method> {
                 .classMemberDeclaration()
                 .forEach(
                         each -> {
-                            Log.info(
+                            SibylLog.info(
                                     "found decl in object: "
                                             + each.declaration().functionDeclaration().getText());
                             this.enterClassMemberDeclaration(each);

@@ -6,7 +6,7 @@ import com.williamfzc.sibyl.core.model.clazz.ClazzBelonging;
 import com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile;
 import com.williamfzc.sibyl.core.model.method.*;
 import com.williamfzc.sibyl.core.model.pkg.Pkg;
-import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,20 +32,20 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
                 ctx.identifier().simpleIdentifier().stream()
                         .map(ParseTree::getText)
                         .collect(Collectors.joining("."));
-        Log.info("pkg decl: " + declaredPackage);
+        SibylLog.info("pkg decl: " + declaredPackage);
         curPackage = declaredPackage;
         fieldTypeMapping.clear();
     }
 
     @Override
     public void enterClassDeclaration(KotlinParser.ClassDeclarationContext ctx) {
-        Log.info("class decl: " + ctx.simpleIdentifier().Identifier().getText());
+        SibylLog.info("class decl: " + ctx.simpleIdentifier().Identifier().getText());
         curClassStack.push(generateClazz(ctx));
     }
 
     @Override
     public void enterObjectDeclaration(KotlinParser.ObjectDeclarationContext ctx) {
-        Log.info("object decl: " + ctx.simpleIdentifier().Identifier().getText());
+        SibylLog.info("object decl: " + ctx.simpleIdentifier().Identifier().getText());
         curClassStack.push(generateClazz(ctx));
     }
 
@@ -72,7 +72,7 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
 
     @Override
     public void enterVariableDeclaration(KotlinParser.VariableDeclarationContext ctx) {
-        Log.info("field decl: " + ctx.simpleIdentifier().getText());
+        SibylLog.info("field decl: " + ctx.simpleIdentifier().getText());
     }
 
     protected Clazz generateClazz(KotlinParser.ObjectDeclarationContext ctx) {
@@ -128,7 +128,7 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
     }
 
     protected Method generateMethod(KotlinParser.FunctionDeclarationContext ctx) {
-        Log.info("gen mod: " + curClassStack.peekLast());
+        SibylLog.info("gen mod: " + curClassStack.peekLast());
         Clazz curClass = curClassStack.peekLast();
         Method m = new Method();
         MethodInfo info = generateMethodInfo(ctx);
@@ -144,7 +144,7 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
 
         m.setInfo(info);
         m.setBelongsTo(belonging);
-        Log.info("gen done: " + m);
+        SibylLog.info("gen done: " + m);
         return m;
     }
 

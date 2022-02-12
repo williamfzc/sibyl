@@ -4,7 +4,7 @@ import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
-import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,7 +73,7 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
         for (Method eachMethod : snapshotMap.get(type)) {
             if (eachMethod.getInfo().getName().equals(name)) {
                 // match
-                Log.info(String.format("found method %s in class %s", name, type));
+                SibylLog.info(String.format("found method %s in class %s", name, type));
                 return eachMethod;
             }
         }
@@ -95,11 +95,11 @@ public class EdgeAnalyzer extends BaseAnalyzer<Edge> {
 
     private boolean verify() {
         if (null == snapshot) {
-            Log.error("setSnapshot first");
+            SibylLog.error("setSnapshot first");
             return false;
         }
         if (null == clazzGraph) {
-            Log.error("setClazzGraph first");
+            SibylLog.error("setClazzGraph first");
             return false;
         }
         return true;

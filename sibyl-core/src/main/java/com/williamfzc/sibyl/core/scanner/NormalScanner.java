@@ -1,7 +1,7 @@
 package com.williamfzc.sibyl.core.scanner;
 
 import com.williamfzc.sibyl.core.intf.Listenable;
-import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.IOException;
@@ -50,13 +50,13 @@ public class NormalScanner extends BaseScanner {
                     @Override
                     public FileVisitResult visitFileFailed(Path file, IOException exc)
                             throws IOException {
-                        Log.warn(String.format("visit file %s failed, exc: %s", file, exc));
+                        SibylLog.warn(String.format("visit file %s failed, exc: %s", file, exc));
                         return super.visitFileFailed(file, exc);
                     }
                 });
 
         // do the real thing
-        Log.info("worker size: " + THREAD_POOL_SIZE);
+        SibylLog.info("worker size: " + THREAD_POOL_SIZE);
         executor.invokeAll(
                 todoFiles.stream()
                         .map(
@@ -86,7 +86,7 @@ public class NormalScanner extends BaseScanner {
         }
 
         beforeEachFile(file);
-        Log.info("scan file: " + file.getAbsolutePath());
+        SibylLog.info("scan file: " + file.getAbsolutePath());
         String content = SibylUtils.readContent(file);
 
         File finalFile;
@@ -123,7 +123,7 @@ public class NormalScanner extends BaseScanner {
 
     @Override
     protected void afterScan() {
-        Log.info("valid file count: " + validFileNum);
+        SibylLog.info("valid file count: " + validFileNum);
         validFileNum = 0;
     }
 }

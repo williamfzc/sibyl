@@ -7,7 +7,7 @@ import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.NormalScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
-import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
 import java.io.IOException;
 import org.junit.Test;
@@ -32,9 +32,9 @@ public class TestKt {
         scanner.scanDir(src);
 
         System.out.println("method count: " + listener.getStorage().size());
-        methodStorage.getData().forEach(each -> Log.info(each.toString()));
+        methodStorage.getData().forEach(each -> SibylLog.info(each.toString()));
 
         System.out.println("class count: " + clazzListener.getStorage().size());
-        clazzStorage.getData().forEach(each -> Log.info(each.toString()));
+        clazzStorage.getData().forEach(each -> SibylLog.info(each.toString()));
     }
 }
