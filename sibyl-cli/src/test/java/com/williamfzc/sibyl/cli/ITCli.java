@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-public class TestCli {
+public class ITCli {
     @Test
     public void testSnapshot() throws InterruptedException, IOException {
         File outputFile = new File(getTargetDir(), "a.json");
