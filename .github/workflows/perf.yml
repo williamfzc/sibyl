@@ -27,4 +27,5 @@ jobs:
         run: |
           chmod +x ./.github/workflows/prepare.sh
           ./.github/workflows/prepare.sh
-          mvn -B package --file pom.xml
+          mvn clean package
+          mvn -B verify --file pom.xml
