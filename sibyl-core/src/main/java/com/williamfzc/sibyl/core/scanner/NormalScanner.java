@@ -2,6 +2,7 @@ package com.williamfzc.sibyl.core.scanner;
 
 import com.williamfzc.sibyl.core.intf.Listenable;
 import com.williamfzc.sibyl.core.utils.Log;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -86,7 +87,7 @@ public class NormalScanner extends BaseScanner {
 
         beforeEachFile(file);
         Log.info("scan file: " + file.getAbsolutePath());
-        String content = new String(Files.readAllBytes(file.toPath()));
+        String content = SibylUtils.readContent(file);
 
         File finalFile;
         if (null != baseDir) {

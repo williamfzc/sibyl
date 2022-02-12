@@ -1,5 +1,6 @@
 package com.williamfzc.sibyl.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylDiff;
 import com.williamfzc.sibyl.core.api.SibylLangType;
@@ -13,6 +14,7 @@ import java.util.*;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestAPI {
@@ -20,8 +22,19 @@ public class TestAPI {
     public void testSnapshot() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
         File target = Support.getWorkspace();
-        Sibyl.genSnapshotFromDir(src, new File(target, "j8.json"), SibylLangType.JAVA_8);
+        File javaOutput = new File(target, "j8.json");
+        Sibyl.genSnapshotFromDir(src, javaOutput, SibylLangType.JAVA_8);
         Sibyl.genSnapshotFromDir(src, new File(target, "kt.json"), SibylLangType.KOTLIN);
+
+        // import and export
+        File javaOutput2 = new File(target, "j8_2.json");
+        Storage<Method> s = Storage.import_(javaOutput, Method.class);
+        s.exportFile(javaOutput2);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        Assert.assertEquals(
+                mapper.readTree(javaOutput).size(), mapper.readTree(javaOutput2).size());
     }
 
     @Test
