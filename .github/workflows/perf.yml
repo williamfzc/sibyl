@@ -25,5 +25,6 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: |
+          chmod +x ./.github/workflows/prepare.sh
           ./.github/workflows/prepare.sh
           mvn -B package --file pom.xml
