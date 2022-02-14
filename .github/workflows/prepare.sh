@@ -4,6 +4,7 @@ echo $basepath
 
 cd ..
 cd ..
+echo `pwd`
 
 rm -rf testRes
 mkdir testRes
