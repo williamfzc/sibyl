@@ -18,7 +18,7 @@ public class Storage<T> {
 
     public void save(T t) {
         if (null != t) {
-            SibylLog.info("collect new info: " + t);
+            SibylLog.debug("collect new info: " + t);
             data.add(t);
         }
     }

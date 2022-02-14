@@ -7,18 +7,18 @@ public class SibylLog {
     private static final Logger LOGGER = LoggerFactory.getLogger(SibylLog.class);
 
     public static void debug(String msg) {
-        LOGGER.debug("[sibyl-D] " + msg);
+        LOGGER.debug(msg);
     }
 
     public static void info(String msg) {
-        LOGGER.info("[sibyl-I] " + msg);
+        LOGGER.info(msg);
     }
 
     public static void warn(String msg) {
-        LOGGER.warn("[sibyl-W] " + msg);
+        LOGGER.warn(msg);
     }
 
     public static void error(String msg) {
-        LOGGER.error("[sibyl-E] " + msg);
+        LOGGER.error(msg);
     }
 }
