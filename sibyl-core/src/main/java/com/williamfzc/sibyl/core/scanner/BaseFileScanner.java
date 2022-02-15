@@ -53,6 +53,7 @@ public abstract class BaseFileScanner extends BaseScanner {
         }
     }
 
+    private int currentFileCount = 0;
     protected File baseDir;
 
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
@@ -122,7 +123,10 @@ public abstract class BaseFileScanner extends BaseScanner {
         }
 
         beforeEachFile(file);
-        SibylLog.info(String.format("scan file %s, size: %s", file.getPath(), file.length()));
+        SibylLog.info(
+                String.format(
+                        "scan file %s, path %s, size: %s",
+                        ++currentFileCount, file.getPath(), file.length()));
 
         String content = getFileContent(file);
 
