@@ -8,6 +8,7 @@ import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -21,7 +22,8 @@ public class TestAPI {
     @Test
     public void testScan() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
-        Sibyl.previewDir(src, SibylLangType.JAVA_8);
+        Set<File> files = Sibyl.genValidFilesFromDir(src, SibylLangType.JAVA_8);
+        SibylLog.info("valid files: " + files.size());
     }
 
     @Test

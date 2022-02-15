@@ -118,7 +118,12 @@ public class Sibyl {
         }
     }
 
-    public static void previewDir(File inputDir, SibylLangType lang)
+    public static Set<File> genValidFilesFromDir(File inputDir, SibylLangType lang)
+            throws IOException, InterruptedException {
+        return genPreviewFromDir(inputDir, lang).getData();
+    }
+
+    public static Storage<File> genPreviewFromDir(File inputDir, SibylLangType lang)
             throws IOException, InterruptedException {
         FileIntroScanner scanner = new FileIntroScanner(inputDir);
         IStorableListener<File> listener =
@@ -148,9 +153,7 @@ public class Sibyl {
 
         scanner.registerListener(listener);
         scanner.scanDir(inputDir);
-        Storage<File> storage = listener.getStorage();
-        Set<File> fileSet = storage.getData();
-        SibylLog.info("files collected: " + fileSet.size());
+        return listener.getStorage();
     }
 
     private static Storage<Method> genSnapshotFromDir(
