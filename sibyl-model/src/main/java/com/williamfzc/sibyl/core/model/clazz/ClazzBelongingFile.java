@@ -6,7 +6,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Data
 public class ClazzBelongingFile {
-    private String file;
+    private String name;
     private Integer startLine;
     private Integer endLine;
 }

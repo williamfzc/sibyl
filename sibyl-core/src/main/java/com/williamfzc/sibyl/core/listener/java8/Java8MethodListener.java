@@ -170,7 +170,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         pkg.setName(curPackage);
 
         ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
-        clazzBelongingFile.setFile(curFile.getPath());
+        clazzBelongingFile.setName(curFile.getPath());
         clazzBelongingFile.setStartLine(ctx.start.getLine());
         clazzBelongingFile.setEndLine(ctx.stop.getLine());
 

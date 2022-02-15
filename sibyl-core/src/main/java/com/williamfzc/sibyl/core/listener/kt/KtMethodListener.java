@@ -83,7 +83,7 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
         pkg.setName(curPackage);
 
         ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
-        clazzBelongingFile.setFile(curFile.getPath());
+        clazzBelongingFile.setName(curFile.getPath());
         clazzBelongingFile.setStartLine(ctx.start.getLine());
         clazzBelongingFile.setEndLine(ctx.stop.getLine());
 
@@ -109,7 +109,7 @@ public class KtMethodListener<T> extends KtStorableListener<T> {
         pkg.setName(curPackage);
 
         ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
-        clazzBelongingFile.setFile(curFile.getPath());
+        clazzBelongingFile.setName(curFile.getPath());
         clazzBelongingFile.setStartLine(ctx.start.getLine());
         clazzBelongingFile.setEndLine(ctx.stop.getLine());
 
