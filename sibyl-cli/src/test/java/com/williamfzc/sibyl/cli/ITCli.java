@@ -35,13 +35,18 @@ public class ITCli {
                             File outputFile =
                                     new File(getTargetDir(), inputFile.getName() + ".json");
                             ProcessBuilder pb = getSnapshotProcessBuilder(inputFile, outputFile);
+                            Process p = null;
                             try {
-                                Process p = pb.start();
-                                boolean ret = p.waitFor(180, TimeUnit.SECONDS);
+                                p = pb.start();
+                                boolean ret = p.waitFor(1800, TimeUnit.SECONDS);
                                 Assert.assertTrue(ret);
                                 Assert.assertTrue(outputFile.isFile());
                             } catch (IOException | InterruptedException e) {
                                 e.printStackTrace();
+                            } finally {
+                                if (null != p && p.isAlive()) {
+                                    p.destroy();
+                                }
                             }
                         });
     }
