@@ -5,6 +5,7 @@ import com.williamfzc.sibyl.core.listener.Java8BaseListener;
 import com.williamfzc.sibyl.core.listener.Java8Lexer;
 import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -25,7 +26,19 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
         this.storage = storage;
     }
 
-    public synchronized void handle(File file, String content) {
+    public void handle(File file, String content) {
+        try {
+            // todo: how to handle this T?
+            Java8StorableListener<T> listenerCopy = this.getClass().getConstructor().newInstance();
+            listenerCopy.setStorage(storage);
+            listenerCopy.realHandle(file, content);
+        } catch (Exception e) {
+            SibylLog.error(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void realHandle(File file, String content) {
         curFile = file;
         Java8Lexer lexer = new Java8Lexer(CharStreams.fromString(content));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -37,7 +50,7 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
     }
 
     @Override
-    public synchronized void afterHandle() {}
+    public void afterHandle() {}
 
     @Override
     public boolean accept(File file) {

@@ -10,11 +10,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Storage<T> {
-    final Set<T> data = new HashSet<>();
+    private final Set<T> data = Collections.synchronizedSet(new HashSet<>());
 
     public void save(T t) {
         if (null != t) {

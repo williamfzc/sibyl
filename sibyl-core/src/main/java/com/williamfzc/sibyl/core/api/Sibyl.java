@@ -13,7 +13,8 @@ import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.scanner.NormalScanner;
+import com.williamfzc.sibyl.core.scanner.FileContentScanner;
+import com.williamfzc.sibyl.core.scanner.FileIntroScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
@@ -117,10 +118,45 @@ public class Sibyl {
         }
     }
 
+    public static void previewDir(File inputDir, SibylLangType lang)
+            throws IOException, InterruptedException {
+        FileIntroScanner scanner = new FileIntroScanner(inputDir);
+        IStorableListener<File> listener =
+                new IStorableListener<File>() {
+                    private Storage<File> data = new Storage<>();
+
+                    @Override
+                    public void setStorage(Storage<File> storage) {
+                        this.data = storage;
+                    }
+
+                    @Override
+                    public Storage<File> getStorage() {
+                        return data;
+                    }
+
+                    @Override
+                    public void handle(File file, String content) {
+                        this.data.save(file);
+                    }
+
+                    @Override
+                    public boolean accept(File file) {
+                        return file.getName().endsWith(lang.FILE_SUBFIX);
+                    }
+                };
+
+        scanner.registerListener(listener);
+        scanner.scanDir(inputDir);
+        Storage<File> storage = listener.getStorage();
+        Set<File> fileSet = storage.getData();
+        SibylLog.info("files collected: " + fileSet.size());
+    }
+
     private static Storage<Method> genSnapshotFromDir(
             File inputDir, IStorableListener<Method> listener)
             throws IOException, InterruptedException {
-        NormalScanner scanner = new NormalScanner(inputDir);
+        FileContentScanner scanner = new FileContentScanner(inputDir);
 
         Storage<Method> methodStorage = new Storage<>();
         listener.setStorage(methodStorage);
@@ -132,7 +168,7 @@ public class Sibyl {
 
     private static Storage<Edge> genJava8CallGraphFromDir(File inputDir)
             throws IOException, InterruptedException {
-        NormalScanner scanner = new NormalScanner(inputDir);
+        FileContentScanner scanner = new FileContentScanner(inputDir);
 
         IStorableListener<Edge> listener = new Java8CallListener();
         Storage<Edge> edgeStorage = new Storage<>();

@@ -71,7 +71,13 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
         // search the caller
         Java8Parser.TypeNameContext typeNameContext = ctx.typeName();
         RawEdge rawEdge = new RawEdge();
-        rawEdge.setFromMethodName(curMethodStack.peekLast().getInfo().getName());
+        if (curMethod != null) {
+            rawEdge.setFromMethodName(curMethod.getInfo().getName());
+        } else {
+            // not belong to any methods
+            rawEdge.setFromMethodName("__class_scope__");
+        }
+
         if (null == typeNameContext) {
             rawEdge.setToMethodName(methodName);
             headlessMethodSet.add(rawEdge);
@@ -89,7 +95,7 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
     }
 
     @Override
-    public synchronized void afterHandle() {
+    public void afterHandle() {
         // guess and save them to storage
         processHeadlessMethods();
         processNeedGuestMethods();

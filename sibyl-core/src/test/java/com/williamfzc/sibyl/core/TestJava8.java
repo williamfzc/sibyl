@@ -9,7 +9,7 @@ import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.scanner.NormalScanner;
+import com.williamfzc.sibyl.core.scanner.FileContentScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
@@ -24,7 +24,7 @@ public class TestJava8 {
     public void testMain() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
 
-        NormalScanner scanner = new NormalScanner();
+        FileContentScanner scanner = new FileContentScanner(src);
 
         IStorableListener<Method> listener = new Java8SnapshotListener();
         Storage<Method> methodStorage = new Storage<>();
@@ -40,7 +40,7 @@ public class TestJava8 {
     @Test
     public void testClazz() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
-        NormalScanner scanner = new NormalScanner();
+        FileContentScanner scanner = new FileContentScanner(src);
 
         IStorableListener<Clazz> listener = new Java8ClassListener();
         Storage<Clazz> clazzStorage = new Storage<>();
@@ -57,7 +57,7 @@ public class TestJava8 {
     public void testCallGraph() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
         File ws = Support.getWorkspace();
-        NormalScanner scanner = new NormalScanner();
+        FileContentScanner scanner = new FileContentScanner(src);
 
         IStorableListener<Edge> listener = new Java8CallListener();
         Storage<Edge> edgeStorage = new Storage<>();

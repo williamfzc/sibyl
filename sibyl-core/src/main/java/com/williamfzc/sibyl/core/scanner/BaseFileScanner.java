@@ -2,31 +2,67 @@ package com.williamfzc.sibyl.core.scanner;
 
 import com.williamfzc.sibyl.core.intf.Listenable;
 import com.williamfzc.sibyl.core.utils.SibylLog;
-import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-public class NormalScanner extends BaseScanner {
-    private int validFileNum = 0;
-    private File baseDir;
+public abstract class BaseFileScanner extends BaseScanner {
+    // https://stackoverflow.com/a/38771060/10641498
+    // for catching errors happened in threads
+    private static class _Executor extends ThreadPoolExecutor {
+        public _Executor(
+                int corePoolSize,
+                int maximumPoolSize,
+                long keepAliveTime,
+                TimeUnit unit,
+                BlockingQueue<Runnable> workQueue) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+        }
+
+        public static _Executor initPool(int poolSize) {
+            return new _Executor(
+                    poolSize,
+                    poolSize,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>());
+        }
+
+        @Override
+        protected void afterExecute(Runnable r, Throwable t) {
+            super.afterExecute(r, t);
+            if (t == null && r instanceof Future<?>) {
+                try {
+                    ((Future<?>) r).get();
+                } catch (CancellationException ce) {
+                    t = ce;
+                } catch (ExecutionException ee) {
+                    t = ee.getCause();
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt(); // ignore/reset
+                }
+            }
+            if (t != null) {
+                t.printStackTrace();
+            }
+        }
+    }
+
+    protected File baseDir;
 
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
-    private final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+    private final ExecutorService executor = _Executor.initPool(THREAD_POOL_SIZE);
 
-    public NormalScanner(File baseDir) {
+    public BaseFileScanner(File baseDir) {
         this.baseDir = baseDir;
     }
 
-    public NormalScanner() {}
-
+    // todo: scanner policy config?
     public boolean fileValid(File file) {
         // by default
         return true;
@@ -86,12 +122,14 @@ public class NormalScanner extends BaseScanner {
         }
 
         beforeEachFile(file);
-        SibylLog.info("scan file: " + file.getAbsolutePath());
-        String content = SibylUtils.readContent(file);
+        SibylLog.info(String.format("scan file %s, size: %s", file.getPath(), file.length()));
 
+        String content = getFileContent(file);
+
+        // avoid using abs path
         File finalFile;
         if (null != baseDir) {
-            finalFile = Paths.get(baseDir.toURI()).relativize(Paths.get(file.toURI())).toFile();
+            finalFile = getRealFile(file);
         } else {
             finalFile = file;
         }
@@ -105,13 +143,13 @@ public class NormalScanner extends BaseScanner {
         afterEachFile(file);
     }
 
+    public abstract String getFileContent(File file) throws IOException;
+
     @Override
     protected void beforeEachFile(File file) {}
 
     @Override
-    protected void afterEachFile(File file) {
-        validFileNum++;
-    }
+    protected void afterEachFile(File file) {}
 
     @Override
     protected void beforeEachListener(Listenable listenable) {}
@@ -122,8 +160,9 @@ public class NormalScanner extends BaseScanner {
     }
 
     @Override
-    protected void afterScan() {
-        SibylLog.info("valid file count: " + validFileNum);
-        validFileNum = 0;
+    protected void afterScan() {}
+
+    private File getRealFile(File file) {
+        return Paths.get(baseDir.toURI()).relativize(Paths.get(file.toURI())).toFile();
     }
 }

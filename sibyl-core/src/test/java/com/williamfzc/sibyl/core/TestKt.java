@@ -5,7 +5,7 @@ import com.williamfzc.sibyl.core.listener.kt.KtClassListener;
 import com.williamfzc.sibyl.core.listener.kt.KtSnapshotListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.scanner.NormalScanner;
+import com.williamfzc.sibyl.core.scanner.FileContentScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
@@ -17,7 +17,7 @@ public class TestKt {
     public void testKt() throws IOException, InterruptedException {
         // todo: add kotlin test res
         File src = Support.getSelfSource();
-        NormalScanner scanner = new NormalScanner();
+        FileContentScanner scanner = new FileContentScanner(src);
 
         IStorableListener<Method> listener = new KtSnapshotListener();
         Storage<Method> methodStorage = new Storage<>();

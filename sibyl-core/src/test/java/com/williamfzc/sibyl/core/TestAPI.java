@@ -19,12 +19,19 @@ import org.junit.Test;
 
 public class TestAPI {
     @Test
+    public void testScan() throws IOException, InterruptedException {
+        File src = Support.getSelfSource();
+        Sibyl.previewDir(src, SibylLangType.JAVA_8);
+    }
+
+    @Test
     public void testSnapshot() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
         File target = Support.getWorkspace();
         File javaOutput = new File(target, "j8.json");
+
         Sibyl.genSnapshotFromDir(src, javaOutput, SibylLangType.JAVA_8);
-        Sibyl.genSnapshotFromDir(src, new File(target, "kt.json"), SibylLangType.KOTLIN);
+        //        Sibyl.genSnapshotFromDir(src, new File(target, "kt.json"), SibylLangType.KOTLIN);
 
         // import and export
         File javaOutput2 = new File(target, "j8_2.json");
