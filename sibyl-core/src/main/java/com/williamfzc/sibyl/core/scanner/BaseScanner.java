@@ -6,10 +6,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class BaseScanner {
+    protected ScanPolicy scanPolicy = ScanPolicy.ofDefault();
+
     protected final List<Listenable> listenableList = new LinkedList<>();
 
     public void registerListener(Listenable listenable) {
         listenableList.add(listenable);
+    }
+
+    public void setScanPolicy(ScanPolicy policy) {
+        this.scanPolicy = policy;
+    }
+
+    public ScanPolicy getScanPolicy() {
+        return scanPolicy;
     }
 
     // hooks

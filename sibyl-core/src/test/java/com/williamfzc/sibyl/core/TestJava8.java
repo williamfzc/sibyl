@@ -10,6 +10,7 @@ import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.FileContentScanner;
+import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
@@ -25,6 +26,14 @@ public class TestJava8 {
         File src = Support.getSelfSource();
 
         FileContentScanner scanner = new FileContentScanner(src);
+        ScanPolicy policy =
+                new ScanPolicy() {
+                    @Override
+                    public boolean shouldExclude(File file) {
+                        return file.getName().toLowerCase().contains("test");
+                    }
+                };
+        scanner.setScanPolicy(policy);
 
         IStorableListener<Method> listener = new Java8SnapshotListener();
         Storage<Method> methodStorage = new Storage<>();
