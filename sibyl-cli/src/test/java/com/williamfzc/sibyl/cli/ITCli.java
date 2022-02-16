@@ -1,11 +1,10 @@
 package com.williamfzc.sibyl.cli;
 
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -28,27 +27,26 @@ public class ITCli {
     @Test
     public void testPerf() {
         Assume.assumeTrue(getTestRes().isDirectory());
-        Arrays.stream(Objects.requireNonNull(getTestRes().listFiles()))
-                .forEach(
-                        inputFile -> {
-                            System.out.println("testing perf: " + inputFile);
-                            File outputFile =
-                                    new File(getTargetDir(), inputFile.getName() + ".json");
-                            ProcessBuilder pb = getSnapshotProcessBuilder(inputFile, outputFile);
-                            Process p = null;
-                            try {
-                                p = pb.start();
-                                boolean ret = p.waitFor(1800, TimeUnit.SECONDS);
-                                Assert.assertTrue(ret);
-                                Assert.assertTrue(outputFile.isFile());
-                            } catch (IOException | InterruptedException e) {
-                                e.printStackTrace();
-                            } finally {
-                                if (null != p && p.isAlive()) {
-                                    p.destroy();
-                                }
-                            }
-                        });
+        File[] testResList = getTestRes().listFiles();
+        Assume.assumeNotNull((Object) testResList);
+        for (File inputFile : testResList) {
+            SibylLog.info("testing perf: " + inputFile);
+            File outputFile = new File(getTargetDir(), inputFile.getName() + ".json");
+            ProcessBuilder pb = getSnapshotProcessBuilder(inputFile, outputFile);
+            Process p = null;
+            try {
+                p = pb.start();
+                boolean ret = p.waitFor(1800, TimeUnit.SECONDS);
+                Assert.assertTrue(ret);
+                Assert.assertTrue(outputFile.isFile());
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                if (null != p && p.isAlive()) {
+                    p.destroy();
+                }
+            }
+        }
     }
 
     private ProcessBuilder getSnapshotProcessBuilder(File input, File output) {
@@ -94,7 +92,4 @@ public class ITCli {
         return new File(
                 getTargetDir(), String.format("sibyl-cli-%s-jar-with-dependencies.jar", ver));
     }
-
-    private static final File NULL_FILE =
-            new File((System.getProperty("os.name").startsWith("Windows") ? "NUL" : "/dev/null"));
 }
