@@ -29,3 +29,5 @@ jobs:
           ./.github/workflows/prepare.sh
           mvn -B clean package -DskipTests --file pom.xml
           mvn -B verify --file pom.xml
+        env:
+          MAVEN_OPTS: -Xmx4096m
