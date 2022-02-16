@@ -2,10 +2,13 @@ package com.williamfzc.sibyl.core.scanner;
 
 import com.williamfzc.sibyl.core.intf.Listenable;
 import com.williamfzc.sibyl.core.utils.SibylLog;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -53,10 +56,29 @@ public abstract class BaseFileScanner extends BaseScanner {
         }
     }
 
+    private static final RetryPolicy<Object> retryPolicy =
+            RetryPolicy.builder()
+                    .handle(OutOfMemoryError.class)
+                    .withDelay(Duration.ofSeconds(1))
+                    .withMaxRetries(3)
+                    .onRetry(
+                            e -> {
+                                Throwable lastException = e.getLastException();
+                                lastException.printStackTrace();
+                                SibylLog.warn("oom happened, applying retry policy");
+                            })
+                    .onFailure(
+                            e -> {
+                                Throwable lastException = e.getException();
+                                lastException.printStackTrace();
+                                SibylLog.error("retry policy failed because of oom");
+                            })
+                    .build();
+
     private int currentFileCount = 0;
     protected File baseDir;
 
-    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
+    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors() - 1;
     private final ExecutorService executor = _Executor.initPool(THREAD_POOL_SIZE);
 
     public BaseFileScanner(File baseDir) {
@@ -141,7 +163,7 @@ public abstract class BaseFileScanner extends BaseScanner {
         acceptedListeners.forEach(
                 eachListener -> {
                     beforeEachListener(eachListener);
-                    eachListener.handle(finalFile, content);
+                    Failsafe.with(retryPolicy).run(() -> eachListener.handle(finalFile, content));
                     afterEachListener(eachListener);
                 });
         afterEachFile(file);
