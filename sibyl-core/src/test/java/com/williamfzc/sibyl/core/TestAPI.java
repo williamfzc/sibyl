@@ -9,6 +9,7 @@ import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
+import com.williamfzc.sibyl.test.Support;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -33,7 +34,7 @@ public class TestAPI {
         File javaOutput = new File(target, "j8.json");
 
         Sibyl.genSnapshotFromDir(src, javaOutput, SibylLangType.JAVA_8);
-        //        Sibyl.genSnapshotFromDir(src, new File(target, "kt.json"), SibylLangType.KOTLIN);
+        Sibyl.genSnapshotFromDir(src, new File(target, "kt.json"), SibylLangType.KOTLIN);
 
         // import and export
         File javaOutput2 = new File(target, "j8_2.json");

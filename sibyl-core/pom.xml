@@ -77,6 +77,12 @@
       <artifactId>sibyl-model</artifactId>
       <version>${sibyl.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.williamfzc.sibyl</groupId>
+      <artifactId>sibyl-test</artifactId>
+      <version>${sibyl.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- for dev -->

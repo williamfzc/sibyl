@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.core;
+package com.williamfzc.sibyl.test;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -26,5 +26,19 @@ public class Support {
             assert ok;
         }
         return ws;
+    }
+
+    public static File getTestRes() {
+        return new File(getProjectRoot(), "testRes");
+    }
+
+    public static File getTargetDir() {
+        return new File(getModuleRoot(), "target");
+    }
+
+    public static File getJar() {
+        String ver = System.getProperty("sibylVersion");
+        return new File(
+                getTargetDir(), String.format("sibyl-cli-%s-jar-with-dependencies.jar", ver));
     }
 }

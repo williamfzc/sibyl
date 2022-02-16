@@ -13,6 +13,7 @@ import com.williamfzc.sibyl.core.scanner.FileContentScanner;
 import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
+import com.williamfzc.sibyl.test.Support;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

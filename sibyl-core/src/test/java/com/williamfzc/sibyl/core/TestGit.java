@@ -2,6 +2,7 @@ package com.williamfzc.sibyl.core;
 
 import com.williamfzc.sibyl.core.api.SibylDiff;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
+import com.williamfzc.sibyl.test.Support;
 import java.io.*;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;

@@ -1,10 +1,9 @@
 package com.williamfzc.sibyl.cli;
 
 import com.williamfzc.sibyl.core.utils.SibylLog;
+import com.williamfzc.sibyl.test.Support;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -13,8 +12,8 @@ import org.junit.Test;
 public class ITCli {
     @Test
     public void testSnapshot() throws InterruptedException, IOException {
-        File outputFile = new File(getTargetDir(), "a.json");
-        File inputFile = getCurrentModule();
+        File outputFile = new File(Support.getTargetDir(), "a.json");
+        File inputFile = Support.getModuleRoot();
 
         ProcessBuilder pb = getSnapshotProcessBuilder(inputFile, outputFile);
         Process p = pb.start();
@@ -26,12 +25,12 @@ public class ITCli {
 
     @Test
     public void testPerf() {
-        Assume.assumeTrue(getTestRes().isDirectory());
-        File[] testResList = getTestRes().listFiles();
+        Assume.assumeTrue(Support.getTestRes().isDirectory());
+        File[] testResList = Support.getTestRes().listFiles();
         Assume.assumeNotNull((Object) testResList);
         for (File inputFile : testResList) {
             SibylLog.info("testing perf: " + inputFile);
-            File outputFile = new File(getTargetDir(), inputFile.getName() + ".json");
+            File outputFile = new File(Support.getTargetDir(), inputFile.getName() + ".json");
             ProcessBuilder pb = getSnapshotProcessBuilder(inputFile, outputFile);
             Process p = null;
             try {
@@ -50,8 +49,8 @@ public class ITCli {
     }
 
     private ProcessBuilder getSnapshotProcessBuilder(File input, File output) {
-        File jarFile = getJar();
-        Assert.assertTrue(getJar().isFile());
+        File jarFile = Support.getJar();
+        Assert.assertTrue(Support.getJar().isFile());
         ProcessBuilder pb = new ProcessBuilder();
         pb.command(
                 "java",
@@ -68,28 +67,5 @@ public class ITCli {
         pb.redirectError(ProcessBuilder.Redirect.INHERIT);
         System.out.println(String.join(" ", pb.command()));
         return pb;
-    }
-
-    private File getTestRes() {
-        return new File(getRoot(), "testRes");
-    }
-
-    private File getRoot() {
-        return getCurrentModule().getParentFile();
-    }
-
-    private File getCurrentModule() {
-        Path currentRelativePath = Paths.get("");
-        return new File(currentRelativePath.toAbsolutePath().toString());
-    }
-
-    private File getTargetDir() {
-        return new File(getCurrentModule(), "target");
-    }
-
-    private File getJar() {
-        String ver = System.getProperty("sibylVersion");
-        return new File(
-                getTargetDir(), String.format("sibyl-cli-%s-jar-with-dependencies.jar", ver));
     }
 }
