@@ -1,5 +1,6 @@
 package com.williamfzc.sibyl.cli;
 
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -31,7 +32,7 @@ public class ITCli {
         Arrays.stream(Objects.requireNonNull(getTestRes().listFiles()))
                 .forEach(
                         inputFile -> {
-                            System.out.println("testing perf: " + inputFile);
+                            SibylLog.info("testing perf: " + inputFile);
                             File outputFile =
                                     new File(getTargetDir(), inputFile.getName() + ".json");
                             ProcessBuilder pb = getSnapshotProcessBuilder(inputFile, outputFile);
@@ -94,7 +95,4 @@ public class ITCli {
         return new File(
                 getTargetDir(), String.format("sibyl-cli-%s-jar-with-dependencies.jar", ver));
     }
-
-    private static final File NULL_FILE =
-            new File((System.getProperty("os.name").startsWith("Windows") ? "NUL" : "/dev/null"));
 }

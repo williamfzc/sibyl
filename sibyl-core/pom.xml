@@ -67,6 +67,12 @@
     </dependency>
 
     <dependency>
+      <groupId>dev.failsafe</groupId>
+      <artifactId>failsafe</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.williamfzc.sibyl</groupId>
       <artifactId>sibyl-model</artifactId>
       <version>${sibyl.version}</version>

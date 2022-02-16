@@ -9,7 +9,6 @@ import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 class Java8StorableListener<T> extends Java8BaseListener implements IStorableListener<T> {
@@ -40,13 +39,13 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
 
     public void realHandle(File file, String content) {
         curFile = file;
-        Java8Lexer lexer = new Java8Lexer(CharStreams.fromString(content));
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        Java8Parser parser = new Java8Parser(tokens);
-        ParseTree tree = parser.compilationUnit();
-
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(this, tree);
+        new ParseTreeWalker()
+                .walk(
+                        this,
+                        new Java8Parser(
+                                        new CommonTokenStream(
+                                                new Java8Lexer(CharStreams.fromString(content))))
+                                .compilationUnit());
     }
 
     @Override
