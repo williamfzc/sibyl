@@ -1,6 +1,6 @@
 package com.williamfzc.sibyl.core.scanner;
 
-import com.williamfzc.sibyl.core.intf.Listenable;
+import com.williamfzc.sibyl.core.listener.base.Listenable;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;

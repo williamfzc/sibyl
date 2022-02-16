@@ -1,9 +1,9 @@
 package com.williamfzc.sibyl.core.listener.java8;
 
-import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.listener.Java8BaseListener;
 import com.williamfzc.sibyl.core.listener.Java8Lexer;
 import com.williamfzc.sibyl.core.listener.Java8Parser;
+import com.williamfzc.sibyl.core.listener.base.IStorableListener;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;

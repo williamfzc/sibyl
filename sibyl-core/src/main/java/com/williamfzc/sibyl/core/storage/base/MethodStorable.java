@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.core.intf;
+package com.williamfzc.sibyl.core.storage.base;
 
 import com.williamfzc.sibyl.core.model.method.Method;
 

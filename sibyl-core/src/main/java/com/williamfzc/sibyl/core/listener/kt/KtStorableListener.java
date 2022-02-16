@@ -1,7 +1,7 @@
 package com.williamfzc.sibyl.core.listener.kt;
 
-import com.williamfzc.sibyl.core.intf.IStorableListener;
 import com.williamfzc.sibyl.core.listener.*;
+import com.williamfzc.sibyl.core.listener.base.IStorableListener;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;

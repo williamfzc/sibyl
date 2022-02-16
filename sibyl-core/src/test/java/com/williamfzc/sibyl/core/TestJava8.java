@@ -2,7 +2,7 @@ package com.williamfzc.sibyl.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.analyzer.EdgeAnalyzer;
-import com.williamfzc.sibyl.core.intf.IStorableListener;
+import com.williamfzc.sibyl.core.listener.base.IStorableListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8CallListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8ClassListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestJava8 {
@@ -34,6 +35,7 @@ public class TestJava8 {
                     }
                 };
         scanner.setScanPolicy(policy);
+        Assert.assertEquals(scanner.getScanPolicy(), policy);
 
         IStorableListener<Method> listener = new Java8SnapshotListener();
         Storage<Method> methodStorage = new Storage<>();

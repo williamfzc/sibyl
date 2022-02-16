@@ -1,6 +1,6 @@
 package com.williamfzc.sibyl.core;
 
-import com.williamfzc.sibyl.core.intf.IStorableListener;
+import com.williamfzc.sibyl.core.listener.base.IStorableListener;
 import com.williamfzc.sibyl.core.listener.kt.KtClassListener;
 import com.williamfzc.sibyl.core.listener.kt.KtSnapshotListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;

@@ -1,6 +1,6 @@
 package com.williamfzc.sibyl.core.scanner;
 
-import com.williamfzc.sibyl.core.intf.Listenable;
+import com.williamfzc.sibyl.core.listener.base.Listenable;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
