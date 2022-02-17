@@ -23,7 +23,7 @@ public class ITCli {
 
         ProcessBuilder pb = getSnapshotProcessBuilder(inputFile, outputFile);
         Process p = pb.start();
-        boolean ret = p.waitFor(10, TimeUnit.SECONDS);
+        boolean ret = p.waitFor(1, TimeUnit.MINUTES);
 
         Assert.assertTrue(ret);
         Assert.assertTrue(outputFile.isFile());
