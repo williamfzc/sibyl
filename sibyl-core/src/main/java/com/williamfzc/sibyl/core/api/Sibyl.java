@@ -45,14 +45,15 @@ public class Sibyl {
     }
 
     // todo: diff type here
-    public static Set<DiffMethod> genSnapshotDiff(Storage<Method> methodStorage, DiffResult diff) {
+    public static Storage<DiffMethod> genSnapshotDiff(
+            Storage<Method> methodStorage, DiffResult diff) {
         // 1. create a (fileName as key, method as value) map
         // 2. diff foreach: if file changed, check all its methods in map
         // 3. save all the valid methods to a list
         // return
 
         Map<String, Collection<Method>> methodMap = new HashMap<>();
-        Set<DiffMethod> diffMethods = new HashSet<>();
+        Storage<DiffMethod> diffMethods = new Storage<>();
         for (Method eachMethod : methodStorage.getData()) {
             String eachFileName = eachMethod.getBelongsTo().getFile().getName();
             methodMap.putIfAbsent(eachFileName, new HashSet<>());
@@ -82,7 +83,7 @@ public class Sibyl {
                                     dm.setInfo(eachMethod.getInfo());
                                     dm.setBelongsTo(eachMethod.getBelongsTo());
                                     dm.safeSetDiffLines(diffFile.getLines());
-                                    diffMethods.add(dm);
+                                    diffMethods.save(dm);
                                 }
                             });
         }

@@ -43,39 +43,19 @@ public class DiffCommand implements Runnable {
             required = true)
     private String langType;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiffCommand.class);
 
     @Override
     public void run() {
+        LOGGER.info(String.format("diff from %s to %s", before, after));
         try {
             DiffResult diffResult = SibylDiff.diff(input, after, before);
             Storage<Method> methodStorage =
                     Sibyl.genSnapshotFromDir(input, SibylLangType.valueOf(langType));
             assert methodStorage != null;
-            Set<DiffMethod> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
+            Storage<DiffMethod> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
             LOGGER.info("diff method count: " + methods.size());
-
-            Map<String, List<DiffMethod>> outputData = new HashMap<>();
-            methods.forEach(
-                    eachMethod -> {
-                        String fileName = eachMethod.getBelongsTo().getFile().getName();
-                        outputData.putIfAbsent(fileName, new LinkedList<>());
-                        outputData.get(fileName).add(eachMethod);
-                    });
-
-            outputData.forEach(
-                    (k, v) -> {
-                        LOGGER.info("file: " + k);
-                        v.forEach(
-                                eachMethod ->
-                                        LOGGER.info(
-                                                String.format(
-                                                        "method: %s, score: %s, hit: %s%n",
-                                                        eachMethod.getInfo().getName(),
-                                                        eachMethod.calcDiffScore(),
-                                                        eachMethod.getDiffLines())));
-                    });
-            methodStorage.exportFile(output);
+            methods.exportFile(output);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

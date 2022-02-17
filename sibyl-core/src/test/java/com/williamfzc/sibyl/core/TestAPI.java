@@ -59,22 +59,25 @@ public class TestAPI {
         Repository repo = new RepositoryBuilder().findGitDir(Support.getProjectRoot()).build();
         ObjectId head = repo.resolve("HEAD");
         ObjectId headParent = repo.resolve("HEAD~~~~~");
+        SibylLog.info("after: " + head.getName());
+        SibylLog.info("before: " + headParent.getName());
 
         DiffResult diffResult = SibylDiff.diff(repo, head.getName(), headParent.getName());
 
         Storage<Method> methodStorage =
                 Sibyl.genSnapshotFromDir(Support.getProjectRoot(), SibylLangType.JAVA_8);
         assert methodStorage != null;
-        Set<DiffMethod> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
-        System.out.println("diff method count: " + methods.size());
+        Storage<DiffMethod> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
+        SibylLog.info("diff method count: " + methods.size());
 
         Map<String, List<DiffMethod>> output = new HashMap<>();
-        methods.forEach(
-                eachMethod -> {
-                    String fileName = eachMethod.getBelongsTo().getFile().getName();
-                    output.putIfAbsent(fileName, new LinkedList<>());
-                    output.get(fileName).add(eachMethod);
-                });
+        methods.getData()
+                .forEach(
+                        eachMethod -> {
+                            String fileName = eachMethod.getBelongsTo().getFile().getName();
+                            output.putIfAbsent(fileName, new LinkedList<>());
+                            output.get(fileName).add(eachMethod);
+                        });
 
         output.forEach(
                 (k, v) -> {
