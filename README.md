@@ -15,6 +15,14 @@ coming soon
 
 ## usage
 
+### cmd
+
+go to your git repo and run:
+
+```bash
+curl -o- https://raw.githubusercontent.com/williamfzc/sibyl/main/scripts/diff.sh | bash
+```
+
 ### maven
 
 ```xml
