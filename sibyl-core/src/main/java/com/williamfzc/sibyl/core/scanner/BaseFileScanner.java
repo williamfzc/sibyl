@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 // https://stackoverflow.com/a/38771060/10641498
@@ -72,7 +73,7 @@ public abstract class BaseFileScanner extends BaseScanner {
                             })
                     .build();
 
-    private int currentFileCount = 0;
+    private final AtomicInteger currentFileCount = new AtomicInteger(0);
     protected File baseDir;
 
     private final ThreadPoolExecutor executor = ScanExecutor.initPool(scanPolicy.threadPoolSize);
@@ -147,7 +148,7 @@ public abstract class BaseFileScanner extends BaseScanner {
         SibylLog.info(
                 String.format(
                         "scan file %s, path %s, size: %s",
-                        ++currentFileCount, file.getPath(), file.length()));
+                        currentFileCount.incrementAndGet(), file.getPath(), file.length()));
 
         String content = getFileContent(file);
 
