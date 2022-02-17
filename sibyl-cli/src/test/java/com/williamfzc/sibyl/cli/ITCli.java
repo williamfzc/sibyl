@@ -6,6 +6,7 @@ import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.test.Support;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -67,11 +68,27 @@ public class ITCli {
 
         // display file
         Storage<DiffMethod> methods = Storage.import_(outputFile, DiffMethod.class);
+        Map<String, List<DiffMethod>> fileMap = new HashMap<>();
         methods.getData()
                 .forEach(
-                        each -> {
-                            System.out.printf("method changed: %s%n", each.getInfo().getName());
+                        eachMethod -> {
+                            String fileName = eachMethod.getBelongsTo().getFile().getName();
+                            fileMap.putIfAbsent(fileName, new LinkedList<>());
+                            fileMap.get(fileName).add(eachMethod);
                         });
+
+        fileMap.forEach(
+                (k, v) -> {
+                    System.out.println("file changed: " + k);
+                    v.stream()
+                            .sorted(Comparator.comparing(each -> -each.calcDiffScore()))
+                            .forEachOrdered(
+                                    each -> {
+                                        System.out.printf(
+                                                "method %s score %s%n",
+                                                each.getInfo().getName(), each.calcDiffScore());
+                                    });
+                });
     }
 
     private ProcessBuilder getSnapshotProcessBuilder(File input, File output) {

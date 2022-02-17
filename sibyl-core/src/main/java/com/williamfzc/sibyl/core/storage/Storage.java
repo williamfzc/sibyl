@@ -1,7 +1,6 @@
 package com.williamfzc.sibyl.core.storage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.utils.SibylLog;
@@ -9,6 +8,7 @@ import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,7 +57,8 @@ public class Storage<T> {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         Storage<R> ret = new Storage<>();
-        R[] objects = mapper.readValue(data, new TypeReference<R[]>() {});
+
+        R[] objects = (R[]) mapper.readValue(data, Array.newInstance(type, 0).getClass());
         ret.save(objects);
         return ret;
     }
