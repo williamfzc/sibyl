@@ -67,12 +67,13 @@ public class DiffCommand implements Runnable {
                     (k, v) -> {
                         LOGGER.info("file: " + k);
                         v.forEach(
-                                eachMethod -> LOGGER.info(
-                                        String.format(
-                                                "method: %s, score: %s, hit: %s%n",
-                                                eachMethod.getInfo().getName(),
-                                                eachMethod.calcDiffScore(),
-                                                eachMethod.getDiffLines())));
+                                eachMethod ->
+                                        LOGGER.info(
+                                                String.format(
+                                                        "method: %s, score: %s, hit: %s%n",
+                                                        eachMethod.getInfo().getName(),
+                                                        eachMethod.calcDiffScore(),
+                                                        eachMethod.getDiffLines())));
                     });
             methodStorage.exportFile(output);
         } catch (IOException | InterruptedException e) {
