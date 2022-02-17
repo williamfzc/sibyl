@@ -9,6 +9,8 @@ interface ScanPolicyHook {
 }
 
 public class ScanPolicy implements ScanPolicyHook {
+    public int threadPoolSize = Runtime.getRuntime().availableProcessors() - 1;
+
     public static ScanPolicy ofDefault() {
         return new ScanPolicy();
     }
