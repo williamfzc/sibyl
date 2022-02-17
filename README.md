@@ -2,6 +2,11 @@
 
 > code analyzer for multi languages based on antlr4
 
+## status
+
+[![Dev CI](https://github.com/williamfzc/sibyl/actions/workflows/normal.yml/badge.svg)](https://github.com/williamfzc/sibyl/actions/workflows/normal.yml)
+[![Tag CI](https://github.com/williamfzc/sibyl/actions/workflows/perf.yml/badge.svg)](https://github.com/williamfzc/sibyl/actions/workflows/perf.yml)
+
 ## what is it
 
 still no idea about how to describe this project.
