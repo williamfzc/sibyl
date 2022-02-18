@@ -15,6 +15,7 @@ import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.FileContentScanner;
 import com.williamfzc.sibyl.core.scanner.FileIntroScanner;
+import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.io.File;
@@ -22,10 +23,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class Sibyl {
+public final class Sibyl {
+    private Sibyl() {}
+
     public static void genSnapshotFromDir(File inputDir, File outputFile, SibylLangType lang)
             throws IOException, InterruptedException {
-        Storage<Method> methodStorage = genSnapshotFromDir(inputDir, lang);
+        genSnapshotFromDir(inputDir, outputFile, lang, null);
+    }
+
+    public static void genSnapshotFromDir(
+            File inputDir, File outputFile, SibylLangType lang, ScanPolicy policy)
+            throws IOException, InterruptedException {
+        Storage<Method> methodStorage = genSnapshotFromDir(inputDir, lang, policy);
         if (null != methodStorage) {
             methodStorage.exportFile(outputFile);
         }
@@ -33,11 +42,17 @@ public class Sibyl {
 
     public static Storage<Method> genSnapshotFromDir(File inputDir, SibylLangType lang)
             throws IOException, InterruptedException {
+        return genSnapshotFromDir(inputDir, lang, null);
+    }
+
+    public static Storage<Method> genSnapshotFromDir(
+            File inputDir, SibylLangType lang, ScanPolicy policy)
+            throws IOException, InterruptedException {
         switch (lang) {
             case JAVA_8:
-                return genSnapshotFromDir(inputDir, new Java8SnapshotListener());
+                return genSnapshotFromDir(inputDir, new Java8SnapshotListener(), policy);
             case KOTLIN:
-                return genSnapshotFromDir(inputDir, new KtSnapshotListener());
+                return genSnapshotFromDir(inputDir, new KtSnapshotListener(), policy);
             default:
                 break;
         }
@@ -75,6 +90,7 @@ public class Sibyl {
                     .get(eachFileName)
                     .forEach(
                             eachMethod -> {
+                                // todo: what about non-hit lines??
                                 List<Integer> methodRange = eachMethod.getLineRange();
                                 SibylLog.info(
                                         String.format(
@@ -167,13 +183,15 @@ public class Sibyl {
     }
 
     private static Storage<Method> genSnapshotFromDir(
-            File inputDir, IStorableListener<Method> listener)
+            File inputDir, IStorableListener<Method> listener, ScanPolicy policy)
             throws IOException, InterruptedException {
         FileContentScanner scanner = new FileContentScanner(inputDir);
+        if (null != policy) {
+            scanner.setScanPolicy(policy);
+        }
 
         Storage<Method> methodStorage = new Storage<>();
         listener.setStorage(methodStorage);
-
         scanner.registerListener(listener);
         scanner.scanDir(inputDir);
         return methodStorage;

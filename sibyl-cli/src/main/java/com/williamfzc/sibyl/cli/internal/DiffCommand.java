@@ -3,13 +3,16 @@ package com.williamfzc.sibyl.cli.internal;
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylDiff;
 import com.williamfzc.sibyl.core.api.SibylLangType;
+import com.williamfzc.sibyl.core.model.diff.DiffFile;
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
+import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -57,9 +60,21 @@ public class DiffCommand implements Runnable {
                 gitDir = input;
             }
             DiffResult diffResult = SibylDiff.diff(gitDir, after, before);
+            List<DiffFile> files = diffResult.getNewFiles();
 
+            ScanPolicy scanPolicy =
+                    new ScanPolicy() {
+                        @Override
+                        public boolean shouldExclude(File file) {
+                            return files.stream()
+                                    .noneMatch(
+                                            each ->
+                                                    file.getAbsolutePath()
+                                                            .endsWith(each.getName()));
+                        }
+                    };
             Storage<Method> methodStorage =
-                    Sibyl.genSnapshotFromDir(input, SibylLangType.valueOf(langType));
+                    Sibyl.genSnapshotFromDir(input, SibylLangType.valueOf(langType), scanPolicy);
 
             assert methodStorage != null;
             Storage<DiffMethod> methods =
