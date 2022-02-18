@@ -2,7 +2,6 @@ set -e
 basepath=$(cd `dirname $0`; pwd)
 
 cd $basepath
-cd ..
 ws=`pwd`
 version=0.3.0
 echo "current workspace: $ws"
