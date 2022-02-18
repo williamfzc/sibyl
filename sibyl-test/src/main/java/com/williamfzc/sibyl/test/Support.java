@@ -15,6 +15,10 @@ public class Support {
         return new File(currentRelativePath.toAbsolutePath().toString());
     }
 
+    public static File getCoreRoot() {
+        return new File(getProjectRoot(), "sibyl-core");
+    }
+
     public static File getSelfSource() {
         return new File(getModuleRoot(), "src");
     }

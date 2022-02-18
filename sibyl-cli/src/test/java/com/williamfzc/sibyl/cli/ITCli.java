@@ -57,7 +57,7 @@ public class ITCli {
     @Test
     public void testDiff() throws IOException, InterruptedException {
         File outputFile = new File(Support.getTargetDir(), "b.json");
-        File inputFile = Support.getProjectRoot();
+        File inputFile = Support.getCoreRoot();
 
         ProcessBuilder pb = getDiffProcessBuilder(inputFile, outputFile);
         Process p = pb.start();
@@ -114,7 +114,7 @@ public class ITCli {
 
     private ProcessBuilder getDiffProcessBuilder(File input, File output) throws IOException {
         File jarFile = Support.getJar();
-        Assert.assertTrue(Support.getJar().isFile());
+        Assert.assertTrue(jarFile.isFile());
         Repository repo = new RepositoryBuilder().findGitDir(Support.getProjectRoot()).build();
         ObjectId head = repo.resolve("HEAD");
         ObjectId headParent = repo.resolve("HEAD~~~~~");
@@ -133,6 +133,8 @@ public class ITCli {
                 head.getName(),
                 "--after",
                 headParent.getName(),
+                "--git",
+                Support.getProjectRoot().getAbsolutePath(),
                 "-t",
                 "JAVA_8");
         pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);

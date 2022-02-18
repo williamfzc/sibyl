@@ -46,20 +46,24 @@ public class Sibyl {
 
     // todo: diff type here
     public static Storage<DiffMethod> genSnapshotDiff(
-            Storage<Method> methodStorage, DiffResult diff) {
+            Storage<Method> methodStorage, DiffResult diff, String prefix) {
         // 1. create a (fileName as key, method as value) map
         // 2. diff foreach: if file changed, check all its methods in map
         // 3. save all the valid methods to a list
         // return
 
+        // file path in snapshot SHORTER than file path in git diff
         Map<String, Collection<Method>> methodMap = new HashMap<>();
-        Storage<DiffMethod> diffMethods = new Storage<>();
         for (Method eachMethod : methodStorage.getData()) {
-            String eachFileName = eachMethod.getBelongsTo().getFile().getName();
+            String eachFileName =
+                    new File(prefix, eachMethod.getBelongsTo().getFile().getName()).getPath();
             methodMap.putIfAbsent(eachFileName, new HashSet<>());
             methodMap.get(eachFileName).add(eachMethod);
         }
+        SibylLog.info(methodMap.toString());
+        SibylLog.info(diff.getNewFiles().toString());
 
+        Storage<DiffMethod> diffMethods = new Storage<>();
         for (DiffFile diffFile : diff.getNewFiles()) {
             String eachFileName = diffFile.getName();
             if (!methodMap.containsKey(eachFileName)) {
@@ -89,6 +93,11 @@ public class Sibyl {
         }
 
         return diffMethods;
+    }
+
+    public static Storage<DiffMethod> genSnapshotDiff(
+            Storage<Method> methodStorage, DiffResult diff) {
+        return genSnapshotDiff(methodStorage, diff, "");
     }
 
     public static void genCallGraphFromDir(File inputDir, File outputFile, SibylLangType lang)

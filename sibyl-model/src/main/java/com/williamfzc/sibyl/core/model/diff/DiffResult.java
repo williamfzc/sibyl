@@ -9,6 +9,8 @@ public class DiffResult {
     File gitDir;
     String oldCommit;
     String newCommit;
+
+    // by default, these paths are always rel path (related to git
     List<DiffFile> oldFiles;
     List<DiffFile> newFiles;
 }

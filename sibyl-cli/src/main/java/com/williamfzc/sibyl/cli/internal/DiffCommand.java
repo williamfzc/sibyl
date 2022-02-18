@@ -7,9 +7,9 @@ import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -43,17 +43,28 @@ public class DiffCommand implements Runnable {
             required = true)
     private String langType;
 
+    @CommandLine.Option(names = {"-g", "--git"})
+    private File gitDir;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DiffCommand.class);
 
     @Override
     public void run() {
         LOGGER.info(String.format("diff from %s to %s", before, after));
         try {
-            DiffResult diffResult = SibylDiff.diff(input, after, before);
+            // by default use input as git dir
+            if (null == gitDir) {
+                gitDir = input;
+            }
+            DiffResult diffResult = SibylDiff.diff(gitDir, after, before);
+
             Storage<Method> methodStorage =
                     Sibyl.genSnapshotFromDir(input, SibylLangType.valueOf(langType));
+
             assert methodStorage != null;
-            Storage<DiffMethod> methods = Sibyl.genSnapshotDiff(methodStorage, diffResult);
+            Storage<DiffMethod> methods =
+                    Sibyl.genSnapshotDiff(
+                            methodStorage, diffResult, SibylUtils.fileRelative(gitDir, input));
             LOGGER.info("diff method count: " + methods.size());
             methods.exportFile(output);
         } catch (IOException | InterruptedException e) {

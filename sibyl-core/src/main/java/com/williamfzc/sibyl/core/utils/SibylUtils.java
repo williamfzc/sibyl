@@ -24,4 +24,9 @@ public class SibylUtils {
     public static String readContent(File file) throws IOException {
         return new String(Files.readAllBytes(file.toPath()));
     }
+
+    public static String fileRelative(File file1, File file2) {
+        // https://stackoverflow.com/a/205655/10641498
+        return file1.toPath().relativize(file2.toPath()).toString();
+    }
 }
