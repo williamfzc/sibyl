@@ -7,6 +7,8 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Data
 public class Clazz {
+    public static final String UNKNOWN_NAME = "__unknown_clazz__";
+
     private String name;
     private String superName;
     private Set<String> interfaces;

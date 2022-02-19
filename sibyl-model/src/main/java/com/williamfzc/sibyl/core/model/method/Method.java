@@ -8,6 +8,8 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Data
 public class Method {
+    public static final String UNKNOWN_NAME = "__unknown_method__";
+
     private MethodInfo info;
     private MethodBelonging belongsTo;
 

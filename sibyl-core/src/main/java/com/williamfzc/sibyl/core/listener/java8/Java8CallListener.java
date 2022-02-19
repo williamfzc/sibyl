@@ -42,7 +42,7 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
             rawEdge.setFromMethodName(curMethod.getInfo().getName());
         } else {
             // not belong to any methods
-            rawEdge.setFromMethodName("__class_scope__");
+            rawEdge.setFromMethodName(Method.UNKNOWN_NAME);
         }
         rawEdge.setLine(ctx.getStart().getLine());
         // todo: how?
@@ -80,7 +80,7 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
             rawEdge.setFromMethodName(curMethod.getInfo().getName());
         } else {
             // not belong to any methods
-            rawEdge.setFromMethodName("__class_scope__");
+            rawEdge.setFromMethodName(Method.UNKNOWN_NAME);
         }
 
         if (null == typeNameContext) {

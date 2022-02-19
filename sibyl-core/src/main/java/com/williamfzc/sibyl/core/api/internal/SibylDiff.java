@@ -8,6 +8,7 @@ import com.williamfzc.sibyl.core.model.diff.DiffFile;
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
+import com.williamfzc.sibyl.core.model.method.MethodBelonging;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
@@ -147,7 +148,10 @@ public final class SibylDiff {
                 continue;
             }
 
-            // valid file
+            // diff lines
+            Set<Integer> lines = new HashSet<>(diffFile.getLines());
+            Set<Integer> hitLines = new HashSet<>();
+
             methodMap
                     .get(eachFileName)
                     .forEach(
@@ -160,7 +164,9 @@ public final class SibylDiff {
                                                 eachMethod.getInfo().getName(), methodRange));
 
                                 // hit this method
-                                if (diffFile.getLines().stream().anyMatch(methodRange::contains)) {
+                                if (lines.stream().anyMatch(methodRange::contains)) {
+                                    hitLines.addAll(methodRange);
+
                                     DiffMethod dm = new DiffMethod();
                                     dm.setInfo(eachMethod.getInfo());
                                     dm.setBelongsTo(eachMethod.getBelongsTo());
@@ -168,6 +174,16 @@ public final class SibylDiff {
                                     diffMethods.save(dm);
                                 }
                             });
+
+            // some lines did not match any methods?
+            lines.removeAll(hitLines);
+            // create an unknown method for saving them
+            DiffMethod dm = DiffMethod.createUnknown();
+            MethodBelonging belonging = dm.getBelongsTo();
+            belonging.getFile().setName(diffFile.getName());
+            dm.setBelongsTo(belonging);
+            dm.safeSetDiffLines(lines);
+            diffMethods.save(dm);
         }
 
         return diffMethods;
