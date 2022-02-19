@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.cli.internal;
+package com.williamfzc.sibyl.cli.internal.snapshot;
 
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;

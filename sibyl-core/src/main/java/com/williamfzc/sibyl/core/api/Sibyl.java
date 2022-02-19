@@ -43,8 +43,13 @@ public final class Sibyl {
     }
 
     public static Storage<DiffMethod> genSnapshotDiff(
+            Storage<Method> methodStorage, DiffResult diff, String prefix, Boolean withCallgraph) {
+        return diffApi.genSnapshotDiff(methodStorage, diff, prefix, withCallgraph);
+    }
+
+    public static Storage<DiffMethod> genSnapshotDiff(
             Storage<Method> methodStorage, DiffResult diff, String prefix) {
-        return diffApi.genSnapshotDiff(methodStorage, diff, prefix);
+        return genSnapshotDiff(methodStorage, diff, prefix, false);
     }
 
     public static Storage<DiffMethod> genSnapshotDiff(

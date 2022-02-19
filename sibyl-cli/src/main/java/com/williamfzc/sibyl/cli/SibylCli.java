@@ -1,7 +1,7 @@
 package com.williamfzc.sibyl.cli;
 
-import com.williamfzc.sibyl.cli.internal.DiffCommand;
-import com.williamfzc.sibyl.cli.internal.SnapshotCommand;
+import com.williamfzc.sibyl.cli.internal.diff.DiffCommand;
+import com.williamfzc.sibyl.cli.internal.snapshot.SnapshotCommand;
 import picocli.CommandLine;
 
 // entry point

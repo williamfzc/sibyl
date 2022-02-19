@@ -122,11 +122,13 @@ public final class SibylDiff {
 
     // todo: diff type here
     public Storage<DiffMethod> genSnapshotDiff(
-            Storage<Method> methodStorage, DiffResult diff, String prefix) {
+            Storage<Method> methodStorage, DiffResult diff, String prefix, Boolean withCallgraph) {
         // 1. create a (fileName as key, method as value) map
         // 2. diff foreach: if file changed, check all its methods in map
         // 3. save all the valid methods to a list
         // return
+
+        // todo: if callgraph, use analyzer to add more methods
 
         // file path in snapshot SHORTER than file path in git diff
         Map<String, Collection<Method>> methodMap = new HashMap<>();

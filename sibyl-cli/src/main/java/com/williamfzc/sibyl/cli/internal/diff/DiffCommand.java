@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.cli.internal;
+package com.williamfzc.sibyl.cli.internal.diff;
 
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;
@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-// todo: need test
 @CommandLine.Command(name = "diff")
 public class DiffCommand implements Runnable {
 
@@ -44,10 +43,13 @@ public class DiffCommand implements Runnable {
     @CommandLine.Option(
             names = {"-t", "--type"},
             required = true)
-    private String langType;
+    private SibylLangType langType;
 
     @CommandLine.Option(names = {"-g", "--git"})
     private File gitDir;
+
+    @CommandLine.Option(names = {"--scope"})
+    private DiffScope scope = DiffScope.FULL;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiffCommand.class);
 
@@ -62,19 +64,23 @@ public class DiffCommand implements Runnable {
             DiffResult diffResult = SibylDiff.diff(gitDir, after, before);
             List<DiffFile> files = diffResult.getNewFiles();
 
-            ScanPolicy scanPolicy =
-                    new ScanPolicy() {
-                        @Override
-                        public boolean shouldExclude(File file) {
-                            return files.stream()
-                                    .noneMatch(
-                                            each ->
-                                                    file.getAbsolutePath()
-                                                            .endsWith(each.getName()));
-                        }
-                    };
-            Storage<Method> methodStorage =
-                    Sibyl.genSnapshotFromDir(input, SibylLangType.valueOf(langType), scanPolicy);
+            Storage<Method> methodStorage;
+            if (scope == DiffScope.DIFF_ONLY) {
+                ScanPolicy scanPolicy =
+                        new ScanPolicy() {
+                            @Override
+                            public boolean shouldExclude(File file) {
+                                return files.stream()
+                                        .noneMatch(
+                                                each ->
+                                                        file.getAbsolutePath()
+                                                                .endsWith(each.getName()));
+                            }
+                        };
+                methodStorage = Sibyl.genSnapshotFromDir(input, langType, scanPolicy);
+            } else {
+                methodStorage = Sibyl.genSnapshotFromDir(input, langType);
+            }
 
             assert methodStorage != null;
             Storage<DiffMethod> methods =
