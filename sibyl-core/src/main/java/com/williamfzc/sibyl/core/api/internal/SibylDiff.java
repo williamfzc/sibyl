@@ -135,8 +135,10 @@ public final class SibylDiff {
             methodMap.putIfAbsent(eachFileName, new HashSet<>());
             methodMap.get(eachFileName).add(eachMethod);
         }
-        SibylLog.info(methodMap.toString());
-        SibylLog.info(diff.getNewFiles().toString());
+        // easily cause some paths issues ...
+        // keep these logs
+        SibylLog.debug(methodMap.toString());
+        SibylLog.debug(diff.getNewFiles().toString());
 
         Storage<DiffMethod> diffMethods = new Storage<>();
         for (DiffFile diffFile : diff.getNewFiles()) {
