@@ -4,8 +4,10 @@ import com.williamfzc.sibyl.core.api.internal.SibylCallgraph;
 import com.williamfzc.sibyl.core.api.internal.SibylDiff;
 import com.williamfzc.sibyl.core.api.internal.SibylSnapshot;
 import com.williamfzc.sibyl.core.listener.base.IStorableListener;
+import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
+import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.scanner.file.FileIntroScanner;
@@ -57,9 +59,45 @@ public final class Sibyl {
         return genSnapshotDiff(methodStorage, diff, "");
     }
 
+    public static void genCallGraphFromDir(
+            File inputDir,
+            File outputFile,
+            SibylLangType lang,
+            Storage<Method> methodStorage,
+            Storage<Clazz> clazzStorage)
+            throws IOException, InterruptedException {
+        callgraphApi.genCallGraphFromDir(inputDir, outputFile, lang, methodStorage, clazzStorage);
+    }
+
+    public static void genCallGraphFromDir(
+            File inputDir, File outputFile, SibylLangType lang, Storage<Method> methodStorage)
+            throws IOException, InterruptedException {
+        callgraphApi.genCallGraphFromDir(inputDir, outputFile, lang, methodStorage, null);
+    }
+
     public static void genCallGraphFromDir(File inputDir, File outputFile, SibylLangType lang)
             throws IOException, InterruptedException {
-        callgraphApi.genCallGraphFromDir(inputDir, outputFile, lang);
+        callgraphApi.genCallGraphFromDir(inputDir, outputFile, lang, null, null);
+    }
+
+    public static Storage<Edge> genCallGraphFromDir(File inputDir, SibylLangType lang)
+            throws IOException, InterruptedException {
+        return genCallGraphFromDir(inputDir, lang, null, null);
+    }
+
+    public static Storage<Edge> genCallGraphFromDir(
+            File inputDir, SibylLangType lang, Storage<Method> methodStorage)
+            throws IOException, InterruptedException {
+        return genCallGraphFromDir(inputDir, lang, methodStorage, null);
+    }
+
+    public static Storage<Edge> genCallGraphFromDir(
+            File inputDir,
+            SibylLangType lang,
+            Storage<Method> methodStorage,
+            Storage<Clazz> clazzStorage)
+            throws IOException, InterruptedException {
+        return callgraphApi.genCallGraphFromDir(inputDir, lang, methodStorage, clazzStorage);
     }
 
     public static Storage<File> collectFileFromDir(File inputDir, SibylLangType lang)
