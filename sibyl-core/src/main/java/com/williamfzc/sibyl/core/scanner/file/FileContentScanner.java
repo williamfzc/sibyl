@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.core.scanner;
+package com.williamfzc.sibyl.core.scanner.file;
 
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;

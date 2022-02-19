@@ -1,6 +1,7 @@
-package com.williamfzc.sibyl.core.scanner;
+package com.williamfzc.sibyl.core.scanner.file;
 
 import com.williamfzc.sibyl.core.listener.base.Listenable;
+import com.williamfzc.sibyl.core.scanner.base.BaseScanner;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
@@ -30,7 +31,7 @@ class ScanExecutor extends ThreadPoolExecutor {
 
     public static ScanExecutor initPool(int poolSize) {
         return new ScanExecutor(
-                poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+                poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
     }
 
     @Override

@@ -1,7 +1,6 @@
-package com.williamfzc.sibyl.core.scanner;
+package com.williamfzc.sibyl.core.scanner.file;
 
 import java.io.File;
-import java.io.IOException;
 
 // will not actually read file content
 public class FileIntroScanner extends BaseFileScanner {
@@ -10,7 +9,7 @@ public class FileIntroScanner extends BaseFileScanner {
     }
 
     @Override
-    public String getFileContent(File file) throws IOException {
+    public String getFileContent(File file) {
         return "";
     }
 }

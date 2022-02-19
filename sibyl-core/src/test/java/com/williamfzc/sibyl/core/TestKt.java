@@ -5,7 +5,7 @@ import com.williamfzc.sibyl.core.listener.kt.KtClassListener;
 import com.williamfzc.sibyl.core.listener.kt.KtSnapshotListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.scanner.FileContentScanner;
+import com.williamfzc.sibyl.core.scanner.file.FileContentScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.test.Support;
