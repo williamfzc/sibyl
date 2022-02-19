@@ -1,8 +1,8 @@
 package com.williamfzc.sibyl.cli.internal;
 
 import com.williamfzc.sibyl.core.api.Sibyl;
-import com.williamfzc.sibyl.core.api.SibylDiff;
 import com.williamfzc.sibyl.core.api.SibylLangType;
+import com.williamfzc.sibyl.core.api.internal.SibylDiff;
 import com.williamfzc.sibyl.core.model.diff.DiffFile;
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;

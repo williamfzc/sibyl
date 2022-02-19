@@ -1,15 +1,18 @@
-package com.williamfzc.sibyl.core.api;
+package com.williamfzc.sibyl.core.api.internal;
 
 import com.github.difflib.patch.Patch;
 import com.github.difflib.unifieddiff.UnifiedDiff;
 import com.github.difflib.unifieddiff.UnifiedDiffFile;
 import com.github.difflib.unifieddiff.UnifiedDiffReader;
 import com.williamfzc.sibyl.core.model.diff.DiffFile;
+import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
+import com.williamfzc.sibyl.core.model.method.Method;
+import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.*;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
@@ -18,7 +21,7 @@ import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-public class SibylDiff {
+public final class SibylDiff {
     public static DiffResult diff(Repository repo, ObjectId oldCommit, ObjectId newCommit)
             throws IOException {
         byte[] data;
@@ -114,5 +117,57 @@ public class SibylDiff {
                         .collect(Collectors.toList());
         diffFile.setLines(changedLines);
         return diffFile;
+    }
+
+    // todo: diff type here
+    public Storage<DiffMethod> genSnapshotDiff(
+            Storage<Method> methodStorage, DiffResult diff, String prefix) {
+        // 1. create a (fileName as key, method as value) map
+        // 2. diff foreach: if file changed, check all its methods in map
+        // 3. save all the valid methods to a list
+        // return
+
+        // file path in snapshot SHORTER than file path in git diff
+        Map<String, Collection<Method>> methodMap = new HashMap<>();
+        for (Method eachMethod : methodStorage.getData()) {
+            String eachFileName =
+                    new File(prefix, eachMethod.getBelongsTo().getFile().getName()).getPath();
+            methodMap.putIfAbsent(eachFileName, new HashSet<>());
+            methodMap.get(eachFileName).add(eachMethod);
+        }
+        SibylLog.info(methodMap.toString());
+        SibylLog.info(diff.getNewFiles().toString());
+
+        Storage<DiffMethod> diffMethods = new Storage<>();
+        for (DiffFile diffFile : diff.getNewFiles()) {
+            String eachFileName = diffFile.getName();
+            if (!methodMap.containsKey(eachFileName)) {
+                continue;
+            }
+
+            // valid file
+            methodMap
+                    .get(eachFileName)
+                    .forEach(
+                            eachMethod -> {
+                                // todo: what about non-hit lines??
+                                List<Integer> methodRange = eachMethod.getLineRange();
+                                SibylLog.info(
+                                        String.format(
+                                                "method %s, line range: %s",
+                                                eachMethod.getInfo().getName(), methodRange));
+
+                                // hit this method
+                                if (diffFile.getLines().stream().anyMatch(methodRange::contains)) {
+                                    DiffMethod dm = new DiffMethod();
+                                    dm.setInfo(eachMethod.getInfo());
+                                    dm.setBelongsTo(eachMethod.getBelongsTo());
+                                    dm.safeSetDiffLines(diffFile.getLines());
+                                    diffMethods.save(dm);
+                                }
+                            });
+        }
+
+        return diffMethods;
     }
 }

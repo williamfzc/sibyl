@@ -2,8 +2,8 @@ package com.williamfzc.sibyl.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.api.Sibyl;
-import com.williamfzc.sibyl.core.api.SibylDiff;
 import com.williamfzc.sibyl.core.api.SibylLangType;
+import com.williamfzc.sibyl.core.api.internal.SibylDiff;
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
@@ -23,8 +23,8 @@ public class TestAPI {
     @Test
     public void testScan() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
-        Set<File> files = Sibyl.genValidFilesFromDir(src, SibylLangType.JAVA_8);
-        SibylLog.info("valid files: " + files.size());
+        Storage<File> files = Sibyl.collectFileFromDir(src, SibylLangType.JAVA_8);
+        SibylLog.info("valid files: " + files.getData().size());
     }
 
     @Test
@@ -83,13 +83,12 @@ public class TestAPI {
                 (k, v) -> {
                     System.out.printf("file %s%n", k);
                     v.forEach(
-                            eachMethod -> {
-                                System.out.printf(
-                                        "method: %s, score: %s, hit: %s%n",
-                                        eachMethod.getInfo().getName(),
-                                        eachMethod.calcDiffScore(),
-                                        eachMethod.getDiffLines());
-                            });
+                            eachMethod ->
+                                    System.out.printf(
+                                            "method: %s, score: %s, hit: %s%n",
+                                            eachMethod.getInfo().getName(),
+                                            eachMethod.calcDiffScore(),
+                                            eachMethod.getDiffLines()));
                 });
     }
 }
