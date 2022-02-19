@@ -32,6 +32,7 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
             Java8StorableListener<T> listenerCopy = this.getClass().getConstructor().newInstance();
             listenerCopy.setStorage(storage);
             listenerCopy.realHandle(file, content);
+            listenerCopy.afterHandle();
         } catch (Exception e) {
             SibylLog.error(e.getLocalizedMessage());
             e.printStackTrace();
@@ -48,9 +49,6 @@ class Java8StorableListener<T> extends Java8BaseListener implements IStorableLis
                                                 new Java8Lexer(CharStreams.fromString(content))))
                                 .compilationUnit());
     }
-
-    @Override
-    public void afterHandle() {}
 
     @Override
     public boolean accept(File file) {

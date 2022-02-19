@@ -101,6 +101,7 @@ public class Java8CallListener extends Java8MethodListener<Edge> {
 
     @Override
     public void afterHandle() {
+        super.afterHandle();
         // guess and save them to storage
         processHeadlessMethods();
         processNeedGuestMethods();
