@@ -7,23 +7,16 @@
 [![Dev CI](https://github.com/williamfzc/sibyl/actions/workflows/normal.yml/badge.svg)](https://github.com/williamfzc/sibyl/actions/workflows/normal.yml)
 [![Tag CI](https://github.com/williamfzc/sibyl/actions/workflows/perf.yml/badge.svg)](https://github.com/williamfzc/sibyl/actions/workflows/perf.yml)
 
-## what is it
-
-still no idea about how to describe this project.
-
-coming soon
-
 ## usage
 
-### cmd
+### api
 
-go to your git repo and run:
+#### in your app
 
-```bash
-curl -o- https://raw.githubusercontent.com/williamfzc/sibyl/main/scripts/diff.sh | bash
-```
+- All the methods you need can be found in [Sibyl.java](https://github.com/williamfzc/sibyl/blob/main/sibyl-core/src/main/java/com/williamfzc/sibyl/core/api/Sibyl.java).
+- About how to use them: [TestAPI.java](https://github.com/williamfzc/sibyl/blob/main/sibyl-core/src/test/java/com/williamfzc/sibyl/core/TestAPI.java).
 
-### maven
+#### maven
 
 ```xml
 <repositories>
@@ -45,6 +38,14 @@ dep:
 ```
 
 [![](https://jitpack.io/v/williamfzc/sibyl.svg)](https://jitpack.io/#williamfzc/sibyl)
+
+### cmd
+
+go to your git repo and run:
+
+```bash
+curl -o- https://raw.githubusercontent.com/williamfzc/sibyl/main/scripts/diff.sh | bash
+```
 
 ## licence
 
