@@ -8,6 +8,7 @@ import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.scanner.file.FileContentScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import java.io.File;
 import java.io.IOException;
 
@@ -26,12 +27,12 @@ public final class SibylSnapshot {
         }
     }
 
-    public Storage<Method> genSnapshotFromDir(File inputDir, SibylLangType lang)
+    public Snapshot genSnapshotFromDir(File inputDir, SibylLangType lang)
             throws IOException, InterruptedException {
         return genSnapshotFromDir(inputDir, lang, null);
     }
 
-    public Storage<Method> genSnapshotFromDir(File inputDir, SibylLangType lang, ScanPolicy policy)
+    public Snapshot genSnapshotFromDir(File inputDir, SibylLangType lang, ScanPolicy policy)
             throws IOException, InterruptedException {
         switch (lang) {
             case JAVA_8:
@@ -44,7 +45,7 @@ public final class SibylSnapshot {
         return null;
     }
 
-    private static Storage<Method> genSnapshotFromDir(
+    private static Snapshot genSnapshotFromDir(
             File inputDir, IStorableListener<Method> listener, ScanPolicy policy)
             throws IOException, InterruptedException {
         FileContentScanner scanner = new FileContentScanner(inputDir);
@@ -52,7 +53,7 @@ public final class SibylSnapshot {
             scanner.setScanPolicy(policy);
         }
 
-        Storage<Method> methodStorage = new Storage<>();
+        Snapshot methodStorage = new Snapshot();
         listener.setStorage(methodStorage);
         scanner.registerListener(listener);
         scanner.scanDir(inputDir);

@@ -11,6 +11,7 @@ import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.file.FileContentScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.storage.callgraph.CallGraph;
 import java.io.File;
 import java.io.IOException;
 
@@ -29,7 +30,7 @@ public final class SibylCallgraph {
         }
     }
 
-    public Storage<Edge> genCallGraphFromDir(
+    public CallGraph genCallGraphFromDir(
             File inputDir,
             SibylLangType lang,
             Storage<Method> methodStorage,
@@ -46,13 +47,13 @@ public final class SibylCallgraph {
         }
     }
 
-    private Storage<Edge> genJava8CallGraphFromDir(
+    private CallGraph genJava8CallGraphFromDir(
             File inputDir, Storage<Method> methodStorage, Storage<Clazz> clazzStorage)
             throws IOException, InterruptedException {
         FileContentScanner scanner = new FileContentScanner(inputDir);
 
         IStorableListener<Edge> listener = new Java8CallListener();
-        Storage<Edge> edgeStorage = new Storage<>();
+        CallGraph edgeStorage = new CallGraph();
         listener.setStorage(edgeStorage);
         scanner.registerListener(listener);
 

@@ -5,13 +5,14 @@ import com.williamfzc.sibyl.core.api.internal.SibylDiff;
 import com.williamfzc.sibyl.core.api.internal.SibylSnapshot;
 import com.williamfzc.sibyl.core.listener.base.IStorableListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
-import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
-import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.scanner.file.FileIntroScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.storage.callgraph.CallGraph;
+import com.williamfzc.sibyl.core.storage.snapshot.DiffSnapshot;
+import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import java.io.File;
 import java.io.IOException;
 
@@ -33,29 +34,27 @@ public final class Sibyl {
         snapshotApi.genSnapshotFromDir(inputDir, outputFile, lang, policy);
     }
 
-    public static Storage<Method> genSnapshotFromDir(File inputDir, SibylLangType lang)
+    public static Snapshot genSnapshotFromDir(File inputDir, SibylLangType lang)
             throws IOException, InterruptedException {
         return genSnapshotFromDir(inputDir, lang, null);
     }
 
-    public static Storage<Method> genSnapshotFromDir(
-            File inputDir, SibylLangType lang, ScanPolicy policy)
+    public static Snapshot genSnapshotFromDir(File inputDir, SibylLangType lang, ScanPolicy policy)
             throws IOException, InterruptedException {
         return snapshotApi.genSnapshotFromDir(inputDir, lang, policy);
     }
 
-    public static Storage<DiffMethod> genSnapshotDiff(
+    public static DiffSnapshot genSnapshotDiff(
             Storage<Method> methodStorage, DiffResult diff, String prefix, Boolean withCallgraph) {
         return diffApi.genSnapshotDiff(methodStorage, diff, prefix, withCallgraph);
     }
 
-    public static Storage<DiffMethod> genSnapshotDiff(
+    public static DiffSnapshot genSnapshotDiff(
             Storage<Method> methodStorage, DiffResult diff, String prefix) {
         return genSnapshotDiff(methodStorage, diff, prefix, false);
     }
 
-    public static Storage<DiffMethod> genSnapshotDiff(
-            Storage<Method> methodStorage, DiffResult diff) {
+    public static DiffSnapshot genSnapshotDiff(Storage<Method> methodStorage, DiffResult diff) {
         return genSnapshotDiff(methodStorage, diff, "");
     }
 
@@ -80,18 +79,18 @@ public final class Sibyl {
         callgraphApi.genCallGraphFromDir(inputDir, outputFile, lang, null, null);
     }
 
-    public static Storage<Edge> genCallGraphFromDir(File inputDir, SibylLangType lang)
+    public static CallGraph genCallGraphFromDir(File inputDir, SibylLangType lang)
             throws IOException, InterruptedException {
         return genCallGraphFromDir(inputDir, lang, null, null);
     }
 
-    public static Storage<Edge> genCallGraphFromDir(
+    public static CallGraph genCallGraphFromDir(
             File inputDir, SibylLangType lang, Storage<Method> methodStorage)
             throws IOException, InterruptedException {
         return genCallGraphFromDir(inputDir, lang, methodStorage, null);
     }
 
-    public static Storage<Edge> genCallGraphFromDir(
+    public static CallGraph genCallGraphFromDir(
             File inputDir,
             SibylLangType lang,
             Storage<Method> methodStorage,

@@ -10,6 +10,7 @@ import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.model.method.MethodBelonging;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.storage.snapshot.DiffSnapshot;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.*;
@@ -121,7 +122,7 @@ public final class SibylDiff {
     }
 
     // todo: diff type here
-    public Storage<DiffMethod> genSnapshotDiff(
+    public DiffSnapshot genSnapshotDiff(
             Storage<Method> methodStorage, DiffResult diff, String prefix, Boolean withCallgraph) {
         // 1. create a (fileName as key, method as value) map
         // 2. diff foreach: if file changed, check all its methods in map
@@ -143,7 +144,7 @@ public final class SibylDiff {
         SibylLog.debug(methodMap.toString());
         SibylLog.debug(diff.getNewFiles().toString());
 
-        Storage<DiffMethod> diffMethods = new Storage<>();
+        DiffSnapshot diffMethods = new DiffSnapshot();
         for (DiffFile diffFile : diff.getNewFiles()) {
             String eachFileName = diffFile.getName();
             if (!methodMap.containsKey(eachFileName)) {
