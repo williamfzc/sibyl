@@ -15,12 +15,7 @@ if [ ! -f "$file_path" ]; then
 fi
 
 # ready
-before=`git rev-parse HEAD~`
-after=`git rev-parse HEAD`
-echo "before: ${before}"
-echo "after: ${after}"
-
-output=${ws}/diff.json
+output=${ws}/snapshot.json
 java -version
-java -jar "$file_path" diff -i . -o "$output" --before "$before" --after "$after" -t JAVA_8
+java -jar "$file_path" snapshot -i . -o "$output" -t JAVA_8
 echo "diff finished: ${output}"
