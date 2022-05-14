@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public final class MethodBelongingFile {
     private String name;
-    private Integer startLine;
-    private Integer endLine;
+    private Integer startLine = -1;
+    private Integer endLine = -1;
 }

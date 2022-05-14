@@ -17,10 +17,13 @@ public class Method implements BornLabel {
 
     // todo: what about empty lines?
     public List<Integer> getLineRange() {
+        MethodBelongingFile f = belongsTo.getFile();
+        if (null == f) {
+            return new ArrayList<>();
+        }
+
         List<Integer> ret = new ArrayList<>();
-        for (int i = belongsTo.getFile().getStartLine();
-                i <= belongsTo.getFile().getEndLine();
-                i++) {
+        for (int i = f.getStartLine(); i <= f.getEndLine(); i++) {
             ret.add(i);
         }
         return ret;
