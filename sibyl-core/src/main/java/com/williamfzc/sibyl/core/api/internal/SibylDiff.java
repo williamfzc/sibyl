@@ -134,8 +134,14 @@ public final class SibylDiff {
         // file path in snapshot SHORTER than file path in git diff
         Map<String, Collection<Method>> methodMap = new HashMap<>();
         for (Method eachMethod : methodStorage.getData()) {
-            String eachFileName =
-                    new File(prefix, eachMethod.getBelongsTo().getFile().getName()).getPath();
+            String eachFileName;
+            if ("".equals(prefix)) {
+                eachFileName = new File(eachMethod.getBelongsTo().getFile().getName()).getPath();
+            } else {
+                eachFileName =
+                        new File(prefix, eachMethod.getBelongsTo().getFile().getName()).getPath();
+            }
+
             methodMap.putIfAbsent(eachFileName, new HashSet<>());
             methodMap.get(eachFileName).add(eachMethod);
         }
@@ -155,6 +161,7 @@ public final class SibylDiff {
             Set<Integer> lines = new HashSet<>(diffFile.getLines());
             Set<Integer> hitLines = new HashSet<>();
 
+            SibylLog.debug("cur file: " + eachFileName);
             methodMap
                     .get(eachFileName)
                     .forEach(
