@@ -47,12 +47,11 @@ public class UtGen {
                             try {
                                 SibylLog.info(
                                         String.format(
-                                                "%s.%s",
+                                                "%s call %s with params %s",
                                                 each.getBelongsTo().getClazz().getFullName(),
-                                                each.getInfo().getName()));
-                                SibylLog.info(each.getInfo().getParams().toString());
+                                                each.getInfo().getName(),
+                                                each.getInfo().getParams()));
                             } catch (NullPointerException ignored) {
-
                             }
                         });
     }

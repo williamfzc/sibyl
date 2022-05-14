@@ -23,6 +23,21 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
 
     // entry
     @Override
+    public void enterImportDeclaration(Java8Parser.ImportDeclarationContext ctx) {
+        Java8Parser.SingleTypeImportDeclarationContext declCtx = ctx.singleTypeImportDeclaration();
+        if (null == declCtx) {
+            return;
+        }
+        String typeDecl = declCtx.typeName().getText();
+        String[] parts = typeDecl.split("\\.");
+        if (parts.length < 1) {
+            return;
+        }
+        String typeName = parts[parts.length - 1];
+        fieldTypeMapping.put(typeName, typeDecl);
+    }
+
+    @Override
     public void enterPackageDeclaration(Java8Parser.PackageDeclarationContext ctx) {
         String declaredPackage =
                 ctx.Identifier().stream().map(ParseTree::getText).collect(Collectors.joining("."));
@@ -93,7 +108,9 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     // global vars for guess
     @Override
     public void enterFieldDeclaration(Java8Parser.FieldDeclarationContext ctx) {
-        String declaredType = ctx.unannType().getText();
+        String typeName = ctx.unannType().getText();
+        final String declaredType = fieldTypeMapping.getOrDefault(typeName, typeName);
+
         ctx.variableDeclaratorList()
                 .variableDeclarator()
                 .forEach(
@@ -149,7 +166,9 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
                         .map(
                                 each -> {
                                     Parameter param = new Parameter();
-                                    param.setType(each.unannType().getText());
+                                    String declType = each.unannType().getText();
+                                    declType = fieldTypeMapping.getOrDefault(declType, declType);
+                                    param.setType(declType);
                                     param.setName(each.variableDeclaratorId().getText());
                                     return param;
                                 })
