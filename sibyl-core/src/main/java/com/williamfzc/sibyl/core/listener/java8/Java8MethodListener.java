@@ -9,6 +9,7 @@ import com.williamfzc.sibyl.core.model.pkg.Pkg;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class Java8MethodListener<T> extends Java8StorableListener<T> {
@@ -154,7 +155,10 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         MethodInfo info = new MethodInfo();
         info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
         info.setReturnType(ctx.methodHeader().result().getText());
-
+        info.setModifier(
+                ctx.methodModifier().stream()
+                        .map(RuleContext::getText)
+                        .collect(Collectors.toList()));
         Java8Parser.FormalParameterListContext paramsCtx =
                 ctx.methodHeader().methodDeclarator().formalParameterList();
         if ((null == paramsCtx) || (null == paramsCtx.formalParameters())) {
