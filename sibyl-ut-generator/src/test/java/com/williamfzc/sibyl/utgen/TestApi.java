@@ -15,7 +15,7 @@ public class TestApi {
         //                (Storage<Method>) UtGen.collectMethods(Support.getProjectRoot(), "HEAD",
         // "HEAD~~~");
 
-        UtGen.methodsToCases(ret)
+        UtGen.methodsToFuzzCases(ret)
                 .forEach(
                         each -> {
                             try {

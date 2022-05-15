@@ -24,6 +24,8 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class UtGen {
     private static final String NAME_METHOD_TARGET_GETTER = "_getUtGenTarget";
@@ -60,68 +62,98 @@ public class UtGen {
         return Sibyl.genSnapshotFromDir(projectDir, SibylLangType.JAVA_8);
     }
 
-    public static Set<JavaFile> methodsToCases(Storage<? extends Method> methods) {
+    public static MethodSpec methodToFuzzCase(Method method) {
+        // transfer this method
+        MethodSpec.Builder methodBuilder =
+                MethodSpec.methodBuilder("test_" + method.getInfo().getName())
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(void.class);
+        methodBuilder.addAnnotation(Fuzz.class);
+
+        // main execution
+        try {
+            AnnotationSpec ctorAnnotation =
+                    AnnotationSpec.builder(From.class)
+                            .addMember(
+                                    "value",
+                                    CodeBlock.builder().add("$T.class", Ctor.class).build())
+                            .build();
+            for (Parameter param : method.getInfo().getParams()) {
+                // todo: bestGuess can not handle some primitive types (e.g. int
+                methodBuilder.addParameter(
+                        ParameterSpec.builder(ClassName.bestGuess(param.getType()), param.getName())
+                                .addAnnotation(ctorAnnotation)
+                                .build());
+            }
+
+            methodBuilder.addCode(
+                    String.format(
+                            "%s %s = (%s) %s();\n",
+                            method.getBelongsTo().getClazz().getFullName(),
+                            NAME_LITERAL_LOCAL_TARGET,
+                            method.getBelongsTo().getClazz().getFullName(),
+                            NAME_METHOD_TARGET_GETTER));
+            // execute
+            methodBuilder.addCode(
+                    String.format(
+                            "%s.%s(%s);\n",
+                            NAME_LITERAL_LOCAL_TARGET,
+                            method.getInfo().getName(),
+                            method.getInfo().getParams().stream()
+                                    .map(Parameter::getName)
+                                    .collect(Collectors.joining(", "))));
+
+        } catch (NullPointerException | IllegalArgumentException e) {
+            return null;
+        }
+        return methodBuilder.build();
+    }
+
+    public static MethodSpec methodToUnitCase(Method method) {
+        throw new NotImplementedException();
+    }
+
+    public static Set<JavaFile> methodsToFuzzCases(Storage<? extends Method> methods) {
+        return methodsToCases(methods, CaseType.FUZZ);
+    }
+
+    public static Set<JavaFile> methodsToUnitCases(Storage<? extends Method> methods) {
+        return methodsToCases(methods, CaseType.UNIT);
+    }
+
+    public static Set<JavaFile> methodsToCases(
+            Storage<? extends Method> methods, CaseType caseType) {
         Map<Clazz, List<MethodSpec>> cache = new HashMap<>();
         for (Method method : methods.getData()) {
             Clazz clazz = method.getBelongsTo().getClazz();
 
-            // transfer this method
-            MethodSpec.Builder builder =
-                    MethodSpec.methodBuilder("test_" + method.getInfo().getName())
-                            .addModifiers(Modifier.PUBLIC)
-                            .returns(void.class);
-            builder.addAnnotation(Fuzz.class);
-
-            // main execution
-            try {
-                AnnotationSpec ctorAnnotation =
-                        AnnotationSpec.builder(From.class)
-                                .addMember(
-                                        "value",
-                                        CodeBlock.builder().add("$T.class", Ctor.class).build())
-                                .build();
-                for (Parameter param : method.getInfo().getParams()) {
-                    // todo: bestGuess can not handle some primitive types (e.g. int
-                    builder.addParameter(
-                            ParameterSpec.builder(
-                                            ClassName.bestGuess(param.getType()), param.getName())
-                                    .addAnnotation(ctorAnnotation)
-                                    .build());
-                }
-
-                builder.addCode(
-                        String.format(
-                                "%s %s = (%s) %s();\n",
-                                method.getBelongsTo().getClazz().getFullName(),
-                                NAME_LITERAL_LOCAL_TARGET,
-                                method.getBelongsTo().getClazz().getFullName(),
-                                NAME_METHOD_TARGET_GETTER));
-                // execute
-                builder.addCode(
-                        String.format(
-                                "%s.%s(%s);\n",
-                                NAME_LITERAL_LOCAL_TARGET,
-                                method.getInfo().getName(),
-                                method.getInfo().getParams().stream()
-                                        .map(Parameter::getName)
-                                        .collect(Collectors.joining(", "))));
-
-            } catch (NullPointerException | IllegalArgumentException e) {
+            MethodSpec methodSpec = null;
+            switch (caseType) {
+                case FUZZ:
+                    methodSpec = methodToFuzzCase(method);
+                    break;
+                case UNIT:
+                    methodSpec = methodToUnitCase(method);
+                    break;
+                default:
+                    break;
+            }
+            if (null == methodSpec) {
                 continue;
             }
 
             cache.putIfAbsent(clazz, new LinkedList<>());
-            cache.get(clazz).add(builder.build());
+            cache.get(clazz).add(methodSpec);
         }
 
         // create real cases
         return cache.entrySet().stream()
                 .map(
                         item -> {
-                            TypeSpec.Builder builder =
+                            TypeSpec.Builder clazzBuilder =
                                     TypeSpec.classBuilder("Test" + item.getKey().getName())
                                             .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-                            builder.addMethods(item.getValue());
+                            clazzBuilder.addMethods(item.getValue());
                             MethodSpec.Builder getterBuilder =
                                     MethodSpec.methodBuilder(NAME_METHOD_TARGET_GETTER)
                                             .addModifiers(Modifier.PRIVATE)
@@ -129,17 +161,32 @@ public class UtGen {
                             getterBuilder.addCode(
                                     String.format(
                                             "return new %s();\n", item.getKey().getFullName()));
-                            builder.addMethod(getterBuilder.build());
-                            AnnotationSpec.Builder runWithBuilder =
-                                    AnnotationSpec.builder(RunWith.class)
-                                            .addMember(
-                                                    "value",
-                                                    CodeBlock.builder()
-                                                            .add("$T.class", JQF.class)
-                                                            .build());
-                            builder.addAnnotation(runWithBuilder.build());
+                            clazzBuilder.addMethod(getterBuilder.build());
 
-                            TypeSpec cur = builder.build();
+                            AnnotationSpec.Builder runWithBuilder =
+                                    AnnotationSpec.builder(RunWith.class);
+                            switch (caseType) {
+                                case FUZZ:
+                                    runWithBuilder.addMember(
+                                            "value",
+                                            CodeBlock.builder().add("$T.class", JQF.class).build());
+
+                                    break;
+                                case UNIT:
+                                    runWithBuilder =
+                                            AnnotationSpec.builder(RunWith.class)
+                                                    .addMember(
+                                                            "value",
+                                                            CodeBlock.builder()
+                                                                    .add("$T.class", JUnit4.class)
+                                                                    .build());
+                                    break;
+                                default:
+                                    break;
+                            }
+                            clazzBuilder.addAnnotation(runWithBuilder.build());
+
+                            TypeSpec cur = clazzBuilder.build();
                             return JavaFile.builder(
                                             item.getKey().getBelongsTo().getPkg().getName(), cur)
                                     .build();
