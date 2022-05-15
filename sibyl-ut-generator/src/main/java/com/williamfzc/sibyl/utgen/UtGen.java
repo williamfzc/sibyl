@@ -25,7 +25,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class UtGen {
     private static final String NAME_METHOD_TARGET_GETTER = "_getUtGenTarget";
@@ -110,7 +109,35 @@ public class UtGen {
     }
 
     public static MethodSpec methodToUnitCase(Method method) {
-        throw new NotImplementedException();
+        MethodSpec.Builder methodBuilder =
+                MethodSpec.methodBuilder("test_" + method.getInfo().getName())
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(void.class);
+
+        // main execution
+        try {
+            methodBuilder.addCode(
+                    String.format(
+                            "%s %s = (%s) %s();\n",
+                            method.getBelongsTo().getClazz().getFullName(),
+                            NAME_LITERAL_LOCAL_TARGET,
+                            method.getBelongsTo().getClazz().getFullName(),
+                            NAME_METHOD_TARGET_GETTER));
+            // execute
+            // todo: specific mock / generator for params?
+            methodBuilder.addCode(
+                    String.format(
+                            "%s.%s(%s);\n",
+                            NAME_LITERAL_LOCAL_TARGET,
+                            method.getInfo().getName(),
+                            method.getInfo().getParams().stream()
+                                    .map(Parameter::getName)
+                                    .collect(Collectors.joining(", "))));
+
+        } catch (NullPointerException | IllegalArgumentException e) {
+            return null;
+        }
+        return methodBuilder.build();
     }
 
     public static Set<JavaFile> methodsToFuzzCases(Storage<? extends Method> methods) {
