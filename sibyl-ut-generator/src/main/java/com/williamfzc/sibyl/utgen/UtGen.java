@@ -1,5 +1,7 @@
 package com.williamfzc.sibyl.utgen;
 
+import com.pholser.junit.quickcheck.From;
+import com.pholser.junit.quickcheck.generator.Ctor;
 import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;
@@ -72,16 +74,29 @@ public class UtGen {
 
             // main execution
             try {
+                AnnotationSpec ctorAnnotation =
+                        AnnotationSpec.builder(From.class)
+                                .addMember(
+                                        "value",
+                                        CodeBlock.builder().add("$T.class", Ctor.class).build())
+                                .build();
+                for (Parameter param : method.getInfo().getParams()) {
+                    // todo: bestGuess can not handle some primitive types (e.g. int
+                    builder.addParameter(
+                            ParameterSpec.builder(
+                                            ClassName.bestGuess(param.getType()), param.getName())
+                                    .addAnnotation(ctorAnnotation)
+                                    .build());
+                }
+
                 builder.addCode(
                         String.format(
-                                "%s %s = %s();\n",
+                                "%s %s = (%s) %s();\n",
                                 method.getBelongsTo().getClazz().getFullName(),
                                 NAME_LITERAL_LOCAL_TARGET,
+                                method.getBelongsTo().getClazz().getFullName(),
                                 NAME_METHOD_TARGET_GETTER));
                 // execute
-                for (Parameter param : method.getInfo().getParams()) {
-                    builder.addParameter(ClassName.bestGuess(param.getType()), param.getName());
-                }
                 builder.addCode(
                         String.format(
                                 "%s.%s(%s);\n",
@@ -91,7 +106,7 @@ public class UtGen {
                                         .map(Parameter::getName)
                                         .collect(Collectors.joining(", "))));
 
-            } catch (NullPointerException e) {
+            } catch (NullPointerException | IllegalArgumentException e) {
                 continue;
             }
 
@@ -110,15 +125,10 @@ public class UtGen {
                             MethodSpec.Builder getterBuilder =
                                     MethodSpec.methodBuilder(NAME_METHOD_TARGET_GETTER)
                                             .addModifiers(Modifier.PRIVATE)
-                                            .returns(
-                                                    ClassName.get(
-                                                            item.getKey()
-                                                                    .getBelongsTo()
-                                                                    .getPkg()
-                                                                    .getName(),
-                                                            item.getKey().getName()));
+                                            .returns(Object.class);
                             getterBuilder.addCode(
-                                    String.format("return new %s();\n", item.getKey().getName()));
+                                    String.format(
+                                            "return new %s();\n", item.getKey().getFullName()));
                             builder.addMethod(getterBuilder.build());
                             AnnotationSpec.Builder runWithBuilder =
                                     AnnotationSpec.builder(RunWith.class)
