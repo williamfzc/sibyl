@@ -75,11 +75,35 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
                 String.format("class %s field mapping: %s", declaredClass, fieldTypeMapping));
     }
 
+    // interface
+    @Override
+    public void enterInterfaceDeclaration(Java8Parser.InterfaceDeclarationContext ctx) {
+        Java8Parser.NormalInterfaceDeclarationContext normalInterfaceDeclarationContext =
+                ctx.normalInterfaceDeclaration();
+        if (null == normalInterfaceDeclarationContext) {
+            return;
+        }
+        SibylLog.info("interface decl start: " + normalInterfaceDeclarationContext);
+        curClassStack.push(generateClazz(ctx));
+    }
+
+    @Override
+    public void exitInterfaceDeclaration(Java8Parser.InterfaceDeclarationContext ctx) {
+        Java8Parser.NormalInterfaceDeclarationContext normalInterfaceDeclarationContext =
+                ctx.normalInterfaceDeclaration();
+        if (null == normalInterfaceDeclarationContext) {
+            return;
+        }
+        String declaredClass = normalInterfaceDeclarationContext.Identifier().getText();
+        SibylLog.info("interface decl end: " + declaredClass);
+        curClassStack.pop();
+    }
+
     // use a stack to manage current method
     @Override
     public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
-        SibylLog.debug("method decl: " + declaredMethod);
+        SibylLog.info("method decl: " + declaredMethod);
         curMethodStack.push(generateMethod(ctx));
 
         // args fields
@@ -104,6 +128,37 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     public void exitMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
         SibylLog.debug("method decl end: " + declaredMethod);
+        curMethodStack.pop();
+    }
+
+    @Override
+    public void enterInterfaceMethodDeclaration(Java8Parser.InterfaceMethodDeclarationContext ctx) {
+        String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
+        SibylLog.info("method decl: " + declaredMethod);
+        curMethodStack.push(generateMethod(ctx));
+
+        // args fields
+        Java8Parser.FormalParameterListContext paramsCtx =
+                ctx.methodHeader().methodDeclarator().formalParameterList();
+        if (null != paramsCtx) {
+            Java8Parser.FormalParametersContext formalParametersContext =
+                    paramsCtx.formalParameters();
+            if (null != formalParametersContext) {
+                formalParametersContext
+                        .formalParameter()
+                        .forEach(
+                                each ->
+                                        fieldTypeMapping.put(
+                                                each.variableDeclaratorId().getText(),
+                                                each.unannType().getText()));
+            }
+        }
+    }
+
+    @Override
+    public void exitInterfaceMethodDeclaration(Java8Parser.InterfaceMethodDeclarationContext ctx) {
+        String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
+        SibylLog.info("method decl end: " + declaredMethod);
         curMethodStack.pop();
     }
 
@@ -152,12 +207,62 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         return m;
     }
 
+    protected Method generateMethod(Java8Parser.InterfaceMethodDeclarationContext ctx) {
+        Clazz curClass = curClassStack.peekLast();
+        Method m = new Method();
+        MethodInfo info = generateMethodInfo(ctx);
+
+        MethodBelongingFile belongingFile = new MethodBelongingFile();
+        belongingFile.setName(curFile.getPath());
+        belongingFile.setStartLine(ctx.methodBody().start.getLine());
+        belongingFile.setEndLine(ctx.methodBody().stop.getLine());
+
+        MethodBelonging belonging = new MethodBelonging();
+        belonging.setClazz(curClass);
+        belonging.setFile(belongingFile);
+
+        m.setInfo(info);
+        m.setBelongsTo(belonging);
+        return m;
+    }
+
     protected MethodInfo generateMethodInfo(Java8Parser.MethodDeclarationContext ctx) {
         MethodInfo info = new MethodInfo();
         info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
         info.setReturnType(ctx.methodHeader().result().getText());
         info.setModifier(
                 ctx.methodModifier().stream()
+                        .map(RuleContext::getText)
+                        .collect(Collectors.toList()));
+        Java8Parser.FormalParameterListContext paramsCtx =
+                ctx.methodHeader().methodDeclarator().formalParameterList();
+        if ((null == paramsCtx) || (null == paramsCtx.formalParameters())) {
+            return info;
+        }
+
+        info.setParams(
+                Stream.concat(
+                                paramsCtx.formalParameters().formalParameter().stream(),
+                                Stream.of(paramsCtx.lastFormalParameter().formalParameter()))
+                        .map(
+                                each -> {
+                                    Parameter param = new Parameter();
+                                    String declType = each.unannType().getText();
+                                    declType = fieldTypeMapping.getOrDefault(declType, declType);
+                                    param.setType(declType);
+                                    param.setName(each.variableDeclaratorId().getText());
+                                    return param;
+                                })
+                        .collect(Collectors.toList()));
+        return info;
+    }
+
+    protected MethodInfo generateMethodInfo(Java8Parser.InterfaceMethodDeclarationContext ctx) {
+        MethodInfo info = new MethodInfo();
+        info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
+        info.setReturnType(ctx.methodHeader().result().getText());
+        info.setModifier(
+                ctx.interfaceMethodModifier().stream()
                         .map(RuleContext::getText)
                         .collect(Collectors.toList()));
         Java8Parser.FormalParameterListContext paramsCtx =
@@ -214,6 +319,42 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         if (null != superclassContext) {
             clazz.setSuperName(superclassContext.classType().getText());
         }
+        if (null != superinterfacesContext) {
+            clazz.setInterfaces(
+                    superinterfacesContext.interfaceTypeList().interfaceType().stream()
+                            .map(each -> each.classType().getText())
+                            .collect(Collectors.toSet()));
+        }
+        return clazz;
+    }
+
+    protected Clazz generateClazz(Java8Parser.InterfaceDeclarationContext ctx) {
+        Java8Parser.NormalInterfaceDeclarationContext normalInterfaceDeclarationContext =
+                ctx.normalInterfaceDeclaration();
+        if (null == normalInterfaceDeclarationContext) {
+            return null;
+        }
+        Clazz clazz = new Clazz();
+        String declaredClassName = normalInterfaceDeclarationContext.Identifier().getText();
+        clazz.setName(declaredClassName);
+        Pkg pkg = new Pkg();
+        pkg.setName(curPackage);
+
+        ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
+        clazzBelongingFile.setName(curFile.getPath());
+        clazzBelongingFile.setStartLine(ctx.start.getLine());
+        clazzBelongingFile.setEndLine(ctx.stop.getLine());
+
+        ClazzBelonging clazzBelonging = new ClazzBelonging();
+        clazzBelonging.setPkg(pkg);
+        clazzBelonging.setFile(clazzBelongingFile);
+
+        clazz.setBelongsTo(clazzBelonging);
+
+        // super
+        Java8Parser.ExtendsInterfacesContext superinterfacesContext =
+                normalInterfaceDeclarationContext.extendsInterfaces();
+
         if (null != superinterfacesContext) {
             clazz.setInterfaces(
                     superinterfacesContext.interfaceTypeList().interfaceType().stream()

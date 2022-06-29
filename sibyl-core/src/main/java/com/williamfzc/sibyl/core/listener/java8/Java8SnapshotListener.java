@@ -9,4 +9,10 @@ public class Java8SnapshotListener extends Java8MethodListener<Method> {
         super.enterMethodDeclaration(ctx);
         this.storage.save(curMethodStack.peekLast());
     }
+
+    @Override
+    public void enterInterfaceMethodDeclaration(Java8Parser.InterfaceMethodDeclarationContext ctx) {
+        super.enterInterfaceMethodDeclaration(ctx);
+        this.storage.save(curMethodStack.peekLast());
+    }
 }
