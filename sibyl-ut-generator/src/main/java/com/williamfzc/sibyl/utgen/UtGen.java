@@ -61,6 +61,11 @@ public class UtGen {
         return Sibyl.genSnapshotFromDir(projectDir, SibylLangType.JAVA_8);
     }
 
+    public static Storage<? extends Method> collectAllMethods(File projectDir, ScanPolicy policy)
+            throws IOException, InterruptedException {
+        return Sibyl.genSnapshotFromDir(projectDir, SibylLangType.JAVA_8, policy);
+    }
+
     public static MethodSpec methodToFuzzCase(Method method) {
         // transfer this method
         MethodSpec.Builder methodBuilder =
