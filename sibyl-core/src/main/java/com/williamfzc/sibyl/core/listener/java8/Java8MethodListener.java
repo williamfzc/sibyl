@@ -103,7 +103,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     @Override
     public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
-        SibylLog.info("method decl: " + declaredMethod);
+        SibylLog.debug("method decl: " + declaredMethod);
         curMethodStack.push(generateMethod(ctx));
 
         // args fields
@@ -134,7 +134,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     @Override
     public void enterInterfaceMethodDeclaration(Java8Parser.InterfaceMethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
-        SibylLog.info("method decl: " + declaredMethod);
+        SibylLog.debug("method decl: " + declaredMethod);
         curMethodStack.push(generateMethod(ctx));
 
         // args fields
@@ -236,14 +236,27 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
                         .collect(Collectors.toList()));
         Java8Parser.FormalParameterListContext paramsCtx =
                 ctx.methodHeader().methodDeclarator().formalParameterList();
-        if ((null == paramsCtx) || (null == paramsCtx.formalParameters())) {
+        if (null == paramsCtx) {
             return info;
+        }
+        if ((null == paramsCtx.formalParameters()) && (null == paramsCtx.lastFormalParameter())) {
+            return info;
+        }
+        Stream<Java8Parser.FormalParameterContext> paramStream = Stream.of();
+        if (null != paramsCtx.formalParameters()) {
+            paramStream =
+                    Stream.concat(
+                            paramStream, paramsCtx.formalParameters().formalParameter().stream());
+        }
+        if (null != paramsCtx.lastFormalParameter()) {
+            paramStream =
+                    Stream.concat(
+                            paramStream,
+                            Stream.of(paramsCtx.lastFormalParameter().formalParameter()));
         }
 
         info.setParams(
-                Stream.concat(
-                                paramsCtx.formalParameters().formalParameter().stream(),
-                                Stream.of(paramsCtx.lastFormalParameter().formalParameter()))
+                paramStream
                         .map(
                                 each -> {
                                     Parameter param = new Parameter();
