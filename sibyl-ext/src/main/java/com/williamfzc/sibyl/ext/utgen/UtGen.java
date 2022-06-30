@@ -12,13 +12,11 @@ import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.Storage;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
 import edu.berkeley.cs.jqf.fuzz.JQF;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
