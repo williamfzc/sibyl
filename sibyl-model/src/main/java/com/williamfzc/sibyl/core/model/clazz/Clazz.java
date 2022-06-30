@@ -1,5 +1,6 @@
 package com.williamfzc.sibyl.core.model.clazz;
 
+import java.util.List;
 import java.util.Set;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -12,6 +13,7 @@ public class Clazz {
     private String name;
     private String superName;
     private Set<String> interfaces;
+    private List<String> modifier;
 
     private ClazzBelonging belongsTo;
 

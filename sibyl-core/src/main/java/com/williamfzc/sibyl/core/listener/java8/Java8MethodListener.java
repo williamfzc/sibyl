@@ -309,6 +309,11 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         }
         Clazz clazz = new Clazz();
         String declaredClassName = normalClassDeclarationContext.Identifier().getText();
+        clazz.setModifier(
+                ctx.normalClassDeclaration().classModifier().stream()
+                        .map(RuleContext::getText)
+                        .collect(Collectors.toList()));
+
         clazz.setName(declaredClassName);
         Pkg pkg = new Pkg();
         pkg.setName(curPackage);
@@ -350,6 +355,11 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         Clazz clazz = new Clazz();
         String declaredClassName = normalInterfaceDeclarationContext.Identifier().getText();
         clazz.setName(declaredClassName);
+        clazz.setModifier(
+                ctx.normalInterfaceDeclaration().interfaceModifier().stream()
+                        .map(RuleContext::getText)
+                        .collect(Collectors.toList()));
+
         Pkg pkg = new Pkg();
         pkg.setName(curPackage);
 
