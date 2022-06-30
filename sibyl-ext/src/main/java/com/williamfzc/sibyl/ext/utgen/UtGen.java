@@ -1,60 +1,30 @@
-package com.williamfzc.sibyl.utgen;
+package com.williamfzc.sibyl.ext.utgen;
 
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.generator.Ctor;
 import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;
-import com.williamfzc.sibyl.core.api.internal.SibylDiff;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
-import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.Storage;
-import com.williamfzc.sibyl.core.utils.SibylLog;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
 import edu.berkeley.cs.jqf.fuzz.JQF;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryBuilder;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 public class UtGen {
     private static final String NAME_METHOD_TARGET_GETTER = "_getUtGenTarget";
     private static final String NAME_LITERAL_LOCAL_TARGET = "_utGenTarget";
-
-    public static Storage<? extends Method> collectMethods(
-            File projectDir, String endRev, String startRev)
-            throws IOException, InterruptedException {
-        Repository repo = new RepositoryBuilder().findGitDir(projectDir).build();
-        ObjectId head = repo.resolve(endRev);
-        ObjectId headParent = repo.resolve(startRev);
-        SibylLog.info("after: " + head.getName());
-        SibylLog.info("before: " + headParent.getName());
-
-        DiffResult diffResult = SibylDiff.diff(repo, head.getName(), headParent.getName());
-
-        ScanPolicy scanPolicy =
-                new ScanPolicy() {
-                    @Override
-                    public boolean shouldExclude(File file) {
-                        return diffResult.getNewFiles().stream()
-                                .noneMatch(each -> file.getAbsolutePath().endsWith(each.getName()));
-                    }
-                };
-
-        Storage<Method> methodStorage =
-                Sibyl.genSnapshotFromDir(projectDir, SibylLangType.JAVA_8, scanPolicy);
-        assert methodStorage != null;
-        return Sibyl.genSnapshotDiff(methodStorage, diffResult);
-    }
 
     public static Storage<? extends Method> collectAllMethods(File projectDir)
             throws IOException, InterruptedException {
@@ -153,7 +123,7 @@ public class UtGen {
         return methodsToCases(methods, CaseType.UNIT);
     }
 
-    public static Set<JavaFile> methodsToCases(
+    private static Set<JavaFile> methodsToCases(
             Storage<? extends Method> methods, CaseType caseType) {
         Map<Clazz, List<MethodSpec>> cache = new HashMap<>();
         for (Method method : methods.getData()) {

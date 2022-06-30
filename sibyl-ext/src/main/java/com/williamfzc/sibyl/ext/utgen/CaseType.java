@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.utgen;
+package com.williamfzc.sibyl.ext.utgen;
 
 public enum CaseType {
     FUZZ,

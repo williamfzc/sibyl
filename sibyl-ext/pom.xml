@@ -6,7 +6,8 @@
     <artifactId>sibyl</artifactId>
     <version>${sibyl.version}</version>
   </parent>
-  <artifactId>sibyl-ut-generator</artifactId>
+
+  <artifactId>sibyl-ext</artifactId>
 
   <properties>
     <maven.compiler.source>8</maven.compiler.source>
@@ -52,7 +53,6 @@
       <artifactId>jqf-fuzz</artifactId>
       <version>1.7</version>
     </dependency>
-
   </dependencies>
 
 </project>
