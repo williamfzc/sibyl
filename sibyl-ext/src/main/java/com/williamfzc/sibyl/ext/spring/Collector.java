@@ -1,14 +1,43 @@
 package com.williamfzc.sibyl.ext.spring;
 
+import com.williamfzc.sibyl.core.api.Sibyl;
+import com.williamfzc.sibyl.core.api.SibylLangType;
+import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import java.io.File;
+import java.io.IOException;
 
 public class Collector {
-    public Snapshot collectController(File file) {
-        return null;
+    private static class ControllerPolicy extends ScanPolicy {
+        @Override
+        public boolean shouldExclude(File file) {
+            return !file.toPath().getFileName().toString().contains("Controller.java");
+        }
     }
 
-    public Snapshot collectEntities(File file) {
-        return null;
+    private static class EntityPolicy extends ScanPolicy {
+        @Override
+        public boolean shouldExclude(File file) {
+            return !file.toPath().getFileName().toString().contains("DTO");
+        }
+    }
+
+    private static class ServicePolicy extends ScanPolicy {
+        @Override
+        public boolean shouldExclude(File file) {
+            return !file.toPath().getFileName().toString().endsWith("Service.java");
+        }
+    }
+
+    public Snapshot collectControllers(File file) throws IOException, InterruptedException {
+        return Sibyl.genSnapshotFromDir(file, SibylLangType.JAVA_8, new ControllerPolicy());
+    }
+
+    public Snapshot collectEntities(File file) throws IOException, InterruptedException {
+        return Sibyl.genSnapshotFromDir(file, SibylLangType.JAVA_8, new EntityPolicy());
+    }
+
+    public Snapshot collectServices(File file) throws IOException, InterruptedException {
+        return Sibyl.genSnapshotFromDir(file, SibylLangType.JAVA_8, new ServicePolicy());
     }
 }
