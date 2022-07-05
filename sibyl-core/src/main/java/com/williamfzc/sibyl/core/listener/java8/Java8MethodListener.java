@@ -83,7 +83,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         if (null == normalInterfaceDeclarationContext) {
             return;
         }
-        SibylLog.info("interface decl start: " + normalInterfaceDeclarationContext);
+        SibylLog.debug("interface decl start: " + normalInterfaceDeclarationContext);
         curClassStack.push(generateClazz(ctx));
     }
 
@@ -95,7 +95,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
             return;
         }
         String declaredClass = normalInterfaceDeclarationContext.Identifier().getText();
-        SibylLog.info("interface decl end: " + declaredClass);
+        SibylLog.debug("interface decl end: " + declaredClass);
         curClassStack.pop();
     }
 
@@ -158,7 +158,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     @Override
     public void exitInterfaceMethodDeclaration(Java8Parser.InterfaceMethodDeclarationContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
-        SibylLog.info("method decl end: " + declaredMethod);
+        SibylLog.debug("method decl end: " + declaredMethod);
         curMethodStack.pop();
     }
 
