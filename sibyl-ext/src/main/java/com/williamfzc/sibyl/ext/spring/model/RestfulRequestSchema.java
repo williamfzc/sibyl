@@ -1,5 +1,9 @@
 package com.williamfzc.sibyl.ext.spring.model;
 
+import lombok.Data;
+
+@Data
 public class RestfulRequestSchema {
-    // standard http request
+    private HttpMethod method;
+    private String url;
 }
