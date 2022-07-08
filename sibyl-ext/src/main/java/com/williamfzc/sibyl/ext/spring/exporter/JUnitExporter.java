@@ -3,6 +3,7 @@ package com.williamfzc.sibyl.ext.spring.exporter;
 import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.ext.CommonUtils;
+import com.williamfzc.sibyl.ext.spring.model.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.spring.model.ServiceCase;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class JUnitExporter extends BaseExporter {
                 .collect(Collectors.toList());
     }
 
-    public JavaFile specs2JavaFile(
+    public JUnitCaseFile specs2JavaFile(
             String packageName, String clazzName, Iterable<MethodSpec> methodSpecs) {
         TypeSpec.Builder clazzBuilder =
                 TypeSpec.classBuilder("Test" + clazzName)
@@ -77,37 +78,38 @@ public class JUnitExporter extends BaseExporter {
         clazzBuilder.addAnnotation(runWithBuilder.build());
 
         TypeSpec cur = clazzBuilder.build();
-        return JavaFile.builder(packageName, cur).build();
+        return JUnitCaseFile.of(JavaFile.builder(packageName, cur).build());
     }
 
-    public JavaFile cases2JavaFile(
+    public JUnitCaseFile cases2JavaFile(
             String packageName, String clazzName, Iterable<ServiceCase> serviceCases) {
         return specs2JavaFile(packageName, clazzName, cases2Specs(serviceCases));
     }
 
-    public List<JavaFile> cases2JavaFiles(Iterable<ServiceCase> serviceCases) {
-        List<JavaFile> ret = new ArrayList<>();
+    public List<JUnitCaseFile> cases2JavaFiles(Iterable<ServiceCase> serviceCases) {
+        List<JUnitCaseFile> ret = new ArrayList<>();
         Map<String, List<ServiceCase>> packageDimMap =
                 StreamSupport.stream(serviceCases.spliterator(), false)
                         .collect(
                                 Collectors.groupingBy(
                                         ServiceCase::getServicePackageName, Collectors.toList()));
         for (String packageName : packageDimMap.keySet()) {
-            List<JavaFile> cur = cases2JavaFiles(packageName, packageDimMap.get(packageName));
+            List<JUnitCaseFile> cur = cases2JavaFiles(packageName, packageDimMap.get(packageName));
             ret.addAll(cur);
         }
         return ret;
     }
 
-    public List<JavaFile> cases2JavaFiles(String packageName, Iterable<ServiceCase> serviceCases) {
-        List<JavaFile> ret = new ArrayList<>();
+    public List<JUnitCaseFile> cases2JavaFiles(
+            String packageName, Iterable<ServiceCase> serviceCases) {
+        List<JUnitCaseFile> ret = new ArrayList<>();
         Map<String, List<ServiceCase>> clazzDimMap =
                 StreamSupport.stream(serviceCases.spliterator(), false)
                         .collect(
                                 Collectors.groupingBy(
                                         ServiceCase::getServiceClazzName, Collectors.toList()));
         for (String clazzName : clazzDimMap.keySet()) {
-            JavaFile cur = cases2JavaFile(packageName, clazzName, clazzDimMap.get(clazzName));
+            JUnitCaseFile cur = cases2JavaFile(packageName, clazzName, clazzDimMap.get(clazzName));
             ret.add(cur);
         }
         return ret;
@@ -115,17 +117,7 @@ public class JUnitExporter extends BaseExporter {
 
     public List<String> cases2JavaFilesRaw(Iterable<ServiceCase> serviceCases) {
         return cases2JavaFiles(serviceCases).stream()
-                .map(
-                        javaFile -> {
-                            String raw = javaFile.toString();
-                            for (FieldSpec eachField : javaFile.typeSpec.fieldSpecs) {
-                                String fullType = eachField.type.toString();
-                                String clazzName = CommonUtils.fullPath2ClazzName(fullType);
-                                raw = raw.replaceAll(" " + clazzName, " " + fullType);
-                                break;
-                            }
-                            return raw;
-                        })
+                .map(JUnitCaseFile::genValidCaseContent)
                 .collect(Collectors.toList());
     }
 }

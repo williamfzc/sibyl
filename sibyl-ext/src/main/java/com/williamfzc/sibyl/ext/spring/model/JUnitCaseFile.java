@@ -1,0 +1,46 @@
+package com.williamfzc.sibyl.ext.spring.model;
+
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.williamfzc.sibyl.ext.CommonUtils;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import lombok.Data;
+
+@Data
+public class JUnitCaseFile {
+    private JavaFile javaFile;
+
+    public Path writeToDir(Path directory) throws IOException {
+        Path outputDirectory = directory;
+        if (!javaFile.packageName.isEmpty()) {
+            for (String packageComponent : javaFile.packageName.split("\\.")) {
+                outputDirectory = outputDirectory.resolve(packageComponent);
+            }
+            Files.createDirectories(outputDirectory);
+        }
+
+        Path outputPath = outputDirectory.resolve(javaFile.typeSpec.name + ".java");
+        Files.write(outputPath, javaFile.toString().getBytes(StandardCharsets.UTF_8));
+        return outputPath;
+    }
+
+    public String genValidCaseContent() {
+        String raw = javaFile.toString();
+        for (FieldSpec eachField : javaFile.typeSpec.fieldSpecs) {
+            String fullType = eachField.type.toString();
+            String clazzName = CommonUtils.fullPath2ClazzName(fullType);
+            raw = raw.replaceAll(" " + clazzName, " " + fullType);
+            break;
+        }
+        return raw;
+    }
+
+    public static JUnitCaseFile of(JavaFile javaFile) {
+        JUnitCaseFile f = new JUnitCaseFile();
+        f.setJavaFile(javaFile);
+        return f;
+    }
+}
