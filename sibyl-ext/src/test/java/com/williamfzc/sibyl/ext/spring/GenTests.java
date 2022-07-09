@@ -15,9 +15,7 @@ import org.junit.runners.JUnit4;
 public class GenTests {
     @Test
     public void a() throws IOException, InterruptedException {
-        File f =
-                new File(
-                        "F:\\workspace\\github\\AgileTC\\case-server\\src");
+        File f = new File("F:\\workspace\\github\\AgileTC\\case-server\\src");
         Generator generator = new Generator();
         Collector collector = new Collector();
         Snapshot services = collector.collectServices(f);

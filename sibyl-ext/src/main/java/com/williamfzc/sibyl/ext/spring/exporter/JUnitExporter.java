@@ -5,19 +5,18 @@ import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.ext.CommonUtils;
 import com.williamfzc.sibyl.ext.spring.model.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.spring.model.ServiceCase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.annotation.Resource;
-import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.Resource;
+import javax.lang.model.element.Modifier;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 public class JUnitExporter extends BaseExporter {
     // create methods
