@@ -1,7 +1,11 @@
-package com.williamfzc.sibyl.ext.spring.exporter;
+package com.williamfzc.sibyl.ext.casegen.exporter;
 
-import com.williamfzc.sibyl.ext.spring.model.UserCase;
-import java.io.*;
+import com.williamfzc.sibyl.ext.casegen.model.UserCase;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 

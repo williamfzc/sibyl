@@ -1,3 +1,3 @@
-package com.williamfzc.sibyl.ext.spring.exporter;
+package com.williamfzc.sibyl.ext.casegen.exporter;
 
 public class PostmanExporter extends BaseExporter {}

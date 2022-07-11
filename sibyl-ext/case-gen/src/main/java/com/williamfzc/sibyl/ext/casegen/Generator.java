@@ -1,9 +1,10 @@
-package com.williamfzc.sibyl.ext.spring;
+package com.williamfzc.sibyl.ext.casegen;
 
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
-import com.williamfzc.sibyl.ext.spring.model.RestfulRequestSchema;
-import com.williamfzc.sibyl.ext.spring.model.TestedMethodModel;
+import com.williamfzc.sibyl.ext.casegen.model.RestfulRequestSchema;
+import com.williamfzc.sibyl.ext.casegen.model.TestedMethodModel;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

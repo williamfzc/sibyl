@@ -1,13 +1,14 @@
-package com.williamfzc.sibyl.ext.spring.model;
+package com.williamfzc.sibyl.ext.casegen.model;
 
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
-import com.williamfzc.sibyl.ext.CommonUtils;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
+import lombok.Data;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import lombok.Data;
 
 @Data
 public class JUnitCaseFile {
@@ -31,7 +32,7 @@ public class JUnitCaseFile {
         String raw = javaFile.toString();
         for (FieldSpec eachField : javaFile.typeSpec.fieldSpecs) {
             String fullType = eachField.type.toString();
-            String clazzName = CommonUtils.fullPath2ClazzName(fullType);
+            String clazzName = SibylUtils.fullPath2ClazzName(fullType);
             raw = raw.replaceAll(" " + clazzName, " " + fullType);
             break;
         }

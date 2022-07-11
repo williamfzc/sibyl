@@ -1,15 +1,18 @@
-package com.williamfzc.sibyl.ext.spring;
+package com.williamfzc.sibyl.ext;
 
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
-import com.williamfzc.sibyl.ext.spring.exporter.JUnitExporter;
-import com.williamfzc.sibyl.ext.spring.model.JUnitCaseFile;
-import com.williamfzc.sibyl.ext.spring.model.TestedMethodModel;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import com.williamfzc.sibyl.ext.casegen.Collector;
+import com.williamfzc.sibyl.ext.casegen.Generator;
+import com.williamfzc.sibyl.ext.casegen.exporter.JUnitExporter;
+import com.williamfzc.sibyl.ext.casegen.model.JUnitCaseFile;
+import com.williamfzc.sibyl.ext.casegen.model.TestedMethodModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 @RunWith(JUnit4.class)
 public class GenTests {

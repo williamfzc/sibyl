@@ -1,24 +1,25 @@
-package com.williamfzc.sibyl.ext.spring.exporter;
+package com.williamfzc.sibyl.ext.casegen.exporter;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.utils.SibylLog;
-import com.williamfzc.sibyl.ext.CommonUtils;
-import com.williamfzc.sibyl.ext.spring.model.JUnitCaseFile;
-import com.williamfzc.sibyl.ext.spring.model.TestedMethodModel;
-import com.williamfzc.sibyl.ext.spring.model.UserCase;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import javax.annotation.Resource;
-import javax.lang.model.element.Modifier;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
+import com.williamfzc.sibyl.ext.casegen.model.JUnitCaseFile;
+import com.williamfzc.sibyl.ext.casegen.model.TestedMethodModel;
+import com.williamfzc.sibyl.ext.casegen.model.UserCase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.annotation.Resource;
+import javax.lang.model.element.Modifier;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class JUnitExporter extends BaseExporter {
     // create methods
@@ -67,7 +68,7 @@ public class JUnitExporter extends BaseExporter {
                 Parameter eachParam = requiredParams.get(i);
                 Object paramData = userParams.get(i);
 
-                String typeForGuess = CommonUtils.removeGenerics(eachParam.getType());
+                String typeForGuess = SibylUtils.removeGenerics(eachParam.getType());
 
                 ClassName guessed;
                 try {
@@ -76,8 +77,8 @@ public class JUnitExporter extends BaseExporter {
                     // guess failed
                     guessed =
                             ClassName.get(
-                                    CommonUtils.fullPath2PackageName(typeForGuess),
-                                    CommonUtils.fullPath2ClazzName(typeForGuess));
+                                    SibylUtils.fullPath2PackageName(typeForGuess),
+                                    SibylUtils.fullPath2ClazzName(typeForGuess));
                 }
 
                 if (null == paramData) {
@@ -111,7 +112,7 @@ public class JUnitExporter extends BaseExporter {
                 methodBuilder.addCode(
                         String.format(
                                 "%s.%s(%s);\n",
-                                CommonUtils.toLowerCaseForFirstLetter(
+                                SibylUtils.toLowerCaseForFirstLetter(
                                         serviceCase.getServiceClazzLiberalName()),
                                 serviceCase.getMethodName(),
                                 paramsStr));
@@ -121,7 +122,7 @@ public class JUnitExporter extends BaseExporter {
                         String.format(
                                 "%s ret = %s.%s(%s);\n",
                                 serviceCase.getReturnType(),
-                                CommonUtils.toLowerCaseForFirstLetter(
+                                SibylUtils.toLowerCaseForFirstLetter(
                                         serviceCase.getServiceClazzLiberalName()),
                                 serviceCase.getMethodName(),
                                 paramsStr));
@@ -168,7 +169,7 @@ public class JUnitExporter extends BaseExporter {
         clazzBuilder.addField(
                 FieldSpec.builder(
                                 ClassName.get(packageName, clazzName),
-                                CommonUtils.toLowerCaseForFirstLetter(clazzName))
+                                SibylUtils.toLowerCaseForFirstLetter(clazzName))
                         .addAnnotation(Resource.class)
                         .build());
 

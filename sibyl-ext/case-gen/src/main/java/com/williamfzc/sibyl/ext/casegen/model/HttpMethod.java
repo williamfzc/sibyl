@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.ext.spring.model;
+package com.williamfzc.sibyl.ext.casegen.model;
 
 public enum HttpMethod {
     GET,

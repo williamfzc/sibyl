@@ -1,9 +1,10 @@
-package com.williamfzc.sibyl.ext.spring.model;
+package com.williamfzc.sibyl.ext.casegen.model;
 
 import com.williamfzc.sibyl.core.model.method.Parameter;
-import com.williamfzc.sibyl.ext.CommonUtils;
-import java.util.List;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class TestedMethodModel {
@@ -13,11 +14,11 @@ public class TestedMethodModel {
     private String returnType;
 
     public String getServiceClazzName() {
-        return CommonUtils.fullPath2ClazzName(serviceFullName);
+        return SibylUtils.fullPath2ClazzName(serviceFullName);
     }
 
     public String getServicePackageName() {
-        return CommonUtils.fullPath2PackageName(serviceFullName);
+        return SibylUtils.fullPath2PackageName(serviceFullName);
     }
 
     public String getServiceClazzLiberalName() {
