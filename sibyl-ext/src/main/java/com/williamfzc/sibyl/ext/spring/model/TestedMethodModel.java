@@ -6,10 +6,11 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class ServiceCase {
+public class TestedMethodModel {
     private String serviceFullName;
     private String methodName;
     private List<Parameter> params;
+    private String returnType;
 
     public String getServiceClazzName() {
         return CommonUtils.fullPath2ClazzName(serviceFullName);
@@ -22,5 +23,9 @@ public class ServiceCase {
     public String getServiceClazzLiberalName() {
         String clazzName = getServiceClazzName();
         return Character.toLowerCase(clazzName.charAt(0)) + clazzName.substring(1);
+    }
+
+    public String getMethodPath() {
+        return serviceFullName + "." + methodName;
     }
 }

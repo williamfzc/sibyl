@@ -25,7 +25,10 @@ public class Collector {
     private static class ServicePolicy extends ScanPolicy {
         @Override
         public boolean shouldExclude(File file) {
-            return !file.toPath().getFileName().toString().endsWith("Service.java");
+            // why not interface:
+            // we collect data from runtime via instrumentation,
+            // interface will not be actually executed.
+            return !file.toPath().getFileName().toString().endsWith("ServiceImpl.java");
         }
     }
 

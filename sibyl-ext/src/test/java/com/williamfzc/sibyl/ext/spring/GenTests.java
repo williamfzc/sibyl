@@ -3,7 +3,7 @@ package com.williamfzc.sibyl.ext.spring;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import com.williamfzc.sibyl.ext.spring.exporter.JUnitExporter;
 import com.williamfzc.sibyl.ext.spring.model.JUnitCaseFile;
-import com.williamfzc.sibyl.ext.spring.model.ServiceCase;
+import com.williamfzc.sibyl.ext.spring.model.TestedMethodModel;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +20,7 @@ public class GenTests {
         Collector collector = new Collector();
         Snapshot services = collector.collectServices(f);
 
-        List<ServiceCase> cases = generator.genServiceCases(services);
+        List<TestedMethodModel> cases = generator.genServiceCases(services);
         List<JUnitCaseFile> javaFiles = new JUnitExporter().cases2JavaFiles(cases);
         javaFiles.forEach(
                 eachJavaFile -> {
