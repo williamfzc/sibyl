@@ -105,30 +105,46 @@ public class JUnitExporter extends BaseExporter {
                                 .map(Parameter::getName)
                                 .collect(Collectors.joining(", "));
             }
-            methodBuilder.addCode(
-                    String.format(
-                            "%s ret = %s.%s(%s);\n",
-                            serviceCase.getReturnType(),
-                            CommonUtils.toLowerCaseForFirstLetter(
-                                    serviceCase.getServiceClazzLiberalName()),
-                            serviceCase.getMethodName(),
-                            paramsStr));
-            methodBuilder.addCode(
-                    CodeBlock.builder().addStatement("$T.out.println(ret)", System.class).build());
 
-            methodBuilder.addCode(
-                    CodeBlock.builder()
-                            .addStatement("$T gson = new $T()", Gson.class, Gson.class)
-                            .build());
-            methodBuilder.addCode(
-                    CodeBlock.builder()
-                            .addStatement(
-                                    "$T.assertEquals(gson.toJsonTree(ret), gson.fromJson($S,"
-                                            + " $T.class))",
-                                    Assert.class,
-                                    userCase.getResponse(),
-                                    JsonElement.class)
-                            .build());
+            if (Objects.equals(serviceCase.getReturnType(), "void")) {
+                // no return, directly end
+                methodBuilder.addCode(
+                        String.format(
+                                "%s.%s(%s);\n",
+                                CommonUtils.toLowerCaseForFirstLetter(
+                                        serviceCase.getServiceClazzLiberalName()),
+                                serviceCase.getMethodName(),
+                                paramsStr));
+            } else {
+                // validate return value
+                methodBuilder.addCode(
+                        String.format(
+                                "%s ret = %s.%s(%s);\n",
+                                serviceCase.getReturnType(),
+                                CommonUtils.toLowerCaseForFirstLetter(
+                                        serviceCase.getServiceClazzLiberalName()),
+                                serviceCase.getMethodName(),
+                                paramsStr));
+                methodBuilder.addCode(
+                        CodeBlock.builder()
+                                .addStatement("$T.out.println(ret)", System.class)
+                                .build());
+
+                methodBuilder.addCode(
+                        CodeBlock.builder()
+                                .addStatement("$T gson = new $T()", Gson.class, Gson.class)
+                                .build());
+                methodBuilder.addCode(
+                        CodeBlock.builder()
+                                .addStatement(
+                                        "$T.assertEquals(gson.toJsonTree(ret), gson.fromJson($S,"
+                                                + " $T.class))",
+                                        Assert.class,
+                                        userCase.getResponse(),
+                                        JsonElement.class)
+                                .build());
+            }
+
             ret.add(methodBuilder.build());
         }
         return ret;
