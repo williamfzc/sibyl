@@ -1,9 +1,9 @@
 package com.williamfzc.sibyl.ext;
 
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
-import com.williamfzc.sibyl.ext.casegen.Collector;
-import com.williamfzc.sibyl.ext.casegen.Generator;
-import com.williamfzc.sibyl.ext.casegen.exporter.JUnitExporter;
+import com.williamfzc.sibyl.ext.casegen.collector.SpringCollector;
+import com.williamfzc.sibyl.ext.casegen.Processor;
+import com.williamfzc.sibyl.ext.casegen.exporter.SpringJUnitExporter;
 import com.williamfzc.sibyl.ext.casegen.model.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.casegen.model.TestedMethodModel;
 import org.junit.Test;
@@ -18,13 +18,20 @@ import java.util.List;
 public class GenTests {
     @Test
     public void a() throws IOException, InterruptedException {
-        File f = new File("F:\\workspace\\github\\AgileTC\\case-server\\src");
-        Generator generator = new Generator();
-        Collector collector = new Collector();
+        File f = new File("/YOUR_PROJECT_PATH");
+        if (!f.exists()) {
+            // skip
+            return;
+        }
+
+        Processor processor = new Processor();
+        SpringCollector collector = new SpringCollector();
         Snapshot services = collector.collectServices(f);
 
-        List<TestedMethodModel> cases = generator.genServiceCases(services);
-        List<JUnitCaseFile> javaFiles = new JUnitExporter().cases2JavaFiles(cases);
+        List<TestedMethodModel> models = processor.genTestedMethodModels(services);
+        SpringJUnitExporter exporter = new SpringJUnitExporter();
+        exporter.importUserCases(new File("../casedata"));
+        List<JUnitCaseFile> javaFiles = exporter.models2JavaFiles(models);
         javaFiles.forEach(
                 eachJavaFile -> {
                     try {

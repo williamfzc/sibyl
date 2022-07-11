@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.ext.casegen;
+package com.williamfzc.sibyl.ext.casegen.collector;
 
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;
@@ -8,7 +8,7 @@ import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import java.io.File;
 import java.io.IOException;
 
-public class Collector {
+public class SpringCollector extends BaseCollector {
     private static class ControllerPolicy extends ScanPolicy {
         @Override
         public boolean shouldExclude(File file) {

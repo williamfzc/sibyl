@@ -10,6 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/*
+for some string replacement
+ */
 @Data
 public class JUnitCaseFile {
     private JavaFile javaFile;

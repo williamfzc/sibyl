@@ -8,25 +8,25 @@ import java.util.List;
 
 @Data
 public class TestedMethodModel {
-    private String serviceFullName;
+    private String clazzFullName;
     private String methodName;
     private List<Parameter> params;
     private String returnType;
 
-    public String getServiceClazzName() {
-        return SibylUtils.fullPath2ClazzName(serviceFullName);
+    public String getClazzName() {
+        return SibylUtils.fullPath2ClazzName(clazzFullName);
     }
 
-    public String getServicePackageName() {
-        return SibylUtils.fullPath2PackageName(serviceFullName);
+    public String getPackageName() {
+        return SibylUtils.fullPath2PackageName(clazzFullName);
     }
 
-    public String getServiceClazzLiberalName() {
-        String clazzName = getServiceClazzName();
+    public String getClazzLiberalName() {
+        String clazzName = getClazzName();
         return Character.toLowerCase(clazzName.charAt(0)) + clazzName.substring(1);
     }
 
     public String getMethodPath() {
-        return serviceFullName + "." + methodName;
+        return clazzFullName + "." + methodName;
     }
 }

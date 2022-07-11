@@ -21,22 +21,22 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class JUnitExporter extends BaseExporter {
+public class SpringJUnitExporter extends BaseExporter {
     // create methods
     // create fields
     // create test class
     private final Gson gson = new Gson();
 
-    public List<MethodSpec> case2Spec(TestedMethodModel serviceCase) {
-        if (userCaseData.containsKey(serviceCase.getMethodPath())) {
-            return userCase2Spec(serviceCase);
+    public List<MethodSpec> model2Spec(TestedMethodModel model) {
+        if (userCaseData.containsKey(model.getMethodPath())) {
+            return userCase2Spec(model);
         }
         // others?
         return new ArrayList<>();
     }
 
-    private List<MethodSpec> userCase2Spec(TestedMethodModel serviceCase) {
-        String methodPath = serviceCase.getMethodPath();
+    private List<MethodSpec> userCase2Spec(TestedMethodModel model) {
+        String methodPath = model.getMethodPath();
         Set<UserCase> userCases = userCaseData.get(methodPath);
         SibylLog.info("handling: " + methodPath);
         int counter = 0;
@@ -45,7 +45,7 @@ public class JUnitExporter extends BaseExporter {
         UserCaseLoop:
         for (UserCase userCase : userCases) {
             MethodSpec.Builder methodBuilder =
-                    MethodSpec.methodBuilder("test" + serviceCase.getMethodName() + (counter++))
+                    MethodSpec.methodBuilder("test" + model.getMethodName() + (counter++))
                             .addModifiers(Modifier.PUBLIC)
                             .returns(void.class);
             methodBuilder.addAnnotation(Test.class);
@@ -54,7 +54,7 @@ public class JUnitExporter extends BaseExporter {
             if (null == userParams) {
                 userParams = new ArrayList<>();
             }
-            List<Parameter> requiredParams = serviceCase.getParams();
+            List<Parameter> requiredParams = model.getParams();
             if (null == requiredParams) {
                 requiredParams = new ArrayList<>();
             }
@@ -107,24 +107,24 @@ public class JUnitExporter extends BaseExporter {
                                 .collect(Collectors.joining(", "));
             }
 
-            if (Objects.equals(serviceCase.getReturnType(), "void")) {
+            if (Objects.equals(model.getReturnType(), "void")) {
                 // no return, directly end
                 methodBuilder.addCode(
                         String.format(
                                 "%s.%s(%s);\n",
                                 SibylUtils.toLowerCaseForFirstLetter(
-                                        serviceCase.getServiceClazzLiberalName()),
-                                serviceCase.getMethodName(),
+                                        model.getClazzLiberalName()),
+                                model.getMethodName(),
                                 paramsStr));
             } else {
                 // validate return value
                 methodBuilder.addCode(
                         String.format(
                                 "%s ret = %s.%s(%s);\n",
-                                serviceCase.getReturnType(),
+                                model.getReturnType(),
                                 SibylUtils.toLowerCaseForFirstLetter(
-                                        serviceCase.getServiceClazzLiberalName()),
-                                serviceCase.getMethodName(),
+                                        model.getClazzLiberalName()),
+                                model.getMethodName(),
                                 paramsStr));
                 methodBuilder.addCode(
                         CodeBlock.builder()
@@ -151,9 +151,9 @@ public class JUnitExporter extends BaseExporter {
         return ret;
     }
 
-    public List<MethodSpec> cases2Specs(Iterable<TestedMethodModel> serviceCases) {
-        return StreamSupport.stream(serviceCases.spliterator(), false)
-                .map(this::case2Spec)
+    public List<MethodSpec> models2Specs(Iterable<TestedMethodModel> models) {
+        return StreamSupport.stream(models.spliterator(), false)
+                .map(this::model2Spec)
                 .flatMap(List::stream)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -194,37 +194,37 @@ public class JUnitExporter extends BaseExporter {
         return JUnitCaseFile.of(jf);
     }
 
-    public JUnitCaseFile cases2JavaFile(
-            String packageName, String clazzName, Iterable<TestedMethodModel> serviceCases) {
-        return specs2JavaFile(packageName, clazzName, cases2Specs(serviceCases));
+    public JUnitCaseFile models2JavaFile(
+            String packageName, String clazzName, Iterable<TestedMethodModel> models) {
+        return specs2JavaFile(packageName, clazzName, models2Specs(models));
     }
 
-    public List<JUnitCaseFile> cases2JavaFiles(Iterable<TestedMethodModel> serviceCases) {
+    public List<JUnitCaseFile> models2JavaFiles(Iterable<TestedMethodModel> models) {
         List<JUnitCaseFile> ret = new ArrayList<>();
         Map<String, List<TestedMethodModel>> packageDimMap =
-                StreamSupport.stream(serviceCases.spliterator(), false)
+                StreamSupport.stream(models.spliterator(), false)
                         .collect(
                                 Collectors.groupingBy(
-                                        TestedMethodModel::getServicePackageName,
+                                        TestedMethodModel::getPackageName,
                                         Collectors.toList()));
         for (String packageName : packageDimMap.keySet()) {
-            List<JUnitCaseFile> cur = cases2JavaFiles(packageName, packageDimMap.get(packageName));
+            List<JUnitCaseFile> cur = models2JavaFiles(packageName, packageDimMap.get(packageName));
             ret.addAll(cur);
         }
         return ret;
     }
 
-    public List<JUnitCaseFile> cases2JavaFiles(
-            String packageName, Iterable<TestedMethodModel> serviceCases) {
+    public List<JUnitCaseFile> models2JavaFiles(
+            String packageName, Iterable<TestedMethodModel> models) {
         List<JUnitCaseFile> ret = new ArrayList<>();
         Map<String, List<TestedMethodModel>> clazzDimMap =
-                StreamSupport.stream(serviceCases.spliterator(), false)
+                StreamSupport.stream(models.spliterator(), false)
                         .collect(
                                 Collectors.groupingBy(
-                                        TestedMethodModel::getServiceClazzName,
+                                        TestedMethodModel::getClazzName,
                                         Collectors.toList()));
         for (String clazzName : clazzDimMap.keySet()) {
-            JUnitCaseFile cur = cases2JavaFile(packageName, clazzName, clazzDimMap.get(clazzName));
+            JUnitCaseFile cur = models2JavaFile(packageName, clazzName, clazzDimMap.get(clazzName));
             ret.add(cur);
         }
         return ret;
