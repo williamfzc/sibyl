@@ -29,112 +29,121 @@ public class SpringJUnitExporter extends BaseExporter {
 
     public List<MethodSpec> model2Spec(TestedMethodModel model) {
         if (userCaseData.containsKey(model.getMethodPath())) {
-            return userCase2Spec(model);
+            return userCases2Spec(model);
         }
         // others?
         return new ArrayList<>();
     }
 
-    private List<MethodSpec> userCase2Spec(TestedMethodModel model) {
+    private List<MethodSpec> userCases2Spec(TestedMethodModel model) {
         String methodPath = model.getMethodPath();
         Set<UserCase> userCases = userCaseData.get(methodPath);
         SibylLog.info("handling: " + methodPath);
         int counter = 0;
         List<MethodSpec> ret = new ArrayList<>();
 
-        UserCaseLoop:
         for (UserCase userCase : userCases) {
-            MethodSpec.Builder methodBuilder =
-                    MethodSpec.methodBuilder("test" + SibylUtils.toUpperCaseForFirstLetter(model.getMethodName()) + (counter++))
-                            .addModifiers(Modifier.PUBLIC)
-                            .returns(void.class);
-            methodBuilder.addAnnotation(Test.class);
-
-            List userParams = gson.fromJson(userCase.getRequest(), List.class);
-            if (null == userParams) {
-                userParams = new ArrayList<>();
+            MethodSpec methodSpec = userCase2Spec(userCase, model, counter);
+            if (null != methodSpec) {
+                ret.add(methodSpec);
+                counter++;
             }
-            List<Parameter> requiredParams = model.getParams();
-            if (null == requiredParams) {
-                requiredParams = new ArrayList<>();
-            }
-
-            // params check error, skip this case
-            if (userParams.size() != requiredParams.size()) {
-                continue;
-            }
-
-            for (int i = 0; i < userParams.size(); i++) {
-                Parameter eachParam = requiredParams.get(i);
-                Object paramData = userParams.get(i);
-
-                String typeForGuess = eachParam.getType();
-                TypeName guessed = parseClazzStr(typeForGuess);
-
-                if (null == paramData) {
-                    // give up this method
-                    continue UserCaseLoop;
-                }
-                methodBuilder.addStatement(
-                        "$T $N = new $T().fromJson($S, $T.class)",
-                        guessed,
-                        eachParam.getName(),
-                        Gson.class,
-                        gson.toJson(paramData),
-                        guessed);
-            }
-
-            // call
-            String paramsStr = "";
-
-            if (requiredParams.size() == 1) {
-                paramsStr = requiredParams.get(0).getName();
-            } else if (requiredParams.size() > 1) {
-                paramsStr =
-                        requiredParams.stream()
-                                .filter(Objects::nonNull)
-                                .map(Parameter::getName)
-                                .collect(Collectors.joining(", "));
-            }
-
-            if (Objects.equals(model.getReturnType(), "void")) {
-                // no return, directly end
-                methodBuilder.addCode(
-                        String.format(
-                                "%s.%s(%s);\n",
-                                SibylUtils.toLowerCaseForFirstLetter(
-                                        model.getClazzLiberalName()),
-                                model.getMethodName(),
-                                paramsStr));
-            } else {
-                TypeName returnType = parseClazzStr(model.getReturnType());
-
-                // validate return value
-                methodBuilder.addCode(
-                        CodeBlock.builder().addStatement("$T ret = $N.$N($N)", returnType, SibylUtils.toLowerCaseForFirstLetter(model.getClazzLiberalName()), model.getMethodName(), paramsStr).build());
-                methodBuilder.addCode(
-                        CodeBlock.builder()
-                                .addStatement("$T.out.println(ret)", System.class)
-                                .build());
-
-                methodBuilder.addCode(
-                        CodeBlock.builder()
-                                .addStatement("$T gson = new $T()", Gson.class, Gson.class)
-                                .build());
-                methodBuilder.addCode(
-                        CodeBlock.builder()
-                                .addStatement(
-                                        "$T.assertEquals(gson.toJsonTree(ret), gson.fromJson($S,"
-                                                + " $T.class))",
-                                        Assert.class,
-                                        userCase.getResponse(),
-                                        JsonElement.class)
-                                .build());
-            }
-
-            ret.add(methodBuilder.build());
         }
         return ret;
+    }
+
+    private MethodSpec userCase2Spec(UserCase userCase, TestedMethodModel model, int counter) {
+        MethodSpec.Builder methodBuilder =
+                MethodSpec.methodBuilder("test" + SibylUtils.toUpperCaseForFirstLetter(model.getMethodName()) + "_" + counter)
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(void.class);
+        methodBuilder.addAnnotation(Test.class);
+
+        List userParams = gson.fromJson(userCase.getRequest(), List.class);
+        if (null == userParams) {
+            userParams = new ArrayList<>();
+        }
+        List<Parameter> requiredParams = model.getParams();
+        if (null == requiredParams) {
+            requiredParams = new ArrayList<>();
+        }
+
+        // params check error, skip this case
+        if (userParams.size() != requiredParams.size()) {
+            return null;
+        }
+
+        for (int i = 0; i < userParams.size(); i++) {
+            Parameter eachParam = requiredParams.get(i);
+            Object paramData = userParams.get(i);
+
+            String typeForGuess = eachParam.getType();
+            TypeName guessed = parseClazzStr(typeForGuess);
+
+            if (null == paramData) {
+                // todo: when?
+                // give up this method
+                return null;
+            }
+            methodBuilder.addStatement(
+                    "$T $N = new $T().fromJson($S, $T.class)",
+                    guessed,
+                    eachParam.getName(),
+                    Gson.class,
+                    gson.toJson(paramData),
+                    guessed);
+        }
+
+        // call
+        String paramsStr = "";
+
+        if (requiredParams.size() == 1) {
+            paramsStr = requiredParams.get(0).getName();
+        } else if (requiredParams.size() > 1) {
+            paramsStr =
+                    requiredParams.stream()
+                            .filter(Objects::nonNull)
+                            .map(Parameter::getName)
+                            .collect(Collectors.joining(", "));
+        }
+
+        if (Objects.equals(model.getReturnType(), "void")) {
+            // no return, directly end
+            methodBuilder.addCode(
+                    String.format(
+                            "%s.%s(%s);\n",
+                            SibylUtils.toLowerCaseForFirstLetter(
+                                    model.getClazzLiberalName()),
+                            model.getMethodName(),
+                            paramsStr));
+        } else {
+            TypeName returnType = parseClazzStr(model.getReturnType());
+
+            // validate return value
+            methodBuilder.addCode(
+                    CodeBlock.builder().addStatement("$T ret = $N.$N($N)", returnType, SibylUtils.toLowerCaseForFirstLetter(model.getClazzLiberalName()), model.getMethodName(), paramsStr).build());
+            methodBuilder.addCode(
+                    CodeBlock.builder()
+                            .addStatement("$T.out.println(ret)", System.class)
+                            .build());
+
+            // assert
+            methodBuilder.addCode(
+                    CodeBlock.builder()
+                            .addStatement("$T gson = new $T()", Gson.class, Gson.class)
+                            .build());
+
+            methodBuilder.addCode(
+                    CodeBlock.builder()
+                            .addStatement(
+                                    "$T.assertEquals(gson.toJsonTree(ret), gson.fromJson($S,"
+                                            + " $T.class))",
+                                    Assert.class,
+                                    userCase.getResponse(),
+                                    JsonElement.class)
+                            .build());
+        }
+        return methodBuilder.build();
     }
 
     private TypeName parseClazzStr(String clazzStr) {
