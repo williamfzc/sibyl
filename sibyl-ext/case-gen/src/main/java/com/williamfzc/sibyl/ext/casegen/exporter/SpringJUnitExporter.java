@@ -193,6 +193,9 @@ public class SpringJUnitExporter extends BaseExporter {
 
         // methods
         clazzBuilder.addMethods(methodSpecs);
+        if (clazzBuilder.methodSpecs.isEmpty()) {
+            return null;
+        }
 
         AnnotationSpec.Builder runWithBuilder =
                 AnnotationSpec.builder(RunWith.class)
@@ -246,7 +249,9 @@ public class SpringJUnitExporter extends BaseExporter {
                                         Collectors.toList()));
         for (String clazzName : clazzDimMap.keySet()) {
             JUnitCaseFile cur = models2JavaFile(packageName, clazzName, clazzDimMap.get(clazzName));
-            ret.add(cur);
+            if (null != cur) {
+                ret.add(cur);
+            }
         }
         return ret;
     }
