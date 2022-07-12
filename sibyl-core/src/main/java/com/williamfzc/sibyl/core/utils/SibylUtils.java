@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SibylUtils {
@@ -51,10 +53,30 @@ public class SibylUtils {
     }
 
     public static String removeGenerics(String clazz) {
-        if (!(clazz.contains("<") && clazz.contains(">"))) {
+        if (!isGenerics(clazz)) {
             return clazz;
         }
 
         return Arrays.stream(clazz.split("<")).collect(Collectors.toList()).get(0);
+    }
+
+    public static boolean isGenerics(String clazz) {
+        return clazz.contains("<") && clazz.contains(">");
+    }
+
+    // List<T> -> List
+    public static String generics2raw(String clazz) {
+        return removeGenerics(clazz);
+    }
+
+    // List<T> -> T
+    public static String generics2Param(String clazz) {
+        Pattern pattern = Pattern.compile("<(.*)>");
+        Matcher matcher = pattern.matcher(clazz);
+        if (!matcher.find()) {
+            // no generics
+            return clazz;
+        }
+        return matcher.group(1);
     }
 }
