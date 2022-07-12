@@ -229,7 +229,8 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     protected MethodInfo generateMethodInfo(Java8Parser.MethodDeclarationContext ctx) {
         MethodInfo info = new MethodInfo();
         info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
-        info.setReturnType(ctx.methodHeader().result().getText());
+        String rawReturnType = ctx.methodHeader().result().getText();
+        info.setReturnType(fieldTypeMapping.getOrDefault(rawReturnType, rawReturnType));
         info.setModifier(
                 ctx.methodModifier().stream()
                         .map(RuleContext::getText)
@@ -273,7 +274,8 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
     protected MethodInfo generateMethodInfo(Java8Parser.InterfaceMethodDeclarationContext ctx) {
         MethodInfo info = new MethodInfo();
         info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
-        info.setReturnType(ctx.methodHeader().result().getText());
+        String rawReturnType = ctx.methodHeader().result().getText();
+        info.setReturnType(fieldTypeMapping.getOrDefault(rawReturnType, rawReturnType));
         info.setModifier(
                 ctx.interfaceMethodModifier().stream()
                         .map(RuleContext::getText)
