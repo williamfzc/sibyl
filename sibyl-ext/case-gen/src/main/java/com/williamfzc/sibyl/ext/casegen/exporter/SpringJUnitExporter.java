@@ -45,7 +45,7 @@ public class SpringJUnitExporter extends BaseExporter {
         UserCaseLoop:
         for (UserCase userCase : userCases) {
             MethodSpec.Builder methodBuilder =
-                    MethodSpec.methodBuilder("test" + model.getMethodName() + (counter++))
+                    MethodSpec.methodBuilder("test" + SibylUtils.toUpperCaseForFirstLetter(model.getMethodName()) + (counter++))
                             .addModifiers(Modifier.PUBLIC)
                             .returns(void.class);
             methodBuilder.addAnnotation(Test.class);

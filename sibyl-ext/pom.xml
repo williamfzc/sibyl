@@ -9,6 +9,9 @@
 
   <artifactId>sibyl-ext</artifactId>
   <packaging>pom</packaging>
+  <modules>
+    <module>case-gen</module>
+  </modules>
 
   <properties>
     <maven.compiler.source>8</maven.compiler.source>

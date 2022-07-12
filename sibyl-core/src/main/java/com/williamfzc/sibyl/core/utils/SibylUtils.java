@@ -32,6 +32,10 @@ public class SibylUtils {
         return Character.toLowerCase(s.charAt(0)) + s.substring(1);
     }
 
+    public static String toUpperCaseForFirstLetter(String s) {
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
     public static String fullPath2ClazzName(String fullPath) {
         if (!fullPath.contains(".")) {
             return fullPath;
