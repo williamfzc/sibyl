@@ -142,8 +142,19 @@ public class SpringJUnitExporter extends BaseExporter {
         if (SibylUtils.isGenerics(clazzStr)) {
             // https://github.com/square/javapoet/discussions/921#discussioncomment-3125699
             ClassName rawType = ClassName.bestGuess(SibylUtils.generics2raw(clazzStr));
-            TypeName paramType = parseClazzStr(SibylUtils.generics2Param(clazzStr));
-            guessed = ParameterizedTypeName.get(rawType, paramType);
+            String params = SibylUtils.generics2Param(clazzStr);
+            if (params.contains(",")) {
+                // more than one
+                guessed = ParameterizedTypeName.get(
+                        rawType,
+                        Arrays.stream(params.split(","))
+                                .map(String::trim)
+                                .map(this::parseClazzStr)
+                                .toArray(TypeName[]::new));
+            } else {
+                TypeName paramType = parseClazzStr(params);
+                guessed = ParameterizedTypeName.get(rawType, paramType);
+            }
         } else {
             try {
                 guessed = ClassName.bestGuess(clazzStr);

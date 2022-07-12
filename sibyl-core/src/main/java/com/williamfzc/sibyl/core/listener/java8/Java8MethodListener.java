@@ -7,6 +7,7 @@ import com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile;
 import com.williamfzc.sibyl.core.model.method.*;
 import com.williamfzc.sibyl.core.model.pkg.Pkg;
 import com.williamfzc.sibyl.core.utils.SibylLog;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -329,7 +330,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
                         .map(RuleContext::getText)
                         .collect(Collectors.toList()));
 
-        clazz.setName(declaredClassName);
+        clazz.setName(fixClazzName(declaredClassName));
         Pkg pkg = new Pkg();
         pkg.setName(curPackage);
 
@@ -361,6 +362,30 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         return clazz;
     }
 
+    private String fixClazzName(String clazzName) {
+        if (!SibylUtils.isGenerics(clazzName)) {
+            return clazzName;
+        }
+        String originRawType = SibylUtils.generics2raw(clazzName);
+        String originParamType = SibylUtils.generics2Param(clazzName);
+
+        String raw = fieldTypeMapping.getOrDefault(originRawType, originRawType);
+        String paramType;
+
+        if (originParamType.contains(",")) {
+            // more than one
+            paramType =
+                    Arrays.stream(originParamType.split(","))
+                            .map(String::trim)
+                            .map(this::fixClazzName)
+                            .collect(Collectors.joining(", "));
+
+        } else {
+            paramType = fixClazzName(originParamType);
+        }
+        return String.format("%s<%s>", raw, paramType);
+    }
+
     protected Clazz generateClazz(Java8Parser.InterfaceDeclarationContext ctx) {
         Java8Parser.NormalInterfaceDeclarationContext normalInterfaceDeclarationContext =
                 ctx.normalInterfaceDeclaration();
@@ -369,7 +394,7 @@ public class Java8MethodListener<T> extends Java8StorableListener<T> {
         }
         Clazz clazz = new Clazz();
         String declaredClassName = normalInterfaceDeclarationContext.Identifier().getText();
-        clazz.setName(declaredClassName);
+        clazz.setName(fixClazzName(declaredClassName));
         clazz.setModifier(
                 ctx.normalInterfaceDeclaration().interfaceModifier().stream()
                         .map(RuleContext::getText)
