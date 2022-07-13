@@ -7,7 +7,7 @@
     <version>${sibyl.version}</version>
   </parent>
 
-  <artifactId>case-gen</artifactId>
+  <artifactId>sibyl-case-gen</artifactId>
 
   <properties>
     <maven.compiler.source>8</maven.compiler.source>
