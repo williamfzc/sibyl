@@ -10,7 +10,7 @@
   <artifactId>sibyl-ext</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>case-gen</module>
+    <module>sibyl-case-gen</module>
   </modules>
 
   <properties>
