@@ -22,10 +22,29 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class SpringJUnitExporter extends BaseExporter {
-    // create methods
-    // create fields
-    // create test class
     private final Gson gson = new Gson();
+    private final static String NAME_JUDGE_HELPER = "_judgeHelper";
+    private final static String NAME_GSON = "gson";
+
+    // config
+    private boolean assertEnabled = true;
+    private boolean assertDefaultEnabled = true;
+    private JUnitRunnerType runnerType = JUnitRunnerType.SPRING;
+
+    public SpringJUnitExporter setAssertEnabled(boolean status) {
+        assertEnabled = status;
+        return this;
+    }
+
+    public SpringJUnitExporter setRunnerType(JUnitRunnerType type) {
+        runnerType = type;
+        return this;
+    }
+
+    public SpringJUnitExporter setAssertDefaultEnabled(boolean status) {
+        assertDefaultEnabled = status;
+        return this;
+    }
 
     public List<MethodSpec> model2Spec(TestedMethodModel model) {
         if (userCaseData.containsKey(model.getMethodPath())) {
@@ -79,6 +98,7 @@ public class SpringJUnitExporter extends BaseExporter {
 
             String typeForGuess = eachParam.getType();
             TypeName guessed = parseClazzStr(typeForGuess);
+            String guessedWithGenerics = SibylUtils.removeGenerics(guessed.toString());
 
             if (null == paramData) {
                 // todo: when?
@@ -86,12 +106,12 @@ public class SpringJUnitExporter extends BaseExporter {
                 return null;
             }
             methodBuilder.addStatement(
-                    "$T $N = new $T().fromJson($S, $T.class)",
+                    "$T $N = $N.fromJson($S, $N.class)",
                     guessed,
                     eachParam.getName(),
-                    Gson.class,
+                    NAME_GSON,
                     gson.toJson(paramData),
-                    guessed);
+                    guessedWithGenerics);
         }
 
         // call
@@ -128,20 +148,18 @@ public class SpringJUnitExporter extends BaseExporter {
                             .build());
 
             // assert
-            methodBuilder.addCode(
-                    CodeBlock.builder()
-                            .addStatement("$T gson = new $T()", Gson.class, Gson.class)
-                            .build());
+            if (assertEnabled) {
+                methodBuilder.addStatement("$T actual = $N.toJsonTree(ret)", JsonElement.class, NAME_GSON);
+                methodBuilder.addStatement("$T expect = $N.fromJson($S, $T.class)", JsonElement.class, NAME_GSON, userCase.getResponse(), JsonElement.class);
 
-            methodBuilder.addCode(
-                    CodeBlock.builder()
-                            .addStatement(
-                                    "$T.assertEquals(gson.toJsonTree(ret), gson.fromJson($S,"
-                                            + " $T.class))",
-                                    Assert.class,
-                                    userCase.getResponse(),
-                                    JsonElement.class)
-                            .build());
+                methodBuilder.addCode(
+                        CodeBlock.builder()
+                                .addStatement(
+                                        "$T.assertTrue($N(actual, expect))",
+                                        Assert.class,
+                                        NAME_JUDGE_HELPER)
+                                .build());
+            }
         }
         return methodBuilder.build();
     }
@@ -199,6 +217,8 @@ public class SpringJUnitExporter extends BaseExporter {
                                 SibylUtils.toLowerCaseForFirstLetter(clazzName))
                         .addAnnotation(Resource.class)
                         .build());
+        clazzBuilder.addField(Gson.class, NAME_GSON);
+        clazzBuilder.addInitializerBlock(CodeBlock.builder().addStatement("$N = new $T()", NAME_GSON, Gson.class).build());
 
         // methods
         clazzBuilder.addMethods(methodSpecs);
@@ -213,7 +233,7 @@ public class SpringJUnitExporter extends BaseExporter {
                                 CodeBlock.builder().add("$T.class", SpringRunner.class).build());
         clazzBuilder.addAnnotation(runWithBuilder.build());
         clazzBuilder.addAnnotation(SpringBootTest.class);
-
+        clazzBuilder.addMethod(createJudgeHelper());
         TypeSpec cur = clazzBuilder.build();
         JavaFile jf =
                 JavaFile.builder(packageName, cur)
@@ -225,6 +245,23 @@ public class SpringJUnitExporter extends BaseExporter {
                         .build();
 
         return JUnitCaseFile.of(jf);
+    }
+
+    private MethodSpec createJudgeHelper() {
+        MethodSpec.Builder methodBuilder =
+                MethodSpec.methodBuilder(NAME_JUDGE_HELPER)
+                        .addModifiers(Modifier.PRIVATE)
+                        .returns(boolean.class);
+        methodBuilder.addParameter(JsonElement.class, "actual");
+        methodBuilder.addParameter(JsonElement.class, "expect");
+        methodBuilder.addComment("You can add your own assertions here, such as json compare.");
+        if (!assertDefaultEnabled) {
+            methodBuilder.addStatement("return true");
+            return methodBuilder.build();
+        }
+        // default compare
+        methodBuilder.addStatement("return obj1.equals(obj2)");
+        return methodBuilder.build();
     }
 
     public JUnitCaseFile models2JavaFile(

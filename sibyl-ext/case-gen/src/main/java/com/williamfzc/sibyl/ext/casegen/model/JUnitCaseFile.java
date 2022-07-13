@@ -17,7 +17,7 @@ for some string replacement
 public class JUnitCaseFile {
     private JavaFile javaFile;
 
-    public Path writeToDir(Path directory) throws IOException {
+    public Path writeToDir(Path directory, boolean rewrite) throws IOException {
         Path outputDirectory = directory;
         if (!javaFile.packageName.isEmpty()) {
             for (String packageComponent : javaFile.packageName.split("\\.")) {
@@ -27,8 +27,16 @@ public class JUnitCaseFile {
         }
 
         Path outputPath = outputDirectory.resolve(javaFile.typeSpec.name + ".java");
+        if (outputPath.toFile().isFile() && !rewrite) {
+            // will not cover
+            return null;
+        }
         Files.write(outputPath, javaFile.toString().getBytes(StandardCharsets.UTF_8));
         return outputPath;
+    }
+
+    public Path writeToDir(Path directory) throws IOException {
+        return writeToDir(directory, false);
     }
 
     public String genValidCaseContent() {

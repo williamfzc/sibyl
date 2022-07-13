@@ -27,6 +27,12 @@ public class SpringAnalyseCommand implements Runnable {
     @CommandLine.Option(names = {"-o", "--output"}, required = true)
     private File outputDir;
 
+    @CommandLine.Option(names = {"-a", "--assertEnabled"})
+    private boolean assertEnabled = true;
+
+    @CommandLine.Option(names = {"-ad", "--assertDefaultEnabled"})
+    private boolean assertDefaultEnabled = true;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectCommand.class);
 
     @Override
@@ -45,15 +51,18 @@ public class SpringAnalyseCommand implements Runnable {
             Snapshot snapshot = collector.collectServices(srcDir);
             List<TestedMethodModel> models = processor.genTestedMethodModels(snapshot);
             SpringJUnitExporter exporter = new SpringJUnitExporter();
-            exporter.importUserCases(caseFile);
+            exporter
+                    .setAssertEnabled(assertEnabled)
+                    .setAssertDefaultEnabled(assertDefaultEnabled)
+                    .importUserCases(caseFile);
             LOGGER.info("import user cases finished, count: " + exporter.getUserCaseData().size());
             List<JUnitCaseFile> javaFiles = exporter.models2JavaFiles(models);
             LOGGER.info("import method models finished, count: " + javaFiles.size());
             long successCount = javaFiles.stream().filter(
                     eachJavaFile -> {
                         try {
-                            Path p = eachJavaFile.writeToDir(outputDir.toPath());
-                            LOGGER.info("gen java file finished: " + p);
+                            Path realPath = eachJavaFile.writeToDir(outputDir.toPath(), false);
+                            LOGGER.info("gen java file finished: " + realPath);
                             return true;
                         } catch (IOException e) {
                             e.printStackTrace();
