@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.williamfzc.sibyl</groupId>
+    <groupId>com.github.williamfzc.sibyl</groupId>
     <artifactId>sibyl</artifactId>
     <version>${sibyl.version}</version>
   </parent>
@@ -73,12 +73,12 @@
     </dependency>
 
     <dependency>
-      <groupId>com.williamfzc.sibyl</groupId>
+      <groupId>com.github.williamfzc.sibyl</groupId>
       <artifactId>sibyl-model</artifactId>
       <version>${sibyl.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.williamfzc.sibyl</groupId>
+      <groupId>com.github.williamfzc.sibyl</groupId>
       <artifactId>sibyl-test</artifactId>
       <version>${sibyl.version}</version>
       <scope>test</scope>
