@@ -11,7 +11,7 @@
         <module>sibyl-model</module>
         <module>sibyl-cli</module>
         <module>sibyl-test</module>
-        <module>sibyl-ext</module>
+        <module>sibyl-ext/sibyl-case-gen</module>
     </modules>
 
     <properties>

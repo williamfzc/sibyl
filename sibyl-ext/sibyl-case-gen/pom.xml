@@ -3,8 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.github.williamfzc.sibyl</groupId>
-    <artifactId>sibyl-ext</artifactId>
+    <artifactId>sibyl</artifactId>
     <version>${sibyl.version}</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>sibyl-case-gen</artifactId>
