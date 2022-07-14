@@ -3,7 +3,10 @@
 
     <groupId>com.github.williamfzc.sibyl</groupId>
     <artifactId>sibyl</artifactId>
-    <version>${sibyl.version}</version>
+
+<!--    use this plugin to sync versions-->
+<!--    mvn versions:set -DnewVersion=0.4.3-->
+    <version>0.4.3</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -15,7 +18,7 @@
     </modules>
 
     <properties>
-        <sibyl.version>0.4.2</sibyl.version>
+        <sibyl.version>${project.version}</sibyl.version>
     </properties>
 
     <build>
