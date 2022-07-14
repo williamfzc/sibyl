@@ -15,7 +15,7 @@
     </modules>
 
     <properties>
-        <sibyl.version>0.4.1</sibyl.version>
+        <sibyl.version>0.4.2</sibyl.version>
     </properties>
 
     <build>
