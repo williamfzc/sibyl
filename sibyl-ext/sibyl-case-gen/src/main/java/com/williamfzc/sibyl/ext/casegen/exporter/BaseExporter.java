@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public abstract class BaseExporter {
     protected Map<String, Set<UserCase>> userCaseData = new HashMap<>();
 
-    private static final String FLAG_FIELD_SPLIT = "|,,|";
+    private static final String FLAG_FIELD_SPLIT = "\\|,,\\|";
     private static final int PARAM_COUNT = 4;
 
     public void importUserCase(String line) {
