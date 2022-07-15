@@ -23,6 +23,12 @@
       <version>4.6.2</version>
     </dependency>
     <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli-codegen</artifactId>
+      <version>4.6.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.github.williamfzc.sibyl</groupId>
       <artifactId>sibyl-core</artifactId>
       <version>0.4.3</version>
@@ -144,10 +150,12 @@
           </execution>
         </executions>
         <configuration>
+<!--         graalvm disabled by default-->
           <skip>true</skip>
           <useArgFile>false</useArgFile>
           <imageName>sibyl-case-gen</imageName>
           <buildArgs>
+            <buildArg>-H:ReflectionConfigurationFiles=${project.basedir}/src/main/resources/reflect.json</buildArg>
             <buildArg>--no-fallback</buildArg>
           </buildArgs>
         </configuration>
