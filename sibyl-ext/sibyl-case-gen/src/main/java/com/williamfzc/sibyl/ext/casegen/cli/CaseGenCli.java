@@ -1,7 +1,5 @@
-package com.williamfzc.sibyl.ext.casegen;
+package com.williamfzc.sibyl.ext.casegen.cli;
 
-import com.williamfzc.sibyl.ext.casegen.cli.CollectCommand;
-import com.williamfzc.sibyl.ext.casegen.cli.SpringAnalyseCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(subcommands = {CollectCommand.class, SpringAnalyseCommand.class})

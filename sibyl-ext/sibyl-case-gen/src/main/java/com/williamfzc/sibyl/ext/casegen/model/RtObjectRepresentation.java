@@ -1,9 +1,9 @@
-package com.williamfzc.sibyl.ext.casegen.exporter;
+package com.williamfzc.sibyl.ext.casegen.model;
 
 import lombok.Data;
 
 @Data
-public class RtParam {
+public class RtObjectRepresentation {
     // same as ObjRepresentation
     public static final String TYPE_VALUE_PROTOBUF = "protobuf";
     public static final String TYPE_VALUE_JSON = "json";

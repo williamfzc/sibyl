@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.ext.casegen.model;
+package com.williamfzc.sibyl.ext.casegen.model.junit;
 
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;

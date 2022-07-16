@@ -1,13 +1,38 @@
-package com.williamfzc.sibyl.ext.casegen;
+package com.williamfzc.sibyl.ext.casegen.model.rt;
 
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
-import com.williamfzc.sibyl.ext.casegen.model.TestedMethodModel;
+import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Processor {
-    public List<TestedMethodModel> genTestedMethodModels(Snapshot snapshot) {
+import lombok.Data;
+
+@Data
+public class TestedMethodModel {
+    private String clazzFullName;
+    private String methodName;
+    private List<Parameter> params;
+    private String returnType;
+
+    public String getClazzName() {
+        return SibylUtils.fullPath2ClazzName(clazzFullName);
+    }
+
+    public String getPackageName() {
+        return SibylUtils.fullPath2PackageName(clazzFullName);
+    }
+
+    public String getClazzLiberalName() {
+        String clazzName = getClazzName();
+        return Character.toLowerCase(clazzName.charAt(0)) + clazzName.substring(1);
+    }
+
+    public String getMethodPath() {
+        return clazzFullName + "." + methodName;
+    }
+
+    public static List<TestedMethodModel> of (Snapshot snapshot) {
         return snapshot.getData().stream()
                 .map(
                         eachMethod -> {

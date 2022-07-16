@@ -1,9 +1,11 @@
-package com.williamfzc.sibyl.ext.casegen.collector;
+package com.williamfzc.sibyl.ext.casegen.collector.spring;
 
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;
 import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
+import com.williamfzc.sibyl.ext.casegen.collector.BaseCollector;
+
 import java.io.File;
 import java.io.IOException;
 

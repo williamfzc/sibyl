@@ -112,7 +112,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>com.williamfzc.sibyl.ext.casegen.CaseGenCli</mainClass>
+              <mainClass>com.williamfzc.sibyl.ext.casegen.cli.CaseGenCli</mainClass>
             </manifest>
           </archive>
         </configuration>

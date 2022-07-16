@@ -1,19 +1,19 @@
 package com.williamfzc.sibyl.ext.casegen.cli;
 
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
-import com.williamfzc.sibyl.ext.casegen.Processor;
-import com.williamfzc.sibyl.ext.casegen.collector.SpringCollector;
-import com.williamfzc.sibyl.ext.casegen.exporter.SpringJUnitExporter;
-import com.williamfzc.sibyl.ext.casegen.model.JUnitCaseFile;
-import com.williamfzc.sibyl.ext.casegen.model.TestedMethodModel;
+import com.williamfzc.sibyl.ext.casegen.collector.spring.SpringCollector;
+import com.williamfzc.sibyl.ext.casegen.exporter.junit.SpringJUnitExporter;
+import com.williamfzc.sibyl.ext.casegen.model.junit.JUnitCaseFile;
+import com.williamfzc.sibyl.ext.casegen.model.rt.TestedMethodModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import picocli.CommandLine;
 
 @CommandLine.Command(name = "spring")
 public class SpringAnalyseCommand implements Runnable {
@@ -50,11 +50,10 @@ public class SpringAnalyseCommand implements Runnable {
             return;
         }
 
-        Processor processor = new Processor();
         SpringCollector collector = new SpringCollector();
         try {
             Snapshot snapshot = collector.collectServices(srcDir);
-            List<TestedMethodModel> models = processor.genTestedMethodModels(snapshot);
+            List<TestedMethodModel> models = TestedMethodModel.of(snapshot);
             SpringJUnitExporter exporter = new SpringJUnitExporter();
             exporter.setAssertEnabled(assertEnabled)
                     .setAssertDefaultEnabled(assertDefaultEnabled)

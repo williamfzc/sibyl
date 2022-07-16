@@ -1,6 +1,6 @@
 package com.williamfzc.sibyl.ext.casegen.exporter;
 
-import com.williamfzc.sibyl.ext.casegen.model.UserCase;
+import com.williamfzc.sibyl.ext.casegen.model.rt.UserCase;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

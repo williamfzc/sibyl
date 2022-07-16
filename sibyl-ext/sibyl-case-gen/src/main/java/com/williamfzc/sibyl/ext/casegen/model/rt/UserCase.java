@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.ext.casegen.model;
+package com.williamfzc.sibyl.ext.casegen.model.rt;
 
 import lombok.Data;
 
