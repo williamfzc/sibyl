@@ -2,6 +2,7 @@ package com.williamfzc.sibyl.ext.casegen.exporter;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.protobuf.util.JsonFormat;
 import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.utils.SibylLog;
@@ -9,11 +10,13 @@ import com.williamfzc.sibyl.core.utils.SibylUtils;
 import com.williamfzc.sibyl.ext.casegen.model.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.casegen.model.TestedMethodModel;
 import com.williamfzc.sibyl.ext.casegen.model.UserCase;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Resource;
 import javax.lang.model.element.Modifier;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,13 +78,14 @@ public class SpringJUnitExporter extends BaseExporter {
                 MethodSpec.methodBuilder(
                                 "test"
                                         + SibylUtils.toUpperCaseForFirstLetter(
-                                                model.getMethodName())
+                                        model.getMethodName())
                                         + "_"
                                         + counter)
                         .addModifiers(Modifier.PUBLIC)
                         .returns(void.class);
         methodBuilder.addAnnotation(Test.class);
 
+        // always a json list
         List userParams = gson.fromJson(userCase.getRequest(), List.class);
         if (null == userParams) {
             userParams = new ArrayList<>();
@@ -98,7 +102,7 @@ public class SpringJUnitExporter extends BaseExporter {
 
         for (int i = 0; i < userParams.size(); i++) {
             Parameter eachParam = requiredParams.get(i);
-            Object paramData = userParams.get(i);
+            RtParam paramData = gson.fromJson(userParams.get(i).toString(), RtParam.class);
 
             String typeForGuess = eachParam.getType();
             TypeName guessed = parseClazzStr(typeForGuess);
@@ -109,13 +113,28 @@ public class SpringJUnitExporter extends BaseExporter {
                 // give up this method
                 return null;
             }
-            methodBuilder.addStatement(
-                    "$T $N = $N.fromJson($S, $N.class)",
-                    guessed,
-                    eachParam.getName(),
-                    NAME_GSON,
-                    gson.toJson(paramData),
-                    guessedWithGenerics);
+            String valueType = paramData.getValueType();
+            if (valueType.equals(RtParam.TYPE_VALUE_JSON)) {
+                methodBuilder.addStatement(
+                        "$T $N = $N.fromJson($S, $N.class)",
+                        guessed,
+                        eachParam.getName(),
+                        NAME_GSON,
+                        gson.toJson(paramData.getValue()),
+                        guessedWithGenerics);
+            } else if (valueType.equals(RtParam.TYPE_VALUE_PROTOBUF)) {
+                methodBuilder.addStatement(
+                        "$T $N = $T.parser().merge($S, $T.newBuilder())",
+                        guessed,
+                        eachParam.getName(),
+                        JsonFormat.class,
+                        paramData.getValue(),
+                        guessed
+                );
+            } else {
+                // give up
+                return null;
+            }
         }
 
         // call
