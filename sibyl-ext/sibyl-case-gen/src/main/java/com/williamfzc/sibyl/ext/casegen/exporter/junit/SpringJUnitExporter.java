@@ -88,7 +88,7 @@ public class SpringJUnitExporter extends JUnitExporter {
         methodBuilder.addAnnotation(Test.class);
 
         // always a json list
-        List userParams = gson.fromJson(userCase.getRequest(), List.class);
+        List<RtObjectRepresentation> userParams = userCase.getRequest();
         if (null == userParams) {
             userParams = new ArrayList<>();
         }
@@ -104,7 +104,7 @@ public class SpringJUnitExporter extends JUnitExporter {
 
         for (int i = 0; i < userParams.size(); i++) {
             Parameter eachParam = requiredParams.get(i);
-            RtObjectRepresentation paramData = gson.fromJson(userParams.get(i).toString(), RtObjectRepresentation.class);
+            RtObjectRepresentation paramData = userParams.get(i);
 
             String typeForGuess = eachParam.getType();
             TypeName guessed = parseClazzStr(typeForGuess);
@@ -122,7 +122,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                         guessed,
                         eachParam.getName(),
                         NAME_GSON,
-                        gson.toJson(paramData.getValue()),
+                        paramData.getValue().toString(),
                         guessedWithGenerics);
             } else if (valueType.equals(RtObjectRepresentation.TYPE_VALUE_PROTOBUF)) {
                 methodBuilder.addStatement(
@@ -185,7 +185,8 @@ public class SpringJUnitExporter extends JUnitExporter {
                         "$T expect = $N.fromJson($S, $T.class)",
                         JsonElement.class,
                         NAME_GSON,
-                        userCase.getResponse(),
+                        // todo
+                        userCase.getResponse().getValue(),
                         JsonElement.class);
 
                 methodBuilder.addCode(
@@ -298,7 +299,7 @@ public class SpringJUnitExporter extends JUnitExporter {
             return methodBuilder.build();
         }
         // default compare
-        methodBuilder.addStatement("return obj1.equals(obj2)");
+        methodBuilder.addStatement("return actual.equals(expect)");
         return methodBuilder.build();
     }
 

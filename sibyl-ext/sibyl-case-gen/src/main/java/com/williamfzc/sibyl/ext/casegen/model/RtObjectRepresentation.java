@@ -1,5 +1,6 @@
 package com.williamfzc.sibyl.ext.casegen.model;
 
+import com.google.gson.JsonElement;
 import lombok.Data;
 
 @Data
@@ -10,5 +11,5 @@ public class RtObjectRepresentation {
 
     private String type;
     private String valueType;
-    private String value;
+    private JsonElement value;
 }
