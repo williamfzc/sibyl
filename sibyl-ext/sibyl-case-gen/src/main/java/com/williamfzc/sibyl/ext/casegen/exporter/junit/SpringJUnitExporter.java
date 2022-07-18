@@ -126,12 +126,13 @@ public class SpringJUnitExporter extends JUnitExporter {
                         guessedWithGenerics);
             } else if (valueType.equals(RtObjectRepresentation.TYPE_VALUE_PROTOBUF)) {
                 methodBuilder.addStatement(
-                        "$T $N = $T.parser().merge($S, $T.newBuilder())",
+                        "$T $N = $T.parseFrom($T.getDecoder().decode($L))",
                         guessed,
                         eachParam.getName(),
-                        JsonFormat.class,
-                        paramData.getValue(),
-                        guessed
+                        guessed,
+                        Base64.class,
+                        // already has a double quote
+                        paramData.getValue()
                 );
             } else {
                 // give up
