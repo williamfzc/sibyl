@@ -121,13 +121,16 @@ public abstract class BaseFileScanner extends BaseScanner {
         // do the real thing
         executor.setCorePoolSize(scanPolicy.threadPoolSize);
         SibylLog.info("worker size: " + executor.getCorePoolSize());
+
+        int totalFileCount = files.size();
+        SibylLog.info("total files: " + totalFileCount);
         executor.invokeAll(
                 files.stream()
                         .map(
                                 each ->
                                         (Callable<Void>)
                                                 () -> {
-                                                    scanFile(each);
+                                                    scanFile(each, totalFileCount);
                                                     return null;
                                                 })
                         .collect(Collectors.toList()));
@@ -135,7 +138,7 @@ public abstract class BaseFileScanner extends BaseScanner {
         afterScan();
     }
 
-    public void scanFile(File file) throws IOException {
+    public void scanFile(File file, int totalFileCount) throws IOException {
         Set<Listenable> acceptedListeners =
                 listenableList.stream()
                         .filter(each -> each.accept(file))
@@ -148,8 +151,11 @@ public abstract class BaseFileScanner extends BaseScanner {
         beforeEachFile(file);
         SibylLog.info(
                 String.format(
-                        "scan file %s, path %s, size: %s",
-                        currentFileCount.incrementAndGet(), file.getPath(), file.length()));
+                        "scan file (%d/%d), path %s, size: %s",
+                        currentFileCount.incrementAndGet(),
+                        totalFileCount,
+                        file.getPath(),
+                        file.length()));
 
         String content = getFileContent(file);
 
