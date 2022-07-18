@@ -2,28 +2,27 @@ package com.williamfzc.sibyl.ext.casegen.exporter.junit;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.protobuf.util.JsonFormat;
 import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
-import com.williamfzc.sibyl.ext.casegen.exporter.BaseExporter;
-import com.williamfzc.sibyl.ext.casegen.model.junit.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.casegen.model.RtObjectRepresentation;
+import com.williamfzc.sibyl.ext.casegen.model.junit.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.casegen.model.rt.TestedMethodModel;
 import com.williamfzc.sibyl.ext.casegen.model.rt.UserCase;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import javax.annotation.Resource;
-import javax.lang.model.element.Modifier;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.annotation.Resource;
+import javax.lang.model.element.Modifier;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class SpringJUnitExporter extends JUnitExporter {
     private final Gson gson = new Gson();
@@ -122,17 +121,16 @@ public class SpringJUnitExporter extends JUnitExporter {
                         guessed,
                         eachParam.getName(),
                         NAME_GSON,
-                        paramData.getValue().toString(),
+                        paramData.getValidJsonValue(),
                         guessedWithGenerics);
             } else if (valueType.equals(RtObjectRepresentation.TYPE_VALUE_PROTOBUF)) {
                 methodBuilder.addStatement(
-                        "$T $N = $T.parseFrom($T.getDecoder().decode($L))",
+                        "$T $N = $T.parseFrom($T.getDecoder().decode($S))",
                         guessed,
                         eachParam.getName(),
                         guessed,
                         Base64.class,
-                        // already has a double quote
-                        paramData.getValue()
+                        paramData.getValidJsonValue()
                 );
             } else {
                 // give up
@@ -186,8 +184,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                         "$T expect = $N.fromJson($S, $T.class)",
                         JsonElement.class,
                         NAME_GSON,
-                        // todo
-                        userCase.getResponse().getValue(),
+                        userCase.getResponse().getValidJsonValue(),
                         JsonElement.class);
 
                 methodBuilder.addCode(
@@ -250,12 +247,20 @@ public class SpringJUnitExporter extends JUnitExporter {
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
         // fields
-        clazzBuilder.addField(
-                FieldSpec.builder(
-                                ClassName.get(packageName, clazzName),
-                                SibylUtils.toLowerCaseForFirstLetter(clazzName))
-                        .addAnnotation(Resource.class)
-                        .build());
+        FieldSpec.Builder fieldBuilder = FieldSpec.builder(
+                ClassName.get(packageName, clazzName),
+                SibylUtils.toLowerCaseForFirstLetter(clazzName));
+        switch (runnerType) {
+            case SPRING:
+                fieldBuilder.addAnnotation(Resource.class);
+                break;
+            case MOCKITO:
+                fieldBuilder.addAnnotation(InjectMocks.class);
+                break;
+            default:
+                 break;
+        }
+        clazzBuilder.addField(fieldBuilder.build());
         clazzBuilder.addField(Gson.class, NAME_GSON);
         clazzBuilder.addInitializerBlock(
                 CodeBlock.builder().addStatement("$N = new $T()", NAME_GSON, Gson.class).build());
@@ -266,13 +271,32 @@ public class SpringJUnitExporter extends JUnitExporter {
             return null;
         }
 
-        AnnotationSpec.Builder runWithBuilder =
-                AnnotationSpec.builder(RunWith.class)
-                        .addMember(
-                                "value",
-                                CodeBlock.builder().add("$T.class", SpringRunner.class).build());
-        clazzBuilder.addAnnotation(runWithBuilder.build());
-        clazzBuilder.addAnnotation(SpringBootTest.class);
+        switch (runnerType) {
+            case SPRING: {
+                AnnotationSpec.Builder runWithBuilder =
+                        AnnotationSpec.builder(RunWith.class)
+                                .addMember(
+                                        "value",
+                                        CodeBlock.builder().add("$T.class", SpringRunner.class).build());
+
+                clazzBuilder.addAnnotation(runWithBuilder.build());
+                clazzBuilder.addAnnotation(SpringBootTest.class);
+                break;
+            }
+
+            case MOCKITO: {
+                AnnotationSpec.Builder runWithBuilder =
+                        AnnotationSpec.builder(RunWith.class)
+                                .addMember(
+                                        "value",
+                                        CodeBlock.builder().add("$T.class", MockitoJUnitRunner.class).build());
+                clazzBuilder.addAnnotation(runWithBuilder.build());
+                break;
+            }
+            default:
+                break;
+        }
+
         clazzBuilder.addMethod(createJudgeHelper());
         TypeSpec cur = clazzBuilder.build();
         JavaFile jf =

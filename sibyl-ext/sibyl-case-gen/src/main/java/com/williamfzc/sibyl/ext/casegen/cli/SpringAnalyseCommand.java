@@ -1,7 +1,10 @@
 package com.williamfzc.sibyl.ext.casegen.cli;
 
+import com.williamfzc.sibyl.core.api.Sibyl;
+import com.williamfzc.sibyl.core.api.SibylLangType;
+import com.williamfzc.sibyl.core.scanner.ScanPolicy;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
-import com.williamfzc.sibyl.ext.casegen.collector.spring.SpringCollector;
+import com.williamfzc.sibyl.ext.casegen.exporter.junit.JUnitRunnerType;
 import com.williamfzc.sibyl.ext.casegen.exporter.junit.SpringJUnitExporter;
 import com.williamfzc.sibyl.ext.casegen.model.junit.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.casegen.model.rt.TestedMethodModel;
@@ -27,6 +30,9 @@ public class SpringAnalyseCommand implements Runnable {
             required = true)
     private File srcDir;
 
+    @CommandLine.Option(names = {"--include"})
+    private String include = "";
+
     @CommandLine.Option(
             names = {"-o", "--output"},
             required = true)
@@ -37,6 +43,9 @@ public class SpringAnalyseCommand implements Runnable {
 
     @CommandLine.Option(names = {"-ad", "--assertDefaultEnabled"})
     private boolean assertDefaultEnabled = true;
+
+    @CommandLine.Option(names = {"-rt", "--runnerType"})
+    private JUnitRunnerType runnerType = JUnitRunnerType.MOCKITO;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectCommand.class);
 
@@ -50,13 +59,13 @@ public class SpringAnalyseCommand implements Runnable {
             return;
         }
 
-        SpringCollector collector = new SpringCollector();
         try {
-            Snapshot snapshot = collector.collectServices(srcDir);
+            Snapshot snapshot = genSnapshot();
             List<TestedMethodModel> models = TestedMethodModel.of(snapshot);
             SpringJUnitExporter exporter = new SpringJUnitExporter();
             exporter.setAssertEnabled(assertEnabled)
                     .setAssertDefaultEnabled(assertDefaultEnabled)
+                    .setRunnerType(runnerType)
                     .importUserCases(caseFile);
             LOGGER.info("import user cases finished, count: " + exporter.getUserCaseData().size());
             List<JUnitCaseFile> javaFiles = exporter.models2JavaFiles(models);
@@ -68,7 +77,7 @@ public class SpringAnalyseCommand implements Runnable {
                                         try {
                                             Path realPath =
                                                     eachJavaFile.writeToDir(
-                                                            outputDir.toPath(), false);
+                                                            outputDir.toPath(), true);
                                             LOGGER.info("gen java file finished: " + realPath);
                                             return true;
                                         } catch (IOException e) {
@@ -91,5 +100,18 @@ public class SpringAnalyseCommand implements Runnable {
             throw new FileNotFoundException("srcDir is not a dir: " + srcDir);
         }
         // ok
+    }
+
+    private Snapshot genSnapshot() throws IOException, InterruptedException {
+        if (include.isEmpty()) {
+            return Sibyl.genSnapshotFromDir(srcDir, SibylLangType.JAVA_8);
+        }
+
+        return Sibyl.genSnapshotFromDir(srcDir, SibylLangType.JAVA_8, new ScanPolicy() {
+            @Override
+            public boolean shouldExclude(File file) {
+                return file.toPath().toString().matches(include);
+            }
+        });
     }
 }

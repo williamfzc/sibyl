@@ -11,5 +11,17 @@ public class RtObjectRepresentation {
 
     private String type;
     private String valueType;
+    // could be a null ...
     private JsonElement value;
+
+    public String getValidJsonValue() {
+        if (null == value) {
+            return "";
+        }
+
+        if (value.isJsonNull()) {
+            return "";
+        }
+        return value.getAsString();
+    }
 }
