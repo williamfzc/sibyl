@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 @CommandLine.Command(name = "spring")
@@ -30,8 +31,9 @@ public class SpringAnalyseCommand implements Runnable {
             required = true)
     private File srcDir;
 
-    @CommandLine.Option(names = {"--include"})
-    private String include = "";
+    @CommandLine.Option(names = {"--exclude"})
+    private String exclude = "";
+    private static final String FLAG_SPLIT_EXCLUDE = ";";
 
     @CommandLine.Option(
             names = {"-o", "--output"},
@@ -103,14 +105,17 @@ public class SpringAnalyseCommand implements Runnable {
     }
 
     private Snapshot genSnapshot() throws IOException, InterruptedException {
-        if (include.isEmpty()) {
+        if (exclude.isEmpty()) {
             return Sibyl.genSnapshotFromDir(srcDir, SibylLangType.JAVA_8);
         }
+        String[] excludes = exclude.split(FLAG_SPLIT_EXCLUDE);
 
         return Sibyl.genSnapshotFromDir(srcDir, SibylLangType.JAVA_8, new ScanPolicy() {
             @Override
             public boolean shouldExclude(File file) {
-                return file.toPath().toString().matches(include);
+                // wildcard
+                String path = file.toPath().toString();
+                return Arrays.stream(excludes).anyMatch(path::matches);
             }
         });
     }
