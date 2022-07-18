@@ -3,10 +3,11 @@ package com.williamfzc.sibyl.ext.casegen.model.rt;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import lombok.Data;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Data
 public class TestedMethodModel {
@@ -36,16 +37,22 @@ public class TestedMethodModel {
         return snapshot.getData().stream()
                 .map(
                         eachMethod -> {
-                            String fullName = eachMethod.getBelongsTo().getClazz().getFullName();
-                            String methodName = eachMethod.getInfo().getName();
-                            List<Parameter> params = eachMethod.getInfo().getParams();
-                            TestedMethodModel curModel = new TestedMethodModel();
-                            curModel.setClazzFullName(fullName);
-                            curModel.setMethodName(methodName);
-                            curModel.setParams(params);
-                            curModel.setReturnType(eachMethod.getInfo().getReturnType());
-                            return curModel;
+                            try {
+                                String fullName = eachMethod.getBelongsTo().getClazz().getFullName();
+                                String methodName = eachMethod.getInfo().getName();
+                                List<Parameter> params = eachMethod.getInfo().getParams();
+                                TestedMethodModel curModel = new TestedMethodModel();
+                                curModel.setClazzFullName(fullName);
+                                curModel.setMethodName(methodName);
+                                curModel.setParams(params);
+                                curModel.setReturnType(eachMethod.getInfo().getReturnType());
+                                return curModel;
+                            } catch (NullPointerException e) {
+                                e.printStackTrace();
+                                return null;
+                            }
                         })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 }
