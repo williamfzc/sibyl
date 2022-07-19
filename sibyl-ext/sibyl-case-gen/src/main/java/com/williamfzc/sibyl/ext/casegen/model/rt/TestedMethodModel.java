@@ -2,6 +2,7 @@ package com.williamfzc.sibyl.ext.casegen.model.rt;
 
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
+import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import lombok.Data;
 
@@ -48,7 +49,7 @@ public class TestedMethodModel {
                                 curModel.setReturnType(eachMethod.getInfo().getReturnType());
                                 return curModel;
                             } catch (NullPointerException e) {
-                                e.printStackTrace();
+                                SibylLog.warn("NPE happened in " + eachMethod.toString());
                                 return null;
                             }
                         })

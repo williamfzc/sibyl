@@ -43,7 +43,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.36</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -163,9 +162,10 @@
 <!--         graalvm disabled by default-->
           <skip>true</skip>
           <useArgFile>false</useArgFile>
-          <imageName>sibyl-case-gen</imageName>
+          <imageName>dancer-cli-${project.version}</imageName>
           <buildArgs>
             <buildArg>-H:ReflectionConfigurationFiles=${project.basedir}/src/main/resources/reflect.json</buildArg>
+            <buildArg>-H:IncludeResources=logback.xml</buildArg>
             <buildArg>--no-fallback</buildArg>
           </buildArgs>
         </configuration>

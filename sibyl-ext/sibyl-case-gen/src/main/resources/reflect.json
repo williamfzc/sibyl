@@ -1,285 +1,335 @@
 [
-    {
-      "name": "com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.listener.java8.Java8CallListener",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.listener.java8.Java8ClassListener",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.clazz.Clazz",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getBelongsTo",
-          "parameterTypes": []
-        },
-        {
-          "name": "getFullName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getInterfaces",
-          "parameterTypes": []
-        },
-        {
-          "name": "getModifier",
-          "parameterTypes": []
-        },
-        {
-          "name": "getName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getSuperName",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.clazz.ClazzBelonging",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getFile",
-          "parameterTypes": []
-        },
-        {
-          "name": "getPkg",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getEndLine",
-          "parameterTypes": []
-        },
-        {
-          "name": "getName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getStartLine",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.edge.Edge",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getRawEdge",
-          "parameterTypes": []
-        },
-        {
-          "name": "getSource",
-          "parameterTypes": []
-        },
-        {
-          "name": "getTarget",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.edge.RawEdge",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getCallerType",
-          "parameterTypes": []
-        },
-        {
-          "name": "getFromMethodName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getLine",
-          "parameterTypes": []
-        },
-        {
-          "name": "getStatement",
-          "parameterTypes": []
-        },
-        {
-          "name": "getToMethodName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getType",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.method.Method",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getBelongsTo",
-          "parameterTypes": []
-        },
-        {
-          "name": "getInfo",
-          "parameterTypes": []
-        },
-        {
-          "name": "getLineCount",
-          "parameterTypes": []
-        },
-        {
-          "name": "getLineRange",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.method.MethodBelonging",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getClazz",
-          "parameterTypes": []
-        },
-        {
-          "name": "getFile",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.method.MethodBelongingFile",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getEndLine",
-          "parameterTypes": []
-        },
-        {
-          "name": "getName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getStartLine",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.method.MethodInfo",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getModifier",
-          "parameterTypes": []
-        },
-        {
-          "name": "getName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getParams",
-          "parameterTypes": []
-        },
-        {
-          "name": "getReturnType",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.method.Parameter",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getType",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "com.williamfzc.sibyl.core.model.pkg.Pkg",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true,
-      "queryAllDeclaredConstructors": true,
-      "methods": [
-        {
-          "name": "getName",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "name": "java.lang.Object",
-      "allDeclaredFields": true,
-      "queryAllDeclaredMethods": true
-    }
-  ]
+  {
+    "name": "com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.listener.java8.Java8CallListener",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.listener.java8.Java8ClassListener",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.clazz.Clazz",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getBelongsTo",
+        "parameterTypes": []
+      },
+      {
+        "name": "getFullName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getInterfaces",
+        "parameterTypes": []
+      },
+      {
+        "name": "getModifier",
+        "parameterTypes": []
+      },
+      {
+        "name": "getName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getSuperName",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.clazz.ClazzBelonging",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getFile",
+        "parameterTypes": []
+      },
+      {
+        "name": "getPkg",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getEndLine",
+        "parameterTypes": []
+      },
+      {
+        "name": "getName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getStartLine",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.edge.Edge",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getRawEdge",
+        "parameterTypes": []
+      },
+      {
+        "name": "getSource",
+        "parameterTypes": []
+      },
+      {
+        "name": "getTarget",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.edge.RawEdge",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getCallerType",
+        "parameterTypes": []
+      },
+      {
+        "name": "getFromMethodName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getLine",
+        "parameterTypes": []
+      },
+      {
+        "name": "getStatement",
+        "parameterTypes": []
+      },
+      {
+        "name": "getToMethodName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getType",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.method.Method",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getBelongsTo",
+        "parameterTypes": []
+      },
+      {
+        "name": "getInfo",
+        "parameterTypes": []
+      },
+      {
+        "name": "getLineCount",
+        "parameterTypes": []
+      },
+      {
+        "name": "getLineRange",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.method.MethodBelonging",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getClazz",
+        "parameterTypes": []
+      },
+      {
+        "name": "getFile",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.method.MethodBelongingFile",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getEndLine",
+        "parameterTypes": []
+      },
+      {
+        "name": "getName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getStartLine",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.method.MethodInfo",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getModifier",
+        "parameterTypes": []
+      },
+      {
+        "name": "getName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getParams",
+        "parameterTypes": []
+      },
+      {
+        "name": "getReturnType",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.method.Parameter",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getType",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.model.pkg.Pkg",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getName",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Object",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.ext.casegen.cli.CaseGenCli",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.williamfzc.sibyl.ext.casegen.cli.CollectCommand",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.williamfzc.sibyl.ext.casegen.cli.SpringAnalyseCommand",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.williamfzc.sibyl.ext.casegen.model.RtObjectRepresentation",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.core.ConsoleAppender",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  }
+]
   
