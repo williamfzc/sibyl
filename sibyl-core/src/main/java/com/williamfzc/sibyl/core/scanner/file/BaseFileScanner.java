@@ -139,6 +139,13 @@ public abstract class BaseFileScanner extends BaseScanner {
     }
 
     public void scanFile(File file, int totalFileCount) throws IOException {
+        SibylLog.info(
+                String.format(
+                        "scan file (%d/%d), path %s, size: %s",
+                        currentFileCount.incrementAndGet(),
+                        totalFileCount,
+                        file.getPath(),
+                        file.length()));
         Set<Listenable> acceptedListeners =
                 listenableList.stream()
                         .filter(each -> each.accept(file))
@@ -149,14 +156,6 @@ public abstract class BaseFileScanner extends BaseScanner {
         }
 
         beforeEachFile(file);
-        SibylLog.info(
-                String.format(
-                        "scan file (%d/%d), path %s, size: %s",
-                        currentFileCount.incrementAndGet(),
-                        totalFileCount,
-                        file.getPath(),
-                        file.length()));
-
         String content = getFileContent(file);
 
         // avoid using abs path
