@@ -8,32 +8,21 @@ import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
+import com.williamfzc.sibyl.ext.casegen.exporter.junit.wrapper.BaseWrapper;
+import com.williamfzc.sibyl.ext.casegen.exporter.junit.wrapper.GoblinWrapper;
+import com.williamfzc.sibyl.ext.casegen.exporter.junit.wrapper.MockitoWrapper;
+import com.williamfzc.sibyl.ext.casegen.exporter.junit.wrapper.SpringWrapper;
 import com.williamfzc.sibyl.ext.casegen.model.RtObjectRepresentation;
 import com.williamfzc.sibyl.ext.casegen.model.junit.JUnitCaseFile;
 import com.williamfzc.sibyl.ext.casegen.model.rt.TestedMethodModel;
 import com.williamfzc.sibyl.ext.casegen.model.rt.UserCase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.Resource;
 import javax.lang.model.element.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class SpringJUnitExporter extends JUnitExporter {
-    private final Gson gson = new Gson();
-    private static final String NAME_JUDGE_HELPER = "_judgeHelper";
-    private static final String NAME_GSON = "gson";
-    private static final String NAME_FIELD_ACTUAL = "actual";
-    private static final String NAME_FIELD_EXPECT = "expect";
-
     // config
     private boolean assertEnabled = true;
     private boolean assertDefaultEnabled = true;
@@ -52,6 +41,20 @@ public class SpringJUnitExporter extends JUnitExporter {
     public SpringJUnitExporter setAssertDefaultEnabled(boolean status) {
         assertDefaultEnabled = status;
         return this;
+    }
+
+    public BaseWrapper getWrapper() {
+        switch (runnerType) {
+            // todo: singleton?
+            case SPRING:
+                return new SpringWrapper();
+            case GOBLIN:
+                return new GoblinWrapper();
+            case MOCKITO:
+                return new MockitoWrapper();
+            default:
+                return null;
+        }
     }
 
     public List<MethodSpec> model2Spec(TestedMethodModel model) {
@@ -89,11 +92,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                                         + counter)
                         .addModifiers(Modifier.PUBLIC)
                         .returns(void.class);
-        if (runnerType == JUnitRunnerType.GOBLIN) {
-            methodBuilder.addAnnotation(org.junit.jupiter.api.Test.class);
-        } else {
-            methodBuilder.addAnnotation(Test.class);
-        }
+        getWrapper().wrapMethodAnnotation(methodBuilder);
 
         // always a json list
         List<RtObjectRepresentation> userParams = userCase.getRequest();
@@ -129,7 +128,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                         "$T $N = $N.fromJson($S, $N.class)",
                         guessed,
                         eachParam.getName(),
-                        NAME_GSON,
+                        Consts.NAME_GSON,
                         paramData.getValidJsonValue(),
                         guessedWithGenerics);
             } else if (valueType.equals(RtObjectRepresentation.TYPE_VALUE_PROTOBUF)) {
@@ -194,7 +193,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                             .addStatement(
                                     "$T $N = $N.$N($N)",
                                     returnType,
-                                    NAME_FIELD_ACTUAL,
+                                    Consts.NAME_FIELD_ACTUAL,
                                     SibylUtils.toLowerCaseForFirstLetter(
                                             model.getClazzLiberalName()),
                                     model.getMethodName(),
@@ -212,7 +211,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                         methodBuilder.addStatement(
                                 "$T $N = $T.parser().merge($S, $T.builder())",
                                 clazz,
-                                NAME_FIELD_EXPECT,
+                                Consts.NAME_FIELD_EXPECT,
                                 clazz,
                                 readable,
                                 clazz
@@ -223,7 +222,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                         methodBuilder.addStatement(
                                 "$T $N = $T.parseFrom($T.getDecoder().decode($S))",
                                 clazz,
-                                NAME_FIELD_EXPECT,
+                                Consts.NAME_FIELD_EXPECT,
                                 clazz,
                                 Base64.class,
                                 raw
@@ -233,8 +232,8 @@ public class SpringJUnitExporter extends JUnitExporter {
                     methodBuilder.addStatement(
                             "$T $N = $N.fromJson($S, $T.class)",
                             clazz,
-                            NAME_FIELD_EXPECT,
-                            NAME_GSON,
+                            Consts.NAME_FIELD_EXPECT,
+                            Consts.NAME_GSON,
                             userCase.getResponse().getValidJsonValue(),
                             clazz);
                 }
@@ -243,7 +242,7 @@ public class SpringJUnitExporter extends JUnitExporter {
                         CodeBlock.builder()
                                 .addStatement(
                                         "$N($S, $S)",
-                                        NAME_JUDGE_HELPER, NAME_FIELD_ACTUAL, NAME_FIELD_EXPECT)
+                                        Consts.NAME_JUDGE_HELPER, Consts.NAME_FIELD_ACTUAL, Consts.NAME_FIELD_EXPECT)
                                 .build());
             }
         }
@@ -301,59 +300,18 @@ public class SpringJUnitExporter extends JUnitExporter {
         FieldSpec.Builder fieldBuilder = FieldSpec.builder(
                 ClassName.get(packageName, clazzName),
                 SibylUtils.toLowerCaseForFirstLetter(clazzName));
-        switch (runnerType) {
-            case SPRING:
-            case GOBLIN:
-                fieldBuilder.addAnnotation(Resource.class);
-                break;
-            case MOCKITO:
-                fieldBuilder.addAnnotation(InjectMocks.class);
-                break;
-            default:
-                break;
-        }
+        getWrapper().wrapField(fieldBuilder);
         clazzBuilder.addField(fieldBuilder.build());
-        clazzBuilder.addField(Gson.class, NAME_GSON);
+        clazzBuilder.addField(Gson.class, Consts.NAME_GSON);
         clazzBuilder.addInitializerBlock(
-                CodeBlock.builder().addStatement("$N = new $T()", NAME_GSON, Gson.class).build());
+                CodeBlock.builder().addStatement("$N = new $T()", Consts.NAME_GSON, Gson.class).build());
 
         // methods
         clazzBuilder.addMethods(methodSpecs);
         if (clazzBuilder.methodSpecs.isEmpty()) {
             return null;
         }
-
-        switch (runnerType) {
-            case SPRING: {
-                AnnotationSpec.Builder runWithBuilder =
-                        AnnotationSpec.builder(RunWith.class)
-                                .addMember(
-                                        "value",
-                                        CodeBlock.builder().add("$T.class", SpringRunner.class).build());
-
-                clazzBuilder.addAnnotation(runWithBuilder.build());
-                clazzBuilder.addAnnotation(SpringBootTest.class);
-                break;
-            }
-
-            case MOCKITO: {
-                AnnotationSpec.Builder runWithBuilder =
-                        AnnotationSpec.builder(RunWith.class)
-                                .addMember(
-                                        "value",
-                                        CodeBlock.builder().add("$T.class", MockitoJUnitRunner.class).build());
-                clazzBuilder.addAnnotation(runWithBuilder.build());
-                break;
-            }
-
-            case GOBLIN: {
-                // extends baseCase
-                clazzBuilder.superclass(ClassName.bestGuess("com.heytap.cpc.dfoob.goblin.core.GoblinBaseTest"));
-                break;
-            }
-            default:
-                break;
-        }
+        getWrapper().wrapClazzAnnotation(clazzBuilder);
 
         clazzBuilder.addMethod(createJudgeHelper());
         TypeSpec cur = clazzBuilder.build();
@@ -370,16 +328,16 @@ public class SpringJUnitExporter extends JUnitExporter {
 
     private MethodSpec createJudgeHelper() {
         MethodSpec.Builder methodBuilder =
-                MethodSpec.methodBuilder(NAME_JUDGE_HELPER)
+                MethodSpec.methodBuilder(Consts.NAME_JUDGE_HELPER)
                         .addModifiers(Modifier.PRIVATE)
                         .returns(void.class);
-        methodBuilder.addParameter(Object.class, NAME_FIELD_ACTUAL);
-        methodBuilder.addParameter(Object.class, NAME_FIELD_EXPECT);
+        methodBuilder.addParameter(Object.class, Consts.NAME_FIELD_ACTUAL);
+        methodBuilder.addParameter(Object.class, Consts.NAME_FIELD_EXPECT);
         methodBuilder.addComment("You can add your own assertions here, such as json compare.");
         methodBuilder.addCode(
-                CodeBlock.builder().addStatement("$T.out.println($N)", System.class, NAME_FIELD_ACTUAL).build());
+                CodeBlock.builder().addStatement("$T.out.println($N)", System.class, Consts.NAME_FIELD_ACTUAL).build());
         methodBuilder.addCode(
-                CodeBlock.builder().addStatement("$T.out.println($N)", System.class, NAME_FIELD_EXPECT).build());
+                CodeBlock.builder().addStatement("$T.out.println($N)", System.class, Consts.NAME_FIELD_EXPECT).build());
 
 
         if (!assertDefaultEnabled) {
@@ -387,13 +345,7 @@ public class SpringJUnitExporter extends JUnitExporter {
             return methodBuilder.build();
         }
         // default compare
-        Class<?> assertionClazz;
-        if (runnerType == JUnitRunnerType.GOBLIN) {
-            assertionClazz = Assertions.class;
-        } else {
-            assertionClazz = Assert.class;
-        }
-        methodBuilder.addStatement("$T.assertEquals($S, $S)", assertionClazz, NAME_FIELD_ACTUAL, NAME_FIELD_EXPECT);
+        getWrapper().wrapJudgeMethod(methodBuilder);
         return methodBuilder.build();
     }
 
