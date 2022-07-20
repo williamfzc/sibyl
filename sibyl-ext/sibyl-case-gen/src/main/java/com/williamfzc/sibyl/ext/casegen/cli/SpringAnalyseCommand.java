@@ -62,16 +62,18 @@ public class SpringAnalyseCommand implements Runnable {
         }
 
         try {
-            Snapshot snapshot = genSnapshot();
-            List<TestedMethodModel> models = TestedMethodModel.of(snapshot);
             SpringJUnitExporter exporter = new SpringJUnitExporter();
             exporter.setAssertEnabled(assertEnabled)
                     .setAssertDefaultEnabled(assertDefaultEnabled)
                     .setRunnerType(runnerType)
                     .importUserCases(caseFile);
             LOGGER.info("import user cases finished, count: " + exporter.getUserCaseData().size());
+
+            Snapshot snapshot = genSnapshot();
+            List<TestedMethodModel> models = TestedMethodModel.of(snapshot);
+            LOGGER.info("import method models finished, count: " + models.size());
             List<JUnitCaseFile> javaFiles = exporter.models2JavaFiles(models);
-            LOGGER.info("import method models finished, count: " + javaFiles.size());
+
             long successCount =
                     javaFiles.stream()
                             .filter(

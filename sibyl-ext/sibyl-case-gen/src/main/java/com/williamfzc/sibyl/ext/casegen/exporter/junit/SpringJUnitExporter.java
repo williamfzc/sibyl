@@ -1,7 +1,9 @@
 package com.williamfzc.sibyl.ext.casegen.exporter.junit;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 import com.squareup.javapoet.*;
 import com.williamfzc.sibyl.core.model.method.Parameter;
 import com.williamfzc.sibyl.core.utils.SibylLog;
@@ -12,6 +14,7 @@ import com.williamfzc.sibyl.ext.casegen.model.rt.TestedMethodModel;
 import com.williamfzc.sibyl.ext.casegen.model.rt.UserCase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -28,11 +31,13 @@ public class SpringJUnitExporter extends JUnitExporter {
     private final Gson gson = new Gson();
     private static final String NAME_JUDGE_HELPER = "_judgeHelper";
     private static final String NAME_GSON = "gson";
+    private static final String NAME_FIELD_ACTUAL = "actual";
+    private static final String NAME_FIELD_EXPECT = "expect";
 
     // config
     private boolean assertEnabled = true;
     private boolean assertDefaultEnabled = true;
-    private JUnitRunnerType runnerType = JUnitRunnerType.SPRING;
+    private JUnitRunnerType runnerType = JUnitRunnerType.MOCKITO;
 
     public SpringJUnitExporter setAssertEnabled(boolean status) {
         assertEnabled = status;
@@ -84,7 +89,11 @@ public class SpringJUnitExporter extends JUnitExporter {
                                         + counter)
                         .addModifiers(Modifier.PUBLIC)
                         .returns(void.class);
-        methodBuilder.addAnnotation(Test.class);
+        if (runnerType == JUnitRunnerType.GOBLIN) {
+            methodBuilder.addAnnotation(org.junit.jupiter.api.Test.class);
+        } else {
+            methodBuilder.addAnnotation(Test.class);
+        }
 
         // always a json list
         List<RtObjectRepresentation> userParams = userCase.getRequest();
@@ -124,14 +133,31 @@ public class SpringJUnitExporter extends JUnitExporter {
                         paramData.getValidJsonValue(),
                         guessedWithGenerics);
             } else if (valueType.equals(RtObjectRepresentation.TYPE_VALUE_PROTOBUF)) {
-                methodBuilder.addStatement(
-                        "$T $N = $T.parseFrom($T.getDecoder().decode($S))",
-                        guessed,
-                        eachParam.getName(),
-                        guessed,
-                        Base64.class,
-                        paramData.getValidJsonValue()
-                );
+                methodBuilder.addException(InvalidProtocolBufferException.class);
+                String raw = paramData.getValidJsonValue();
+
+                try {
+                    String readable = JsonFormat.printer().print(Any.parseFrom(Base64.getDecoder().decode(raw)));
+                    methodBuilder.addStatement(
+                            "$T $N = $T.parser().merge($S, $T.builder())",
+                            guessed,
+                            eachParam.getName(),
+                            guessed,
+                            readable,
+                            guessed
+                    );
+                } catch (InvalidProtocolBufferException e) {
+                    // fallback: parse in runtime
+                    SibylLog.warn("failed to use Any for parsing pb object, fallback");
+                    methodBuilder.addStatement(
+                            "$T $N = $T.parseFrom($T.getDecoder().decode($S))",
+                            guessed,
+                            eachParam.getName(),
+                            guessed,
+                            Base64.class,
+                            paramData.getValidJsonValue()
+                    );
+                }
             } else {
                 // give up
                 return null;
@@ -166,33 +192,58 @@ public class SpringJUnitExporter extends JUnitExporter {
             methodBuilder.addCode(
                     CodeBlock.builder()
                             .addStatement(
-                                    "$T ret = $N.$N($N)",
+                                    "$T $N = $N.$N($N)",
                                     returnType,
+                                    NAME_FIELD_ACTUAL,
                                     SibylUtils.toLowerCaseForFirstLetter(
                                             model.getClazzLiberalName()),
                                     model.getMethodName(),
                                     paramsStr)
                             .build());
-            methodBuilder.addCode(
-                    CodeBlock.builder().addStatement("$T.out.println(ret)", System.class).build());
 
             // assert
             if (assertEnabled) {
-                methodBuilder.addStatement(
-                        "$T actual = $N.toJsonTree(ret)", JsonElement.class, NAME_GSON);
-                methodBuilder.addStatement(
-                        "$T expect = $N.fromJson($S, $T.class)",
-                        JsonElement.class,
-                        NAME_GSON,
-                        userCase.getResponse().getValidJsonValue(),
-                        JsonElement.class);
+                TypeName clazz = parseClazzStr(userCase.getResponse().getType());
+                if (userCase.getResponse().getValueType().equals(RtObjectRepresentation.TYPE_VALUE_PROTOBUF)) {
+                    methodBuilder.addException(InvalidProtocolBufferException.class);
+                    String raw = userCase.getResponse().getValidJsonValue();
+                    try {
+                        String readable = JsonFormat.printer().print(Any.parseFrom(Base64.getDecoder().decode(raw)));
+                        methodBuilder.addStatement(
+                                "$T $N = $T.parser().merge($S, $T.builder())",
+                                clazz,
+                                NAME_FIELD_EXPECT,
+                                clazz,
+                                readable,
+                                clazz
+                        );
+                    } catch (InvalidProtocolBufferException e) {
+                        // fallback: parse in runtime
+                        SibylLog.warn("failed to use Any for parsing pb object, fallback");
+                        methodBuilder.addStatement(
+                                "$T $N = $T.parseFrom($T.getDecoder().decode($S))",
+                                clazz,
+                                NAME_FIELD_EXPECT,
+                                clazz,
+                                Base64.class,
+                                raw
+                                );
+                    }
+                } else {
+                    methodBuilder.addStatement(
+                            "$T $N = $N.fromJson($S, $T.class)",
+                            clazz,
+                            NAME_FIELD_EXPECT,
+                            NAME_GSON,
+                            userCase.getResponse().getValidJsonValue(),
+                            clazz);
+                }
 
                 methodBuilder.addCode(
                         CodeBlock.builder()
                                 .addStatement(
-                                        "$T.assertTrue($N(actual, expect))",
-                                        Assert.class,
-                                        NAME_JUDGE_HELPER)
+                                        "$N($S, $S)",
+                                        NAME_JUDGE_HELPER, NAME_FIELD_ACTUAL, NAME_FIELD_EXPECT)
                                 .build());
             }
         }
@@ -243,7 +294,7 @@ public class SpringJUnitExporter extends JUnitExporter {
     public JUnitCaseFile specs2JavaFile(
             String packageName, String clazzName, Iterable<MethodSpec> methodSpecs) {
         TypeSpec.Builder clazzBuilder =
-                TypeSpec.classBuilder("Test" + clazzName)
+                TypeSpec.classBuilder(clazzName + "Tests")
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
         // fields
@@ -252,13 +303,14 @@ public class SpringJUnitExporter extends JUnitExporter {
                 SibylUtils.toLowerCaseForFirstLetter(clazzName));
         switch (runnerType) {
             case SPRING:
+            case GOBLIN:
                 fieldBuilder.addAnnotation(Resource.class);
                 break;
             case MOCKITO:
                 fieldBuilder.addAnnotation(InjectMocks.class);
                 break;
             default:
-                 break;
+                break;
         }
         clazzBuilder.addField(fieldBuilder.build());
         clazzBuilder.addField(Gson.class, NAME_GSON);
@@ -293,6 +345,12 @@ public class SpringJUnitExporter extends JUnitExporter {
                 clazzBuilder.addAnnotation(runWithBuilder.build());
                 break;
             }
+
+            case GOBLIN: {
+                // extends baseCase
+                clazzBuilder.superclass(ClassName.bestGuess("com.heytap.cpc.dfoob.goblin.core.GoblinBaseTest"));
+                break;
+            }
             default:
                 break;
         }
@@ -303,7 +361,6 @@ public class SpringJUnitExporter extends JUnitExporter {
                 JavaFile.builder(packageName, cur)
                         .addFileComment("")
                         .addFileComment("This file was auto-generated.")
-                        .addFileComment("Powered by sibyl project.")
                         .addFileComment("")
                         .indent("    ")
                         .build();
@@ -315,16 +372,28 @@ public class SpringJUnitExporter extends JUnitExporter {
         MethodSpec.Builder methodBuilder =
                 MethodSpec.methodBuilder(NAME_JUDGE_HELPER)
                         .addModifiers(Modifier.PRIVATE)
-                        .returns(boolean.class);
-        methodBuilder.addParameter(JsonElement.class, "actual");
-        methodBuilder.addParameter(JsonElement.class, "expect");
+                        .returns(void.class);
+        methodBuilder.addParameter(Object.class, NAME_FIELD_ACTUAL);
+        methodBuilder.addParameter(Object.class, NAME_FIELD_EXPECT);
         methodBuilder.addComment("You can add your own assertions here, such as json compare.");
+        methodBuilder.addCode(
+                CodeBlock.builder().addStatement("$T.out.println($N)", System.class, NAME_FIELD_ACTUAL).build());
+        methodBuilder.addCode(
+                CodeBlock.builder().addStatement("$T.out.println($N)", System.class, NAME_FIELD_EXPECT).build());
+
+
         if (!assertDefaultEnabled) {
             methodBuilder.addStatement("return true");
             return methodBuilder.build();
         }
         // default compare
-        methodBuilder.addStatement("return actual.equals(expect)");
+        Class<?> assertionClazz;
+        if (runnerType == JUnitRunnerType.GOBLIN) {
+            assertionClazz = Assertions.class;
+        } else {
+            assertionClazz = Assert.class;
+        }
+        methodBuilder.addStatement("$T.assertEquals($S, $S)", assertionClazz, NAME_FIELD_ACTUAL, NAME_FIELD_EXPECT);
         return methodBuilder.build();
     }
 
