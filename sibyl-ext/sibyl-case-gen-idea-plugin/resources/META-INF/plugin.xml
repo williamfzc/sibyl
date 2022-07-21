@@ -1,0 +1,29 @@
+<idea-plugin>
+  <id>com.williamfzc.sibyl.ext.casegen</id>
+  <name>Sibyl-Casegen</name>
+  <version>1.0</version>
+  <vendor email="williamfzc@foxmail.com" url="https://github.com/williamfzc">williamfzc</vendor>
+
+  <description>casegen based on sibyl</description>
+
+  <change-notes></change-notes>
+
+  <!-- please see https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html for description -->
+  <idea-version since-build="173.0"/>
+
+  <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
+       on how to target different products -->
+  <depends>com.intellij.modules.platform</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <toolWindow id="sibyl_tool_window" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
+                factoryClass="com.williamfzc.sibyl.ext.casegen.idea.ConsoleToolWindowFactory"/>
+  </extensions>
+  <actions>
+    <action id="com.williamfzc.sibyl.ext.casegen.idea.EntryAction" class="com.williamfzc.sibyl.ext.casegen.idea.EntryAction"
+            text="sibyl-casegen" description="casegen from sibyl">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+    </action>
+  </actions>
+
+</idea-plugin>
