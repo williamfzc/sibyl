@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.Resource;
 
-public class GoblinWrapper extends BaseWrapper{
+public enum GoblinWrapper implements BaseWrapper {
+    INSTANCE;
+
     @Override
     public void wrapMethodAnnotation(MethodSpec.Builder methodBuilder) {
         methodBuilder.addAnnotation(Test.class);

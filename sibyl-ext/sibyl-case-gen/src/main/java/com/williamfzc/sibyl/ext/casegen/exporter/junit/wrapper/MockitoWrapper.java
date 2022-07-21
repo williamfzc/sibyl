@@ -8,7 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
-public class MockitoWrapper extends BaseWrapper {
+public enum MockitoWrapper implements BaseWrapper {
+    INSTANCE;
+
     @Override
     public void wrapMethodAnnotation(MethodSpec.Builder methodBuilder) {
         methodBuilder.addAnnotation(Test.class);

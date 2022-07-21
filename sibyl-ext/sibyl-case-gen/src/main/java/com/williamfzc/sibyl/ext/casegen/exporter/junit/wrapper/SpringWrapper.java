@@ -11,7 +11,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 
-public class SpringWrapper extends BaseWrapper{
+public enum SpringWrapper implements BaseWrapper {
+    INSTANCE;
+
     @Override
     public void wrapMethodAnnotation(MethodSpec.Builder methodBuilder) {
         methodBuilder.addAnnotation(Test.class);

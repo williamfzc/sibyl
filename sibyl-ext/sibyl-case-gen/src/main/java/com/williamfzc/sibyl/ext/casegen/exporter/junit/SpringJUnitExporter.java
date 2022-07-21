@@ -45,13 +45,12 @@ public class SpringJUnitExporter extends JUnitExporter {
 
     public BaseWrapper getWrapper() {
         switch (runnerType) {
-            // todo: singleton?
             case SPRING:
-                return new SpringWrapper();
+                return SpringWrapper.INSTANCE;
             case GOBLIN:
-                return new GoblinWrapper();
+                return GoblinWrapper.INSTANCE;
             case MOCKITO:
-                return new MockitoWrapper();
+                return MockitoWrapper.INSTANCE;
             default:
                 return null;
         }
