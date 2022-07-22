@@ -172,6 +172,8 @@ public abstract class BaseFileScanner extends BaseScanner {
                     Failsafe.with(POLICY_RETRY).run(() -> eachListener.handle(finalFile, content));
                     afterEachListener(eachListener);
                 });
+        // clean up antlr4
+        System.gc();
         afterEachFile(file);
     }
 
