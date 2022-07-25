@@ -19,8 +19,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-@CommandLine.Command(name = "spring")
-public class SpringAnalyseCommand implements Runnable {
+@CommandLine.Command(name = "gen")
+public class GenCommand implements Runnable {
     @CommandLine.Option(
             names = {"-c", "--case"},
             required = true)
@@ -36,9 +36,8 @@ public class SpringAnalyseCommand implements Runnable {
     private static final String FLAG_SPLIT_EXCLUDE = ";";
 
     @CommandLine.Option(
-            names = {"-o", "--output"},
-            required = true)
-    private File outputDir;
+            names = {"-o", "--output"})
+    private File outputDir = null;
 
     @CommandLine.Option(names = {"-a", "--assertEnabled"})
     private boolean assertEnabled = true;
@@ -49,7 +48,8 @@ public class SpringAnalyseCommand implements Runnable {
     @CommandLine.Option(names = {"-rt", "--runnerType"})
     private JUnitRunnerType runnerType = JUnitRunnerType.MOCKITO;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CollectCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenCommand.class);
+    private static final String NAME_DEFAULT_OUTPUT = "caseOutput";
 
     @Override
     public void run() {
@@ -59,6 +59,11 @@ public class SpringAnalyseCommand implements Runnable {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return;
+        }
+
+        // output
+        if (null == outputDir) {
+            outputDir = new File(srcDir.getParentFile(), NAME_DEFAULT_OUTPUT);
         }
 
         try {
