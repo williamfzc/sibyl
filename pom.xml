@@ -6,7 +6,7 @@
 
 <!--    use this plugin to sync versions-->
 <!--    mvn versions:set -DnewVersion=0.4.3-->
-    <version>0.4.3</version>
+    <version>0.5.0</version>
     <packaging>pom</packaging>
 
     <modules>
