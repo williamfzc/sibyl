@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import org.antlr.v4.runtime.RuleContext;
 
 public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
-    protected final Deque<Clazz> curClassStack = new LinkedList<>();
     protected final Deque<Method> curMethodStack = new LinkedList<>();
 
     // use a stack to manage current method
