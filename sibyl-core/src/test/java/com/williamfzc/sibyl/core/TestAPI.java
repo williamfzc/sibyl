@@ -48,6 +48,12 @@ public class TestAPI {
     }
 
     @Test
+    public void testIdentity() throws IOException, InterruptedException {
+        File src = Support.getSelfSource();
+        Sibyl.genIdentityFromDir(src, SibylLangType.JAVA_8, null);
+    }
+
+    @Test
     public void testCallGraph() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
         File target = Support.getWorkspace();

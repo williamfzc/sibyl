@@ -12,6 +12,7 @@ import com.williamfzc.sibyl.core.scanner.file.FileIntroScanner;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.storage.callgraph.CallGraph;
 import com.williamfzc.sibyl.core.storage.snapshot.DiffSnapshot;
+import com.williamfzc.sibyl.core.storage.snapshot.Identity;
 import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +43,11 @@ public final class Sibyl {
     public static Snapshot genSnapshotFromDir(File inputDir, SibylLangType lang, ScanPolicy policy)
             throws IOException, InterruptedException {
         return snapshotApi.genSnapshotFromDir(inputDir, lang, policy);
+    }
+
+    public static Identity genIdentityFromDir(File inputDir, SibylLangType lang, ScanPolicy policy)
+            throws IOException, InterruptedException {
+        return snapshotApi.genIdentityFromDir(inputDir, lang, policy);
     }
 
     public static DiffSnapshot genSnapshotDiff(
