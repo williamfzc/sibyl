@@ -6,6 +6,7 @@ import com.williamfzc.sibyl.core.listener.base.IStorableListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8CallListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8ClassListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
+import com.williamfzc.sibyl.core.listener.java8.Java8TypeListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.method.Method;
@@ -128,5 +129,21 @@ public class TestJava8 {
         try (FileWriter writer = new FileWriter(clazzGraphFile)) {
             writer.write(mapper.writeValueAsString(clazzStorage.getData()));
         }
+    }
+
+    @Test
+    public void testType() throws IOException, InterruptedException {
+        File src = Support.getSelfSource();
+        FileContentScanner scanner = new FileContentScanner(src);
+
+        IStorableListener<Clazz> listener = new Java8TypeListener();
+        Storage<Clazz> clazzStorage = new Storage<>();
+        listener.setStorage(clazzStorage);
+
+        scanner.registerListener(listener);
+        scanner.scanDir(src);
+
+        System.out.println("type count: " + listener.getStorage().size());
+        clazzStorage.getData().forEach(each -> SibylLog.info(each.toString()));
     }
 }
