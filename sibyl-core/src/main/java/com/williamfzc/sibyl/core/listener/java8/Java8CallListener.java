@@ -1,6 +1,7 @@
 package com.williamfzc.sibyl.core.listener.java8;
 
 import com.williamfzc.sibyl.core.listener.Java8Parser;
+import com.williamfzc.sibyl.core.listener.java8.base.Java8MethodLayerListener;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.edge.RawEdge;
 import com.williamfzc.sibyl.core.model.method.Method;
@@ -8,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-public class Java8CallListener extends Java8MethodListener<Edge> {
+public class Java8CallListener extends Java8MethodLayerListener<Edge> {
     // todo: should collect type arguments too
     private final Set<RawEdge> headlessMethodSet = new HashSet<>();
     private final Set<RawEdge> needGuessMethodSet = new HashSet<>();

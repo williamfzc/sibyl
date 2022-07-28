@@ -1,9 +1,10 @@
 package com.williamfzc.sibyl.core.listener.java8;
 
 import com.williamfzc.sibyl.core.listener.Java8Parser;
+import com.williamfzc.sibyl.core.listener.java8.base.Java8ClazzLayerListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 
-public class Java8ClassListener extends Java8MethodListener<Clazz> {
+public class Java8ClassListener extends Java8ClazzLayerListener<Clazz> {
     @Override
     public void enterClassDeclaration(Java8Parser.ClassDeclarationContext ctx) {
         super.enterClassDeclaration(ctx);

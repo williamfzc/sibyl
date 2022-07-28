@@ -1,4 +1,4 @@
-package com.williamfzc.sibyl.core.listener.java8;
+package com.williamfzc.sibyl.core.listener.java8.base;
 
 import com.williamfzc.sibyl.core.listener.Java8BaseListener;
 import com.williamfzc.sibyl.core.listener.Java8Lexer;
