@@ -12,7 +12,9 @@ import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import java.io.File;
 import java.io.IOException;
 
-public final class SibylSnapshot {
+public enum SnapshotApi {
+    INSTANCE;
+
     public void genSnapshotFromDir(File inputDir, File outputFile, SibylLangType lang)
             throws IOException, InterruptedException {
         genSnapshotFromDir(inputDir, outputFile, lang, null);
@@ -45,7 +47,7 @@ public final class SibylSnapshot {
         return null;
     }
 
-    private static Snapshot genSnapshotFromDir(
+    private Snapshot genSnapshotFromDir(
             File inputDir, IStorableListener<Method> listener, ScanPolicy policy)
             throws IOException, InterruptedException {
         FileContentScanner scanner = new FileContentScanner(inputDir);

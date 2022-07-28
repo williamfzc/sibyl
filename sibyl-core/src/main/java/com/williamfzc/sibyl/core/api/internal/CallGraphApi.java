@@ -15,7 +15,9 @@ import com.williamfzc.sibyl.core.storage.callgraph.CallGraph;
 import java.io.File;
 import java.io.IOException;
 
-public final class SibylCallgraph {
+public enum CallGraphApi {
+    INSTANCE;
+
     public void genCallGraphFromDir(
             File inputDir,
             File outputFile,

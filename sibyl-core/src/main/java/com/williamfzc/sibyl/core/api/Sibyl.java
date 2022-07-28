@@ -1,8 +1,8 @@
 package com.williamfzc.sibyl.core.api;
 
-import com.williamfzc.sibyl.core.api.internal.SibylCallgraph;
-import com.williamfzc.sibyl.core.api.internal.SibylDiff;
-import com.williamfzc.sibyl.core.api.internal.SibylSnapshot;
+import com.williamfzc.sibyl.core.api.internal.CallGraphApi;
+import com.williamfzc.sibyl.core.api.internal.DiffApi;
+import com.williamfzc.sibyl.core.api.internal.SnapshotApi;
 import com.williamfzc.sibyl.core.listener.base.IStorableListener;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
@@ -17,9 +17,9 @@ import java.io.File;
 import java.io.IOException;
 
 public final class Sibyl {
-    private static final SibylSnapshot snapshotApi = new SibylSnapshot();
-    private static final SibylDiff diffApi = new SibylDiff();
-    private static final SibylCallgraph callgraphApi = new SibylCallgraph();
+    private static final SnapshotApi snapshotApi = SnapshotApi.INSTANCE;
+    private static final DiffApi diffApi = DiffApi.INSTANCE;
+    private static final CallGraphApi callgraphApi = CallGraphApi.INSTANCE;
 
     private Sibyl() {}
 

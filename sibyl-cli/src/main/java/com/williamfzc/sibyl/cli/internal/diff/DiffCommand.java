@@ -2,7 +2,7 @@ package com.williamfzc.sibyl.cli.internal.diff;
 
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;
-import com.williamfzc.sibyl.core.api.internal.SibylDiff;
+import com.williamfzc.sibyl.core.api.internal.DiffApi;
 import com.williamfzc.sibyl.core.model.diff.DiffFile;
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
@@ -61,7 +61,7 @@ public class DiffCommand implements Runnable {
             if (null == gitDir) {
                 gitDir = input;
             }
-            DiffResult diffResult = SibylDiff.diff(gitDir, after, before);
+            DiffResult diffResult = DiffApi.INSTANCE.diff(gitDir, after, before);
             List<DiffFile> files = diffResult.getNewFiles();
 
             Storage<Method> methodStorage;

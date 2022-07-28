@@ -3,7 +3,7 @@ package com.williamfzc.sibyl.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.api.Sibyl;
 import com.williamfzc.sibyl.core.api.SibylLangType;
-import com.williamfzc.sibyl.core.api.internal.SibylDiff;
+import com.williamfzc.sibyl.core.api.internal.DiffApi;
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
@@ -62,7 +62,7 @@ public class TestAPI {
         SibylLog.info("after: " + head.getName());
         SibylLog.info("before: " + headParent.getName());
 
-        DiffResult diffResult = SibylDiff.diff(repo, head.getName(), headParent.getName());
+        DiffResult diffResult = DiffApi.INSTANCE.diff(repo, head.getName(), headParent.getName());
 
         Storage<Method> methodStorage =
                 Sibyl.genSnapshotFromDir(Support.getProjectRoot(), SibylLangType.JAVA_8);

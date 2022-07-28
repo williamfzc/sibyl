@@ -23,8 +23,10 @@ import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-public final class SibylDiff {
-    public static DiffResult diff(Repository repo, ObjectId oldCommit, ObjectId newCommit)
+public enum DiffApi {
+    INSTANCE;
+
+    public DiffResult diff(Repository repo, ObjectId oldCommit, ObjectId newCommit)
             throws IOException {
         byte[] data;
 
@@ -45,7 +47,7 @@ public final class SibylDiff {
     }
 
     // todo: export this api
-    private static void handleDiff(byte[] data, DiffResult diffResult) throws IOException {
+    private void handleDiff(byte[] data, DiffResult diffResult) throws IOException {
         List<UnifiedDiffFile> files = Objects.requireNonNull(data2diff(data)).getFiles();
 
         List<DiffFile> oldFiles =
@@ -70,13 +72,13 @@ public final class SibylDiff {
         diffResult.setNewFiles(newFiles);
     }
 
-    private static UnifiedDiff data2diff(byte[] data) throws IOException {
+    private UnifiedDiff data2diff(byte[] data) throws IOException {
         try (InputStream is = new ByteArrayInputStream(data)) {
             return UnifiedDiffReader.parseUnifiedDiff(is);
         }
     }
 
-    public static DiffResult diff(Repository repo, String oldCommitId, String newCommitId)
+    public DiffResult diff(Repository repo, String oldCommitId, String newCommitId)
             throws IOException {
         RevCommit oldCommit;
         RevCommit newCommit;
@@ -91,13 +93,12 @@ public final class SibylDiff {
         return diff(repo, oldCommit, newCommit);
     }
 
-    public static DiffResult diff(File gitDir, String oldCommitId, String newCommitId)
-            throws IOException {
+    public DiffResult diff(File gitDir, String oldCommitId, String newCommitId) throws IOException {
         Repository repo = new RepositoryBuilder().findGitDir(gitDir).build();
         return diff(repo, oldCommitId, newCommitId);
     }
 
-    private static DiffFile handleNewPatch(String fileName, Patch<String> patch) {
+    private DiffFile handleNewPatch(String fileName, Patch<String> patch) {
         DiffFile diffFile = new DiffFile();
         diffFile.setName(fileName);
 
@@ -109,7 +110,7 @@ public final class SibylDiff {
         return diffFile;
     }
 
-    private static DiffFile handleOldPatch(String fileName, Patch<String> patch) {
+    private DiffFile handleOldPatch(String fileName, Patch<String> patch) {
         DiffFile diffFile = new DiffFile();
         diffFile.setName(fileName);
 
