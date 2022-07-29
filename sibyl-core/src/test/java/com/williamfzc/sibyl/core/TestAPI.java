@@ -8,6 +8,7 @@ import com.williamfzc.sibyl.core.model.diff.DiffMethod;
 import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.storage.snapshot.Identity;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.test.Support;
 import java.io.File;
@@ -50,7 +51,9 @@ public class TestAPI {
     @Test
     public void testIdentity() throws IOException, InterruptedException {
         File src = Support.getSelfSource();
-        Sibyl.genIdentityFromDir(src, SibylLangType.JAVA_8, null);
+        Identity identity = Sibyl.genIdentityFromDir(src, SibylLangType.JAVA_8, null);
+        Set<String> result = identity.queryPathsByName("");
+        Assert.assertTrue(result.isEmpty());
     }
 
     @Test

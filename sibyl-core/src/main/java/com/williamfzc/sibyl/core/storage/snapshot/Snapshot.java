@@ -1,10 +1,9 @@
 package com.williamfzc.sibyl.core.storage.snapshot;
 
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
-import com.williamfzc.sibyl.core.model.method.Method;
-import com.williamfzc.sibyl.core.model.method.MethodBelonging;
-import com.williamfzc.sibyl.core.model.method.MethodBelongingFile;
+import com.williamfzc.sibyl.core.model.method.*;
 import com.williamfzc.sibyl.core.storage.Storage;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,5 +46,28 @@ public class Snapshot extends Storage<Method> {
                 .map(MethodBelonging::getFile)
                 .map(MethodBelongingFile::getName)
                 .collect(Collectors.toSet());
+    }
+
+    public void syncWithIdentity(Identity identity) {
+        this.getData()
+                .forEach(
+                        each -> {
+                            MethodInfo info = each.getInfo();
+                            // ret type
+                            Set<String> retOptions =
+                                    identity.queryPathsByName(info.getReturnType());
+                            if (!retOptions.isEmpty()) {
+                                info.setReturnType(new ArrayList<>(retOptions).get(0));
+                            }
+
+                            // params
+                            for (Parameter parameter : info.getParams()) {
+                                Set<String> paramOptions =
+                                        identity.queryPathsByName(parameter.getType());
+                                if (!paramOptions.isEmpty()) {
+                                    parameter.setType(new ArrayList<>(paramOptions).get(0));
+                                }
+                            }
+                        });
     }
 }
