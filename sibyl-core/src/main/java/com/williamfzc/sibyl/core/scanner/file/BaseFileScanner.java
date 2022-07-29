@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -89,7 +87,7 @@ public abstract class BaseFileScanner extends BaseScanner {
 
     public void scanDir(String dirPath) throws IOException, InterruptedException {
         // collect files
-        Set<File> todoFiles = new HashSet<>();
+        List<File> todoFiles = new LinkedList<>();
         Files.walkFileTree(
                 Paths.get(dirPath),
                 new SimpleFileVisitor<Path>() {
@@ -110,7 +108,32 @@ public abstract class BaseFileScanner extends BaseScanner {
                         return super.visitFileFailed(file, exc);
                     }
                 });
-        scanFiles(todoFiles);
+        scanFiles(fileSort(todoFiles));
+    }
+
+    private List<File> fileSort(List<File> files) {
+        if (files.size() <= 1) {
+            return files;
+        }
+
+        // re sort for better cpu cost
+        List<File> ret = new LinkedList<>();
+        List<File> filesBySize =
+                files.stream()
+                        .sorted(Comparator.comparing(File::length))
+                        .collect(Collectors.toList());
+        int first = 0;
+        int last = filesBySize.size() - 1;
+        while (first < last) {
+            ret.add(filesBySize.get(first));
+            first++;
+            if (first == last) {
+                break;
+            }
+            ret.add(filesBySize.get(last));
+            last--;
+        }
+        return ret;
     }
 
     public void scanDir(File dir) throws IOException, InterruptedException {
