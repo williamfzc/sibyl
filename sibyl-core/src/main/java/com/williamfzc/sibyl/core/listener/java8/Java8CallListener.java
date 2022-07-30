@@ -1,12 +1,17 @@
 package com.williamfzc.sibyl.core.listener.java8;
 
+import com.williamfzc.sibyl.core.listener.Java8Lexer;
 import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.listener.java8.base.Java8MethodLayerListener;
 import com.williamfzc.sibyl.core.model.edge.Edge;
 import com.williamfzc.sibyl.core.model.edge.RawEdge;
 import com.williamfzc.sibyl.core.model.method.Method;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class Java8CallListener extends Java8MethodLayerListener<Edge> {
@@ -133,5 +138,18 @@ public class Java8CallListener extends Java8MethodLayerListener<Edge> {
                         readyMethodSet.add(eachRawEdge);
                     }
                 });
+    }
+
+    @Override
+    public void realHandle(File file, String content) {
+        // overwrite this method for custom parser
+        curFile = file;
+        new ParseTreeWalker()
+                .walk(
+                        this,
+                        new Java8Parser(
+                                        new CommonTokenStream(
+                                                new Java8Lexer(CharStreams.fromString(content))))
+                                .compilationUnit());
     }
 }

@@ -144,6 +144,7 @@ public abstract class BaseFileScanner extends BaseScanner {
         // do the real thing
         executor.setCorePoolSize(scanPolicy.threadPoolSize);
         SibylLog.info("worker size: " + executor.getCorePoolSize());
+        long startTime = System.currentTimeMillis();
 
         int totalFileCount = files.size();
         SibylLog.info("total files: " + totalFileCount);
@@ -158,6 +159,8 @@ public abstract class BaseFileScanner extends BaseScanner {
                                                 })
                         .collect(Collectors.toList()));
 
+        long cost = System.currentTimeMillis() - startTime;
+        SibylLog.info("time cost(s): " + cost / 1_000F);
         afterScan();
     }
 

@@ -1,5 +1,6 @@
 package com.williamfzc.sibyl.core.listener.java8.base;
 
+import com.williamfzc.sibyl.core.listener.Java8Lexer;
 import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.clazz.ClazzBelonging;
@@ -7,10 +8,14 @@ import com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile;
 import com.williamfzc.sibyl.core.model.pkg.Pkg;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class Java8ClazzLayerListener<T> extends Java8StorableListener<T> {
     protected String curPackage;
@@ -205,5 +210,18 @@ public class Java8ClazzLayerListener<T> extends Java8StorableListener<T> {
                             .collect(Collectors.toSet()));
         }
         return clazz;
+    }
+
+    @Override
+    public void realHandle(File file, String content) {
+        // overwrite this method for custom parser
+        curFile = file;
+        new ParseTreeWalker()
+                .walk(
+                        this,
+                        new Java8Parser(
+                                        new CommonTokenStream(
+                                                new Java8Lexer(CharStreams.fromString(content))))
+                                .compilationUnitWithoutMethodBody());
     }
 }

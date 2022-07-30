@@ -232,6 +232,10 @@ compilationUnit
 	:	packageDeclaration? importDeclaration* typeDeclaration* EOF
 	;
 
+compilationUnitWithoutMethodBody
+    :	packageDeclaration? importDeclaration* typeDeclarationWithoutMethodBody* EOF
+    ;
+
 packageDeclaration
 	:	packageModifier* 'package' Identifier ('.' Identifier)* ';'
 	;
@@ -269,6 +273,12 @@ typeDeclaration
 	|	';'
 	;
 
+typeDeclarationWithoutMethodBody
+    :	classDeclarationWithoutMethodBody
+    |	interfaceDeclaration
+    |	';'
+    ;
+
 /*
  * Productions from §8 (Classes)
  */
@@ -278,9 +288,18 @@ classDeclaration
 	|	enumDeclaration
 	;
 
+classDeclarationWithoutMethodBody
+    :	normalClassDeclarationWithoutMethodBody
+    |	enumDeclaration
+    ;
+
 normalClassDeclaration
 	:	classModifier* 'class' Identifier typeParameters? superclass? superinterfaces? classBody
 	;
+
+normalClassDeclarationWithoutMethodBody
+    :	classModifier* 'class' Identifier typeParameters? superclass? superinterfaces? classBodyWithoutMethodBody
+    ;
 
 classModifier
 	:	annotation
@@ -317,9 +336,19 @@ classBody
 	:	'{' classBodyDeclaration* '}'
 	;
 
+classBodyWithoutMethodBody
+    :	'{' classBodyDeclaration* '}'
+    ;
+
 classBodyDeclaration
 	:	classMemberDeclaration
 	|	instanceInitializer
+	|	staticInitializer
+	|	constructorDeclaration
+	;
+
+classBodyDeclarationWithoutMethodBody
+	:	instanceInitializer
 	|	staticInitializer
 	|	constructorDeclaration
 	;
