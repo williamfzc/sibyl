@@ -1,7 +1,7 @@
 package com.williamfzc.sibyl.cli;
 
 import com.williamfzc.sibyl.core.model.diff.DiffMethod;
-import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.storage.snapshot.DiffSnapshot;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.test.Support;
 import java.io.File;
@@ -67,7 +67,7 @@ public class ITCli {
         Assert.assertTrue(outputFile.isFile());
 
         // display file
-        Storage<DiffMethod> methods = Storage.import_(outputFile, DiffMethod.class);
+        DiffSnapshot methods = DiffSnapshot.initFrom(outputFile);
         Map<String, List<DiffMethod>> fileMap = new HashMap<>();
         methods.getData()
                 .forEach(

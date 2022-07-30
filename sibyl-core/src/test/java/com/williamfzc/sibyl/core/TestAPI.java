@@ -9,6 +9,7 @@ import com.williamfzc.sibyl.core.model.diff.DiffResult;
 import com.williamfzc.sibyl.core.model.method.Method;
 import com.williamfzc.sibyl.core.storage.Storage;
 import com.williamfzc.sibyl.core.storage.snapshot.Identity;
+import com.williamfzc.sibyl.core.storage.snapshot.Snapshot;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.test.Support;
 import java.io.File;
@@ -39,7 +40,7 @@ public class TestAPI {
 
         // import and export
         File javaOutput2 = new File(target, "j8_2.json");
-        Storage<Method> s = Storage.import_(javaOutput, Method.class);
+        Snapshot s = Snapshot.initFrom(javaOutput);
         s.exportFile(javaOutput2);
 
         ObjectMapper mapper = new ObjectMapper();

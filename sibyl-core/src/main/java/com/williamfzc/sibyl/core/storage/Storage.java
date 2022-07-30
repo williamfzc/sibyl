@@ -1,6 +1,7 @@
 package com.williamfzc.sibyl.core.storage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.williamfzc.sibyl.core.utils.SibylLog;
@@ -8,11 +9,7 @@ import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Storage<T> {
     private final Set<T> data = Collections.synchronizedSet(new HashSet<>());
@@ -52,18 +49,14 @@ public class Storage<T> {
         }
     }
 
-    public static <R> Storage<R> import_(String data, Class<R> type)
-            throws JsonProcessingException {
+    public static <T> List<T> importAsList(String data) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        Storage<R> ret = new Storage<>();
 
-        R[] objects = (R[]) mapper.readValue(data, Array.newInstance(type, 0).getClass());
-        ret.save(objects);
-        return ret;
+        return mapper.readValue(data, new TypeReference<List<T>>() {});
     }
 
-    public static <R> Storage<R> import_(File file, Class<R> type) throws IOException {
-        return import_(SibylUtils.readContent(file), type);
+    public static <T> List<T> importAsList(File file) throws IOException {
+        return importAsList(SibylUtils.readContent(file));
     }
 }

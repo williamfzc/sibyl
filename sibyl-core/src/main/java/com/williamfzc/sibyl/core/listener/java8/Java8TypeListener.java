@@ -3,6 +3,7 @@ package com.williamfzc.sibyl.core.listener.java8;
 import com.williamfzc.sibyl.core.listener.Java8Parser;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.clazz.ClazzBelonging;
+import com.williamfzc.sibyl.core.model.clazz.ClazzBelongingFile;
 import com.williamfzc.sibyl.core.model.pkg.Pkg;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 
@@ -23,6 +24,9 @@ public class Java8TypeListener extends Java8ClassListener {
         Pkg pkg = new Pkg();
         pkg.setName(SibylUtils.fullPath2PackageName(typeDecl));
         belonging.setPkg(pkg);
+        ClazzBelongingFile belongingFile = new ClazzBelongingFile();
+        belongingFile.setName(curFile.getPath());
+        belonging.setFile(belongingFile);
         clazz.setBelongsTo(belonging);
         this.storage.save(clazz);
     }

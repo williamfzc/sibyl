@@ -3,7 +3,11 @@ package com.williamfzc.sibyl.core.storage.snapshot;
 import com.williamfzc.sibyl.core.model.clazz.Clazz;
 import com.williamfzc.sibyl.core.model.method.*;
 import com.williamfzc.sibyl.core.storage.Storage;
+import com.williamfzc.sibyl.core.utils.SibylLog;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,17 +61,35 @@ public class Snapshot extends Storage<Method> {
                             Set<String> retOptions =
                                     identity.queryPathsByName(info.getReturnType());
                             if (!retOptions.isEmpty()) {
-                                info.setReturnType(new ArrayList<>(retOptions).get(0));
+                                String afterType = new ArrayList<>(retOptions).get(0);
+                                SibylLog.info(
+                                        String.format(
+                                                "change ret from %s to %s",
+                                                info.getReturnType(), afterType));
+                                info.setReturnType(afterType);
                             }
 
-                            // params
-                            for (Parameter parameter : info.getParams()) {
-                                Set<String> paramOptions =
-                                        identity.queryPathsByName(parameter.getType());
-                                if (!paramOptions.isEmpty()) {
-                                    parameter.setType(new ArrayList<>(paramOptions).get(0));
+                            List<Parameter> parameterList = info.getParams();
+                            if (null != parameterList) {
+                                for (Parameter parameter : parameterList) {
+                                    Set<String> paramOptions =
+                                            identity.queryPathsByName(parameter.getType());
+                                    if (!paramOptions.isEmpty()) {
+                                        String afterType = new ArrayList<>(paramOptions).get(0);
+                                        SibylLog.info(
+                                                String.format(
+                                                        "change ret from %s to %s",
+                                                        parameter.getType(), afterType));
+                                        parameter.setType(new ArrayList<>(paramOptions).get(0));
+                                    }
                                 }
                             }
                         });
+    }
+
+    public static Snapshot initFrom(File file) throws IOException {
+        Snapshot snapshot = new Snapshot();
+        snapshot.save(Snapshot.importAsList(file));
+        return snapshot;
     }
 }
