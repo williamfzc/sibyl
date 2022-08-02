@@ -9,53 +9,24 @@ import com.williamfzc.sibyl.core.model.pkg.Pkg;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-public class Java8ClazzLayerListener<T> extends Java8StorableListener<T> {
-    protected String curPackage;
+public class Java8ClazzLayerListener<T> extends Java8PackageLayerListener<T> {
     protected final Deque<Clazz> curClassStack = new LinkedList<>();
-
-    // todo: what about fields from super class and function args?
-    // not a good design now (e.g. nested class
-    // k: name, v: type
-    protected final Map<String, String> fieldTypeMapping = new HashMap<>();
-
-    // entry
-    @Override
-    public void enterImportDeclaration(Java8Parser.ImportDeclarationContext ctx) {
-        Java8Parser.SingleTypeImportDeclarationContext declCtx = ctx.singleTypeImportDeclaration();
-        if (null == declCtx) {
-            return;
-        }
-        String typeDecl = declCtx.typeName().getText();
-        String[] parts = typeDecl.split("\\.");
-        if (parts.length < 1) {
-            return;
-        }
-        String typeName = parts[parts.length - 1];
-        fieldTypeMapping.put(typeName, typeDecl);
-    }
-
-    @Override
-    public void enterPackageDeclaration(Java8Parser.PackageDeclarationContext ctx) {
-        String declaredPackage =
-                ctx.Identifier().stream().map(ParseTree::getText).collect(Collectors.joining("."));
-        SibylLog.debug("pkg decl: " + declaredPackage);
-        curPackage = declaredPackage;
-        fieldTypeMapping.clear();
-    }
 
     // use a stack to manage current class
     @Override
-    public void enterClassDeclaration(Java8Parser.ClassDeclarationContext ctx) {
-        Java8Parser.NormalClassDeclarationContext normalClassDeclarationContext =
-                ctx.normalClassDeclaration();
+    public void enterClassDeclarationWithoutMethodBody(
+            Java8Parser.ClassDeclarationWithoutMethodBodyContext ctx) {
+        Java8Parser.NormalClassDeclarationWithoutMethodBodyContext normalClassDeclarationContext =
+                ctx.normalClassDeclarationWithoutMethodBody();
         if (null == normalClassDeclarationContext) {
             return;
         }
@@ -63,9 +34,10 @@ public class Java8ClazzLayerListener<T> extends Java8StorableListener<T> {
     }
 
     @Override
-    public void exitClassDeclaration(Java8Parser.ClassDeclarationContext ctx) {
-        Java8Parser.NormalClassDeclarationContext normalClassDeclarationContext =
-                ctx.normalClassDeclaration();
+    public void exitClassDeclarationWithoutMethodBody(
+            Java8Parser.ClassDeclarationWithoutMethodBodyContext ctx) {
+        Java8Parser.NormalClassDeclarationWithoutMethodBodyContext normalClassDeclarationContext =
+                ctx.normalClassDeclarationWithoutMethodBody();
         if (null == normalClassDeclarationContext) {
             return;
         }
@@ -102,16 +74,16 @@ public class Java8ClazzLayerListener<T> extends Java8StorableListener<T> {
         curClassStack.pop();
     }
 
-    protected Clazz generateClazz(Java8Parser.ClassDeclarationContext ctx) {
-        Java8Parser.NormalClassDeclarationContext normalClassDeclarationContext =
-                ctx.normalClassDeclaration();
+    protected Clazz generateClazz(Java8Parser.ClassDeclarationWithoutMethodBodyContext ctx) {
+        Java8Parser.NormalClassDeclarationWithoutMethodBodyContext normalClassDeclarationContext =
+                ctx.normalClassDeclarationWithoutMethodBody();
         if (null == normalClassDeclarationContext) {
             return null;
         }
         Clazz clazz = new Clazz();
         String declaredClassName = normalClassDeclarationContext.Identifier().getText();
         clazz.setModifier(
-                ctx.normalClassDeclaration().classModifier().stream()
+                normalClassDeclarationContext.classModifier().stream()
                         .map(RuleContext::getText)
                         .collect(Collectors.toList()));
 

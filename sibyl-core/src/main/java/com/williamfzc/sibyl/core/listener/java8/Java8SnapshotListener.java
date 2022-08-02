@@ -6,8 +6,9 @@ import com.williamfzc.sibyl.core.model.method.Method;
 
 public class Java8SnapshotListener extends Java8MethodLayerListener<Method> {
     @Override
-    public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
-        super.enterMethodDeclaration(ctx);
+    public void enterMethodDeclarationWithoutMethodBody(
+            Java8Parser.MethodDeclarationWithoutMethodBodyContext ctx) {
+        super.enterMethodDeclarationWithoutMethodBody(ctx);
         this.storage.save(curMethodStack.peekLast());
     }
 

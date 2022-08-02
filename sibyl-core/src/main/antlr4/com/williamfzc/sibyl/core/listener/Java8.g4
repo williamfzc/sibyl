@@ -337,7 +337,7 @@ classBody
 	;
 
 classBodyWithoutMethodBody
-    :	'{' classBodyDeclaration* '}'
+    :	'{' classBodyDeclarationWithoutMethodBody* '}'
     ;
 
 classBodyDeclaration
@@ -348,7 +348,8 @@ classBodyDeclaration
 	;
 
 classBodyDeclarationWithoutMethodBody
-	:	instanceInitializer
+    :   classMemberDeclarationWithoutMethodBody
+	|	instanceInitializer
 	|	staticInitializer
 	|	constructorDeclaration
 	;
@@ -360,6 +361,16 @@ classMemberDeclaration
 	|	interfaceDeclaration
 	|	';'
 	;
+
+
+classMemberDeclarationWithoutMethodBody
+	:	fieldDeclaration
+	|   methodDeclarationWithoutMethodBody
+	|	classDeclaration
+	|	interfaceDeclaration
+	|	';'
+	;
+
 
 fieldDeclaration
 	:	fieldModifier* unannType variableDeclaratorList ';'
@@ -457,6 +468,10 @@ methodDeclaration
 	:	methodModifier* methodHeader methodBody
 	;
 
+methodDeclarationWithoutMethodBody
+    :   methodModifier* methodHeader methodBodyEmpty
+    ;
+
 methodModifier
 	:	annotation
 	|	'public'
@@ -529,6 +544,11 @@ methodBody
 	:	block
 	|	';'
 	;
+
+methodBodyEmpty
+    :   blockEmpty
+    |   ';'
+    ;
 
 instanceInitializer
 	:	block
@@ -744,6 +764,10 @@ variableInitializerList
 block
 	:	'{' blockStatements? '}'
 	;
+
+blockEmpty
+    :   '{' .*? '}'
+    ;
 
 blockStatements
 	:	blockStatement blockStatement*

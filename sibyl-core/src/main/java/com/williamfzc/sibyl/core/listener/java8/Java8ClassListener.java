@@ -6,8 +6,9 @@ import com.williamfzc.sibyl.core.model.clazz.Clazz;
 
 public class Java8ClassListener extends Java8ClazzLayerListener<Clazz> {
     @Override
-    public void enterClassDeclaration(Java8Parser.ClassDeclarationContext ctx) {
-        super.enterClassDeclaration(ctx);
+    public void enterClassDeclarationWithoutMethodBody(
+            Java8Parser.ClassDeclarationWithoutMethodBodyContext ctx) {
+        super.enterClassDeclarationWithoutMethodBody(ctx);
         Clazz clazz = generateClazz(ctx);
         if (null != clazz) {
             this.storage.save(clazz);

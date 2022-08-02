@@ -19,7 +19,8 @@ public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
 
     // use a stack to manage current method
     @Override
-    public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
+    public void enterMethodDeclarationWithoutMethodBody(
+            Java8Parser.MethodDeclarationWithoutMethodBodyContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
         SibylLog.debug("method decl: " + declaredMethod);
         curMethodStack.push(generateMethod(ctx));
@@ -43,7 +44,8 @@ public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
     }
 
     @Override
-    public void exitMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
+    public void exitMethodDeclarationWithoutMethodBody(
+            Java8Parser.MethodDeclarationWithoutMethodBodyContext ctx) {
         String declaredMethod = ctx.methodHeader().methodDeclarator().Identifier().getText();
         SibylLog.debug("method decl end: " + declaredMethod);
         curMethodStack.pop();
@@ -106,6 +108,25 @@ public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
                                         each.variableDeclaratorId().getText(), declaredType));
     }
 
+    protected Method generateMethod(Java8Parser.MethodDeclarationWithoutMethodBodyContext ctx) {
+        Clazz curClass = curClassStack.peekLast();
+        Method m = new Method();
+        MethodInfo info = generateMethodInfo(ctx);
+
+        MethodBelongingFile belongingFile = new MethodBelongingFile();
+        belongingFile.setName(curFile.getPath());
+        belongingFile.setStartLine(ctx.methodBodyEmpty().start.getLine());
+        belongingFile.setEndLine(ctx.methodBodyEmpty().stop.getLine());
+
+        MethodBelonging belonging = new MethodBelonging();
+        belonging.setClazz(curClass);
+        belonging.setFile(belongingFile);
+
+        m.setInfo(info);
+        m.setBelongsTo(belonging);
+        return m;
+    }
+
     protected Method generateMethod(Java8Parser.MethodDeclarationContext ctx) {
         Clazz curClass = curClassStack.peekLast();
         Method m = new Method();
@@ -142,6 +163,52 @@ public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
         m.setInfo(info);
         m.setBelongsTo(belonging);
         return m;
+    }
+
+    protected MethodInfo generateMethodInfo(
+            Java8Parser.MethodDeclarationWithoutMethodBodyContext ctx) {
+        MethodInfo info = new MethodInfo();
+        info.setName(ctx.methodHeader().methodDeclarator().Identifier().getText());
+        String rawReturnType = ctx.methodHeader().result().getText();
+        info.setReturnType(fieldTypeMapping.getOrDefault(rawReturnType, rawReturnType));
+        info.setModifier(
+                ctx.methodModifier().stream()
+                        .map(RuleContext::getText)
+                        .collect(Collectors.toList()));
+        Java8Parser.FormalParameterListContext paramsCtx =
+                ctx.methodHeader().methodDeclarator().formalParameterList();
+        if (null == paramsCtx) {
+            return info;
+        }
+        if ((null == paramsCtx.formalParameters()) && (null == paramsCtx.lastFormalParameter())) {
+            return info;
+        }
+        Stream<Java8Parser.FormalParameterContext> paramStream = Stream.of();
+        if (null != paramsCtx.formalParameters()) {
+            paramStream =
+                    Stream.concat(
+                            paramStream, paramsCtx.formalParameters().formalParameter().stream());
+        }
+        if (null != paramsCtx.lastFormalParameter()) {
+            paramStream =
+                    Stream.concat(
+                            paramStream,
+                            Stream.of(paramsCtx.lastFormalParameter().formalParameter()));
+        }
+
+        info.setParams(
+                paramStream
+                        .map(
+                                each -> {
+                                    Parameter param = new Parameter();
+                                    String declType = each.unannType().getText();
+                                    declType = fieldTypeMapping.getOrDefault(declType, declType);
+                                    param.setType(declType);
+                                    param.setName(each.variableDeclaratorId().getText());
+                                    return param;
+                                })
+                        .collect(Collectors.toList()));
+        return info;
     }
 
     protected MethodInfo generateMethodInfo(Java8Parser.MethodDeclarationContext ctx) {
