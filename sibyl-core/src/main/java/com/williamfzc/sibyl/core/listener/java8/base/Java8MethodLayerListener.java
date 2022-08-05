@@ -109,7 +109,7 @@ public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
     }
 
     protected Method generateMethod(Java8Parser.MethodDeclarationWithoutMethodBodyContext ctx) {
-        Clazz curClass = curClassStack.peekLast();
+        Clazz curClass = getCurrentClazz();
         Method m = new Method();
         MethodInfo info = generateMethodInfo(ctx);
 
@@ -128,7 +128,7 @@ public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
     }
 
     protected Method generateMethod(Java8Parser.MethodDeclarationContext ctx) {
-        Clazz curClass = curClassStack.peekLast();
+        Clazz curClass = getCurrentClazz();
         Method m = new Method();
         MethodInfo info = generateMethodInfo(ctx);
 
@@ -147,7 +147,7 @@ public class Java8MethodLayerListener<T> extends Java8ClazzLayerListener<T> {
     }
 
     protected Method generateMethod(Java8Parser.InterfaceMethodDeclarationContext ctx) {
-        Clazz curClass = curClassStack.peekLast();
+        Clazz curClass = getCurrentClazz();
         Method m = new Method();
         MethodInfo info = generateMethodInfo(ctx);
 

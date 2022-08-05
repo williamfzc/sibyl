@@ -9,7 +9,7 @@ public class Java8ClassListener extends Java8ClazzLayerListener<Clazz> {
     public void enterClassDeclarationWithoutMethodBody(
             Java8Parser.ClassDeclarationWithoutMethodBodyContext ctx) {
         super.enterClassDeclarationWithoutMethodBody(ctx);
-        Clazz clazz = generateClazz(ctx);
+        Clazz clazz = getCurrentClazz();
         if (null != clazz) {
             this.storage.save(clazz);
         }

@@ -9,9 +9,7 @@ import com.williamfzc.sibyl.core.model.pkg.Pkg;
 import com.williamfzc.sibyl.core.utils.SibylLog;
 import com.williamfzc.sibyl.core.utils.SibylUtils;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -27,10 +25,15 @@ public class Java8ClazzLayerListener<T> extends Java8PackageLayerListener<T> {
             Java8Parser.ClassDeclarationWithoutMethodBodyContext ctx) {
         Java8Parser.NormalClassDeclarationWithoutMethodBodyContext normalClassDeclarationContext =
                 ctx.normalClassDeclarationWithoutMethodBody();
-        if (null == normalClassDeclarationContext) {
+        Java8Parser.EnumDeclarationContext enumDeclarationContext = ctx.enumDeclaration();
+        // normal or enum
+        if (null != normalClassDeclarationContext) {
+            curClassStack.push(generateClazz(normalClassDeclarationContext));
             return;
         }
-        curClassStack.push(generateClazz(ctx));
+        if (null != enumDeclarationContext) {
+            curClassStack.push(generateClazz(enumDeclarationContext));
+        }
     }
 
     @Override
@@ -56,10 +59,11 @@ public class Java8ClazzLayerListener<T> extends Java8PackageLayerListener<T> {
         Java8Parser.NormalInterfaceDeclarationContext normalInterfaceDeclarationContext =
                 ctx.normalInterfaceDeclaration();
         if (null == normalInterfaceDeclarationContext) {
+            // ignore annotationTypeDeclaration
             return;
         }
         SibylLog.debug("interface decl start: " + normalInterfaceDeclarationContext);
-        curClassStack.push(generateClazz(ctx));
+        curClassStack.push(generateClazz(normalInterfaceDeclarationContext));
     }
 
     @Override
@@ -74,27 +78,87 @@ public class Java8ClazzLayerListener<T> extends Java8PackageLayerListener<T> {
         curClassStack.pop();
     }
 
-    protected Clazz generateClazz(Java8Parser.ClassDeclarationWithoutMethodBodyContext ctx) {
-        Java8Parser.NormalClassDeclarationWithoutMethodBodyContext normalClassDeclarationContext =
-                ctx.normalClassDeclarationWithoutMethodBody();
-        if (null == normalClassDeclarationContext) {
-            return null;
+    protected Clazz generateClazz(Java8Parser.NormalClassDeclarationWithoutMethodBodyContext ctx) {
+        Java8Parser.SuperclassContext superclassContext = ctx.superclass();
+        Java8Parser.SuperinterfacesContext superinterfacesContext = ctx.superinterfaces();
+        String superClazz = null;
+        Set<String> superInterfaces = null;
+        if (null != superclassContext) {
+            superClazz = superclassContext.classType().getText();
         }
-        Clazz clazz = new Clazz();
-        String declaredClassName = normalClassDeclarationContext.Identifier().getText();
-        clazz.setModifier(
-                normalClassDeclarationContext.classModifier().stream()
-                        .map(RuleContext::getText)
-                        .collect(Collectors.toList()));
+        if (null != superinterfacesContext) {
+            superInterfaces =
+                    superinterfacesContext.interfaceTypeList().interfaceType().stream()
+                            .map(each -> each.classType().getText())
+                            .collect(Collectors.toSet());
+        }
 
-        clazz.setName(fixClazzName(declaredClassName));
+        return generateClazz(
+                ctx.Identifier().getText(),
+                ctx.classModifier().stream().map(RuleContext::getText).collect(Collectors.toList()),
+                superClazz,
+                superInterfaces,
+                ctx.start.getLine(),
+                ctx.stop.getLine());
+    }
+
+    protected Clazz generateClazz(Java8Parser.EnumDeclarationContext ctx) {
+        Java8Parser.SuperinterfacesContext superinterfacesContext = ctx.superinterfaces();
+        Set<String> superInterfaces = null;
+        if (null != superinterfacesContext) {
+            superInterfaces =
+                    superinterfacesContext.interfaceTypeList().interfaceType().stream()
+                            .map(each -> each.classType().getText())
+                            .collect(Collectors.toSet());
+        }
+
+        return generateClazz(
+                ctx.Identifier().getText(),
+                ctx.classModifier().stream().map(RuleContext::getText).collect(Collectors.toList()),
+                null,
+                superInterfaces,
+                ctx.start.getLine(),
+                ctx.stop.getLine());
+    }
+
+    protected Clazz generateClazz(Java8Parser.NormalInterfaceDeclarationContext ctx) {
+        Set<String> superInterfaces = null;
+        Java8Parser.ExtendsInterfacesContext extendsInterfacesContext = ctx.extendsInterfaces();
+        if (null != extendsInterfacesContext) {
+            superInterfaces =
+                    extendsInterfacesContext.interfaceTypeList().interfaceType().stream()
+                            .map(each -> each.classType().getText())
+                            .collect(Collectors.toSet());
+        }
+        return generateClazz(
+                ctx.Identifier().getText(),
+                ctx.interfaceModifier().stream()
+                        .map(RuleContext::getText)
+                        .collect(Collectors.toList()),
+                null,
+                superInterfaces,
+                ctx.start.getLine(),
+                ctx.stop.getLine());
+    }
+
+    protected Clazz generateClazz(
+            String clazzName,
+            List<String> modifiers,
+            String superClazz,
+            Set<String> superinterfaces,
+            int startLine,
+            int endLine) {
+        Clazz clazz = new Clazz();
+        clazz.setModifier(modifiers);
+
+        clazz.setName(fixClazzName(clazzName));
         Pkg pkg = new Pkg();
         pkg.setName(curPackage);
 
         ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
         clazzBelongingFile.setName(curFile.getPath());
-        clazzBelongingFile.setStartLine(ctx.start.getLine());
-        clazzBelongingFile.setEndLine(ctx.stop.getLine());
+        clazzBelongingFile.setStartLine(startLine);
+        clazzBelongingFile.setEndLine(endLine);
 
         ClazzBelonging clazzBelonging = new ClazzBelonging();
         clazzBelonging.setPkg(pkg);
@@ -103,19 +167,8 @@ public class Java8ClazzLayerListener<T> extends Java8PackageLayerListener<T> {
         clazz.setBelongsTo(clazzBelonging);
 
         // super
-        Java8Parser.SuperclassContext superclassContext =
-                normalClassDeclarationContext.superclass();
-        Java8Parser.SuperinterfacesContext superinterfacesContext =
-                normalClassDeclarationContext.superinterfaces();
-        if (null != superclassContext) {
-            clazz.setSuperName(superclassContext.classType().getText());
-        }
-        if (null != superinterfacesContext) {
-            clazz.setInterfaces(
-                    superinterfacesContext.interfaceTypeList().interfaceType().stream()
-                            .map(each -> each.classType().getText())
-                            .collect(Collectors.toSet()));
-        }
+        clazz.setSuperName(superClazz);
+        clazz.setInterfaces(superinterfaces);
         return clazz;
     }
 
@@ -143,47 +196,6 @@ public class Java8ClazzLayerListener<T> extends Java8PackageLayerListener<T> {
         return String.format("%s<%s>", raw, paramType);
     }
 
-    protected Clazz generateClazz(Java8Parser.InterfaceDeclarationContext ctx) {
-        Java8Parser.NormalInterfaceDeclarationContext normalInterfaceDeclarationContext =
-                ctx.normalInterfaceDeclaration();
-        if (null == normalInterfaceDeclarationContext) {
-            return null;
-        }
-        Clazz clazz = new Clazz();
-        String declaredClassName = normalInterfaceDeclarationContext.Identifier().getText();
-        clazz.setName(fixClazzName(declaredClassName));
-        clazz.setModifier(
-                ctx.normalInterfaceDeclaration().interfaceModifier().stream()
-                        .map(RuleContext::getText)
-                        .collect(Collectors.toList()));
-
-        Pkg pkg = new Pkg();
-        pkg.setName(curPackage);
-
-        ClazzBelongingFile clazzBelongingFile = new ClazzBelongingFile();
-        clazzBelongingFile.setName(curFile.getPath());
-        clazzBelongingFile.setStartLine(ctx.start.getLine());
-        clazzBelongingFile.setEndLine(ctx.stop.getLine());
-
-        ClazzBelonging clazzBelonging = new ClazzBelonging();
-        clazzBelonging.setPkg(pkg);
-        clazzBelonging.setFile(clazzBelongingFile);
-
-        clazz.setBelongsTo(clazzBelonging);
-
-        // super
-        Java8Parser.ExtendsInterfacesContext superinterfacesContext =
-                normalInterfaceDeclarationContext.extendsInterfaces();
-
-        if (null != superinterfacesContext) {
-            clazz.setInterfaces(
-                    superinterfacesContext.interfaceTypeList().interfaceType().stream()
-                            .map(each -> each.classType().getText())
-                            .collect(Collectors.toSet()));
-        }
-        return clazz;
-    }
-
     @Override
     public void realHandle(File file, String content) {
         // overwrite this method for custom parser
@@ -195,5 +207,9 @@ public class Java8ClazzLayerListener<T> extends Java8PackageLayerListener<T> {
                                         new CommonTokenStream(
                                                 new Java8Lexer(CharStreams.fromString(content))))
                                 .compilationUnitWithoutMethodBody());
+    }
+
+    public Clazz getCurrentClazz() {
+        return curClassStack.peekLast();
     }
 }
