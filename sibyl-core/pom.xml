@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.williamfzc.sibyl</groupId>
     <artifactId>sibyl</artifactId>
-    <version>0.5.2</version>
+    <version>0.5.3</version>
   </parent>
 
   <artifactId>sibyl-core</artifactId>
@@ -75,12 +75,12 @@
     <dependency>
       <groupId>com.github.williamfzc.sibyl</groupId>
       <artifactId>sibyl-model</artifactId>
-      <version>0.5.2</version>
+      <version>0.5.3</version>
     </dependency>
     <dependency>
       <groupId>com.github.williamfzc.sibyl</groupId>
       <artifactId>sibyl-test</artifactId>
-      <version>0.5.2</version>
+      <version>0.5.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
