@@ -87,7 +87,7 @@
         <version>2.22.2</version>
         <configuration>
           <systemPropertyVariables>
-            <sibylVersion>${sibyl.version}</sibylVersion>
+            <sibylVersion>${project.version}</sibylVersion>
           </systemPropertyVariables>
         </configuration>
       </plugin>
