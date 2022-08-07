@@ -2,6 +2,7 @@ package com.williamfzc.sibyl.core.api.internal;
 
 import com.williamfzc.sibyl.core.api.SibylLangType;
 import com.williamfzc.sibyl.core.listener.base.IStorableListener;
+import com.williamfzc.sibyl.core.listener.golang.GoSnapshotListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8SnapshotListener;
 import com.williamfzc.sibyl.core.listener.java8.Java8TypeListener;
 import com.williamfzc.sibyl.core.listener.kt.KtSnapshotListener;
@@ -44,6 +45,8 @@ public enum SnapshotApi {
                 return genSnapshotFromDir(inputDir, new Java8SnapshotListener(), policy);
             case KOTLIN:
                 return genSnapshotFromDir(inputDir, new KtSnapshotListener(), policy);
+            case GO:
+                return genSnapshotFromDir(inputDir, new GoSnapshotListener(), policy);
             default:
                 break;
         }
