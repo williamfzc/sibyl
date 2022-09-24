@@ -61,6 +61,13 @@ snapshot.exportFile("your_file.json");
 }
 ```
 
+支持多种语言：
+
+- java（完成
+- kotlin（初步可用
+- golang（进行中
+- ...
+
 #### further ...
 
 也提供了大量的API支持，当前优先支持java：
@@ -90,6 +97,31 @@ dep:
     <version>USE_BADGE_VERSION_ABOVE</version>
 </dependency>
 ```
+
+## 声明
+
+### 2022-09-24
+
+随着试用范围的扩大，这个项目暴露出不少设计缺陷。在此说明。
+
+#### 性能（antlr4）
+
+- 基于 java，在性能上比起 tree-sitter 之类的纯c库首先输一阵；
+- 默认情况下使用全量的语言解析规则（which means 无论你需要与否，所有的规则都会走到），在一些简单场景下这部分性能是浪费的；
+- 不支持增量分析（不是非常重要但
+
+尽管针对java做了优化，但目前遇到大型java文件的时候依旧会轻易把机器CPU拉满。
+另，antlr4十分优秀，但各类分析引擎之间其实定位并不完全一致，需要思考清楚。
+#### 数据结构设计（sibyl）
+
+暴露了我自己对编程语言的理解有限，轻率设计了第一版的snapshot树状结构+递归式的listener。树状结构非常不合理。
+
+java方法是树状嵌套在class内的，但许多语言并不是，例如go。如此做，在迁移至其他语言时采集逻辑几乎无法复用。
+
+应参考：
+
+- AST层：https://github.com/github/semantic/blob/main/docs/examples.md#symbols
+- 基于AST层做快照层
 
 ## licence
 
